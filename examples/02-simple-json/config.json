@@ -1,0 +1,82 @@
+{
+    "blocks": [
+        {
+            "id": "acme/inline-note",
+            "args": {
+                "title": "Inline Note",
+                "category": "common",
+                "icon": "info"
+            },
+            "fields": [
+                {
+                    "name": "is_pinned",
+                    "type": "toolbar_toggle",
+                    "area": "toolbar",
+                    "label": "Pinned",
+                    "icon": "sticky"
+                },
+                {
+                    "name": "settings",
+                    "type": "panel",
+                    "title": "Note settings",
+                    "initial_open": true,
+                    "fields": [
+                        {
+                            "name": "note_text",
+                            "type": "textarea",
+                            "label": "Note",
+                            "required": true
+                        },
+                        {
+                            "name": "note_type",
+                            "type": "select",
+                            "label": "Type",
+                            "default": "info",
+                            "options": [
+                                { "value": "info", "label": "Info" },
+                                { "value": "warning", "label": "Warning" }
+                            ]
+                        },
+                        {
+                            "name": "show_author",
+                            "type": "toggle",
+                            "label": "Show author",
+                            "default": false
+                        },
+                        {
+                            "name": "author_name",
+                            "type": "text",
+                            "label": "Author name",
+                            "conditional": {
+                                "field": "show_author",
+                                "operator": "equals",
+                                "value": true
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "render": {
+        "markup": {
+            "tag": "div",
+            "class": "acme-inline-note acme-inline-note--{{ attributes.note_type }}",
+            "children": [
+                {
+                    "tag": "p",
+                    "text": "{{ attributes.note_text }}"
+                },
+                {
+                    "tag": "cite",
+                    "text": "{{ attributes.author_name }}",
+                    "when": {
+                        "rules": [
+                            { "field": "show_author", "operator": "==", "value": true }
+                        ]
+                    }
+                }
+            ]
+        }
+    }
+}

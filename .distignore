@@ -1,0 +1,50 @@
+# Distribution Ignore File
+# Files and directories listed here are excluded from release packages.
+# This file is for documentation purposes - the actual exclusion happens in the release workflow.
+
+# Development
+.git/
+.github/
+.cache/
+.editorconfig
+.gitignore
+.gitattributes
+
+# JS source (build output in src/assets/build/ IS shipped)
+src/assets/src/
+node_modules/
+package.json
+package-lock.json
+webpack.config.js
+.wp-env.json
+playwright.config.js
+
+# Testing
+tests/
+bin/
+phpunit.xml.dist
+phpunit.xml
+
+# Code Quality
+phpcs.xml.dist
+phpcs.xml
+.phpcs.xml
+phpstan.neon.dist
+phpstan.neon
+.phpstan.neon
+
+# Composer Dev
+composer.lock
+
+# Examples / docs (available in repository)
+examples/
+docs/
+
+# IDE
+.idea/
+.vscode/
+*.code-workspace
+
+# OS
+.DS_Store
+Thumbs.db

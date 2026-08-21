@@ -1,0 +1,20 @@
+{
+	"name": "pedalcms/cassette-cmf-block-builder-e2e-fixture",
+	"description": "wp-env fixture plugin exercising cassette-cmf-block-builder from PHP config only",
+	"type": "wordpress-plugin",
+	"license": "GPL-2.0-or-later",
+	"private": true,
+	"require": {
+		"php": ">=8.2",
+		"pedalcms/cassette-cmf-block-builder": "@dev"
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../..",
+			"options": { "symlink": true }
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true
+}

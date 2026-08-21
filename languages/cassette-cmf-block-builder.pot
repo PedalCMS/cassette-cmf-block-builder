@@ -1,0 +1,329 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: https://github.com/PedalCMS/cassette-cmf-block-builder/issues\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-08-21T23:49:15+05:30\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: cassette-cmf-block-builder\n"
+
+#: src/binding/class-binding-source-registrar.php:82
+msgid "Cassette-CMF field"
+msgstr ""
+
+#: src/assets/build/editor.js:1
+#: src/assets/src/editor/controls/conditions.js:5
+msgid "is"
+msgstr ""
+
+#: src/assets/build/editor.js:1
+#: src/assets/src/editor/controls/conditions.js:6
+msgid "is not"
+msgstr ""
+
+#: src/assets/build/editor.js:1
+#: src/assets/src/editor/controls/conditions.js:7
+msgid "greater than"
+msgstr ""
+
+#: src/assets/build/editor.js:1
+#: src/assets/src/editor/controls/conditions.js:10
+msgid "greater than or equal to"
+msgstr ""
+
+#: src/assets/build/editor.js:1
+#: src/assets/src/editor/controls/conditions.js:12
+msgid "less than"
+msgstr ""
+
+#: src/assets/build/editor.js:1
+#: src/assets/src/editor/controls/conditions.js:15
+msgid "less than or equal to"
+msgstr ""
+
+#: src/assets/build/editor.js:1
+#: src/assets/src/editor/controls/conditions.js:17
+msgid "is one of"
+msgstr ""
+
+#: src/assets/build/editor.js:1
+#: src/assets/src/editor/controls/conditions.js:18
+msgid "is not one of"
+msgstr ""
+
+#: src/assets/build/editor.js:1
+#: src/assets/src/editor/controls/conditions.js:19
+msgid "is empty"
+msgstr ""
+
+#: src/assets/build/editor.js:1
+#: src/assets/src/editor/controls/conditions.js:22
+msgid "is not empty"
+msgstr ""
+
+#: src/assets/build/editor.js:1
+#: src/assets/src/editor/util/box-sides.js:53
+msgid "Link sides"
+msgstr ""
+
+#: src/assets/build/editor.js:1
+#: src/assets/src/editor/util/border-fields.js:29
+msgid "Width"
+msgstr ""
+
+#: src/assets/build/editor.js:1
+#: src/assets/build/editor.js:2
+#: src/assets/src/editor/controls/font-appearance.js:44
+#: src/assets/src/editor/util/border-fields.js:34
+msgid "Style"
+msgstr ""
+
+#: src/assets/build/editor.js:1
+#: src/assets/build/editor.js:2
+#: src/assets/src/editor/controls/shadow.js:20
+#: src/assets/src/editor/util/border-fields.js:39
+msgid "None"
+msgstr ""
+
+#: src/assets/build/editor.js:1
+#: src/assets/src/editor/util/border-fields.js:43
+msgid "Solid"
+msgstr ""
+
+#: src/assets/build/editor.js:1
+#: src/assets/src/editor/util/border-fields.js:47
+msgid "Dashed"
+msgstr ""
+
+#: src/assets/build/editor.js:1
+#: src/assets/src/editor/util/border-fields.js:51
+msgid "Dotted"
+msgstr ""
+
+#: src/assets/build/editor.js:1
+#: src/assets/src/editor/util/border-fields.js:57
+msgid "Color"
+msgstr ""
+
+#: src/assets/build/editor.js:1
+#: src/assets/src/editor/controls/alignment-matrix.js:5
+msgid "Top left"
+msgstr ""
+
+#: src/assets/build/editor.js:1
+#: src/assets/src/editor/controls/alignment-matrix.js:6
+msgid "Top center"
+msgstr ""
+
+#: src/assets/build/editor.js:1
+#: src/assets/src/editor/controls/alignment-matrix.js:7
+msgid "Top right"
+msgstr ""
+
+#: src/assets/build/editor.js:1
+#: src/assets/src/editor/controls/alignment-matrix.js:8
+msgid "Center left"
+msgstr ""
+
+#: src/assets/build/editor.js:1
+#: src/assets/src/editor/controls/alignment-matrix.js:9
+msgid "Center"
+msgstr ""
+
+#: src/assets/build/editor.js:1
+#: src/assets/src/editor/controls/alignment-matrix.js:10
+msgid "Center right"
+msgstr ""
+
+#: src/assets/build/editor.js:1
+#: src/assets/src/editor/controls/alignment-matrix.js:11
+msgid "Bottom left"
+msgstr ""
+
+#: src/assets/build/editor.js:1
+#: src/assets/src/editor/controls/alignment-matrix.js:12
+msgid "Bottom center"
+msgstr ""
+
+#: src/assets/build/editor.js:1
+#: src/assets/src/editor/controls/alignment-matrix.js:13
+msgid "Bottom right"
+msgstr ""
+
+#. translators: 1: field label or name, 2: control type.
+#: src/assets/build/editor.js:2
+#: src/assets/src/editor/controls/unsupported.js:22
+#, js-format
+msgid "\"%1$s\" uses control type \"%2$s\", which the editor doesn’t render yet."
+msgstr ""
+
+#: src/assets/build/editor.js:2
+#: src/assets/src/editor/controls/media.js:36
+msgid "Replace media"
+msgstr ""
+
+#: src/assets/build/editor.js:2
+#: src/assets/src/editor/controls/media.js:40
+msgid "Select media"
+msgstr ""
+
+#: src/assets/build/editor.js:2
+#: src/assets/src/editor/controls/key-value.js:67
+#: src/assets/src/editor/controls/media.js:51
+#: src/assets/src/editor/controls/options-list.js:54
+#: src/assets/src/editor/node-renderer.js:228
+msgid "Remove"
+msgstr ""
+
+#: src/assets/build/editor.js:2
+#: src/assets/src/editor/controls/conditions.js:123
+#: src/assets/src/editor/controls/sibling-field.js:32
+msgid "— Select a field —"
+msgstr ""
+
+#: src/assets/build/editor.js:2
+#: src/assets/src/editor/controls/conditions.js:86
+#: src/assets/src/editor/controls/query-builder.js:64
+msgid "Match"
+msgstr ""
+
+#: src/assets/build/editor.js:2
+#: src/assets/src/editor/controls/conditions.js:91
+#: src/assets/src/editor/controls/query-builder.js:69
+msgid "All rules"
+msgstr ""
+
+#: src/assets/build/editor.js:2
+#: src/assets/src/editor/controls/conditions.js:95
+#: src/assets/src/editor/controls/query-builder.js:73
+msgid "Any rule"
+msgstr ""
+
+#: src/assets/build/editor.js:2
+#: src/assets/src/editor/controls/conditions.js:118
+msgid "Field"
+msgstr ""
+
+#: src/assets/build/editor.js:2
+#: src/assets/src/editor/controls/conditions.js:135
+msgid "Condition"
+msgstr ""
+
+#: src/assets/build/editor.js:2
+#: src/assets/src/editor/controls/conditions.js:144
+#: src/assets/src/editor/controls/key-value.js:52
+#: src/assets/src/editor/controls/options-list.js:38
+#: src/assets/src/editor/controls/query-builder.js:109
+msgid "Value"
+msgstr ""
+
+#: src/assets/build/editor.js:2
+#: src/assets/src/editor/controls/conditions.js:147
+msgid "Comma-separated"
+msgstr ""
+
+#: src/assets/build/editor.js:2
+#: src/assets/src/editor/controls/conditions.js:173
+#: src/assets/src/editor/controls/query-builder.js:125
+msgid "Remove rule"
+msgstr ""
+
+#: src/assets/build/editor.js:2
+#: src/assets/src/editor/controls/conditions.js:180
+#: src/assets/src/editor/controls/query-builder.js:140
+msgid "Add rule"
+msgstr ""
+
+#: src/assets/build/editor.js:2
+#: src/assets/src/editor/controls/shadow.js:23
+msgid "Small"
+msgstr ""
+
+#: src/assets/build/editor.js:2
+#: src/assets/src/editor/controls/image-size.js:21
+#: src/assets/src/editor/controls/shadow.js:27
+msgid "Medium"
+msgstr ""
+
+#: src/assets/build/editor.js:2
+#: src/assets/src/editor/controls/image-size.js:22
+#: src/assets/src/editor/controls/shadow.js:31
+msgid "Large"
+msgstr ""
+
+#: src/assets/build/editor.js:2
+#: src/assets/src/editor/controls/font-appearance.js:53
+msgid "Weight"
+msgstr ""
+
+#: src/assets/build/editor.js:2
+#: src/assets/src/editor/controls/key-value.js:43
+#: src/assets/src/editor/controls/query-builder.js:92
+msgid "Key"
+msgstr ""
+
+#: src/assets/build/editor.js:2
+#: src/assets/src/editor/controls/key-value.js:75
+#: src/assets/src/editor/node-renderer.js:236
+msgid "Add row"
+msgstr ""
+
+#: src/assets/build/editor.js:2
+#: src/assets/src/editor/controls/options-list.js:43
+msgid "Label"
+msgstr ""
+
+#: src/assets/build/editor.js:2
+#: src/assets/src/editor/controls/options-list.js:64
+msgid "Add option"
+msgstr ""
+
+#: src/assets/build/editor.js:2
+#: src/assets/src/editor/controls/image-size.js:20
+msgid "Thumbnail"
+msgstr ""
+
+#: src/assets/build/editor.js:2
+#: src/assets/src/editor/controls/image-size.js:23
+msgid "Full size"
+msgstr ""
+
+#: src/assets/build/editor.js:2
+#: src/assets/src/editor/controls/query-builder.js:97
+msgid "Compare"
+msgstr ""
+
+#: src/assets/build/editor.js:2
+#: src/assets/src/editor/controls/link.js:35
+msgid "Add link"
+msgstr ""
+
+#: src/assets/build/editor.js:2
+#: src/assets/src/editor/controls/media-gallery.js:40
+msgid "Edit gallery"
+msgstr ""
+
+#: src/assets/build/editor.js:2
+#: src/assets/src/editor/controls/media-gallery.js:44
+msgid "Select images"
+msgstr ""
+
+#: src/assets/build/editor.js:2
+#: src/assets/src/editor/controls/media-gallery.js:55
+msgid "Clear"
+msgstr ""
+
+#: src/assets/build/editor.js:2
+#: src/assets/src/editor/node-renderer.js:214
+msgid "Move up"
+msgstr ""
+
+#: src/assets/build/editor.js:2
+#: src/assets/src/editor/node-renderer.js:221
+msgid "Move down"
+msgstr ""

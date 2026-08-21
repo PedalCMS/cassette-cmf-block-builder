@@ -1,0 +1,11 @@
+{
+	"blocks": [
+		{
+			"id": "acme/callout",
+			"args": {
+				"title": "Callout",
+				"category": "common"
+			}
+		}
+	]
+}

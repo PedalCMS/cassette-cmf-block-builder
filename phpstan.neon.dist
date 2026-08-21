@@ -1,0 +1,18 @@
+parameters:
+    level: 5
+    paths:
+        - src/
+    excludePaths:
+        - src/assets/*
+    # Treat PHPDoc types as uncertain to allow method_exists() and instanceof checks
+    treatPhpDocTypesAsCertain: false
+    ignoreErrors:
+        -
+            # Requirements::cmf_interface_compatible() guards against an OLDER
+            # installed pedalcms/cassette-cmf whose Field_Interface predates
+            # get_schema(). Against the version resolved in THIS install the
+            # check is trivially true, which is exactly what PHPStan is
+            # flagging — but the whole point is defending other sites'
+            # dependency resolutions, which PHPStan cannot see.
+            message: '#Call to function method_exists\(\) with .*Field_Interface.* and .get_schema. will always evaluate to true#'
+            path: src/compat/class-requirements.php

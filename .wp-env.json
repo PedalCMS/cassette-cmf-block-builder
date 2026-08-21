@@ -1,0 +1,18 @@
+{
+	"core": null,
+	"phpVersion": "8.2",
+	"plugins": [
+		"./tests/e2e/fixture-plugin"
+	],
+	"config": {
+		"WP_DEBUG": true,
+		"SCRIPT_DEBUG": true
+	},
+	"env": {
+		"tests": {
+			"mappings": {
+				"wp-content/plugins/cassette-cmf-block-builder-fixture": "./tests/e2e/fixture-plugin"
+			}
+		}
+	}
+}

@@ -1,0 +1,17 @@
+/vendor/
+/node_modules/
+/dist/
+.cache/
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
+.vscode/
+wp-config.php
+.env
+.env.*
+/.phpunit.result.cache
+/coverage/
+
+# Build output IS committed — do not ignore it.
+!/src/assets/build/

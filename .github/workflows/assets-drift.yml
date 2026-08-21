@@ -1,0 +1,43 @@
+name: Assets Drift
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'src/assets/src/**'
+      - 'src/assets/build/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'webpack.config.js'
+
+permissions:
+  contents: read
+
+jobs:
+  drift:
+    name: Committed build must match a fresh build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Fail if the committed build output differs from a fresh build
+        run: |
+          if ! git diff --exit-code src/assets/build/; then
+            echo "::error::src/assets/build/ does not match 'npm run build' output. Run 'npm run build' and commit the result."
+            exit 1
+          fi

@@ -1,0 +1,190 @@
+{
+	"expressions": [
+		{
+			"description": "plain path resolution",
+			"template": "{{ attributes.tone }}",
+			"scope": { "attributes": { "tone": "warm" } },
+			"expected": "warm"
+		},
+		{
+			"description": "missing path resolves to null, stringifies to empty",
+			"template": "{{ attributes.missing }}",
+			"scope": { "attributes": {} },
+			"expected": ""
+		},
+		{
+			"description": "default filter substitutes for a missing path",
+			"template": "{{ attributes.tone | default:neutral }}",
+			"scope": { "attributes": {} },
+			"expected": "neutral"
+		},
+		{
+			"description": "default filter does not substitute for a present value",
+			"template": "{{ attributes.tone | default:neutral }}",
+			"scope": { "attributes": { "tone": "warm" } },
+			"expected": "warm"
+		},
+		{
+			"description": "upper filter",
+			"template": "{{ attributes.tone | upper }}",
+			"scope": { "attributes": { "tone": "warm" } },
+			"expected": "WARM"
+		},
+		{
+			"description": "lower filter",
+			"template": "{{ attributes.tone | lower }}",
+			"scope": { "attributes": { "tone": "WARM" } },
+			"expected": "warm"
+		},
+		{
+			"description": "slug filter, plain ASCII input",
+			"template": "{{ attributes.title | slug }}",
+			"scope": { "attributes": { "title": "Hello World!" } },
+			"expected": "hello-world"
+		},
+		{
+			"description": "esc_url filter, a safe https URL passes through unchanged",
+			"template": "{{ attributes.url | esc_url }}",
+			"scope": { "attributes": { "url": "https://example.com/x" } },
+			"expected": "https://example.com/x"
+		},
+		{
+			"description": "join filter with the default separator",
+			"template": "{{ attributes.tags | join }}",
+			"scope": { "attributes": { "tags": [ "a", "b", "c" ] } },
+			"expected": "a, b, c"
+		},
+		{
+			"description": "join filter with an explicit separator",
+			"template": "{{ attributes.tags | join:- }}",
+			"scope": { "attributes": { "tags": [ "a", "b", "c" ] } },
+			"expected": "a-b-c"
+		},
+		{
+			"description": "count filter",
+			"template": "{{ attributes.tags | count }}",
+			"scope": { "attributes": { "tags": [ "a", "b", "c" ] } },
+			"expected": "3"
+		},
+		{
+			"description": "not filter, truthy input",
+			"template": "{{ attributes.flag | not }}",
+			"scope": { "attributes": { "flag": true } },
+			"expected": ""
+		},
+		{
+			"description": "not filter, falsy input",
+			"template": "{{ attributes.flag | not }}",
+			"scope": { "attributes": { "flag": false } },
+			"expected": "1"
+		},
+		{
+			"description": "number filter with an explicit decimal count",
+			"template": "{{ attributes.price | number:2 }}",
+			"scope": { "attributes": { "price": 42.5 } },
+			"expected": "42.50"
+		},
+		{
+			"description": "filters chain left to right",
+			"template": "{{ attributes.tone | default:neutral | upper }}",
+			"scope": { "attributes": {} },
+			"expected": "NEUTRAL"
+		},
+		{
+			"description": "boolean true stringifies to \"1\"",
+			"template": "{{ attributes.flag }}",
+			"scope": { "attributes": { "flag": true } },
+			"expected": "1"
+		},
+		{
+			"description": "boolean false stringifies to an empty string",
+			"template": "{{ attributes.flag }}",
+			"scope": { "attributes": { "flag": false } },
+			"expected": ""
+		},
+		{
+			"description": "an unknown filter name is a silent no-op",
+			"template": "{{ attributes.tone | nope }}",
+			"scope": { "attributes": { "tone": "warm" } },
+			"expected": "warm"
+		},
+		{
+			"description": "multiple tokens in one template, literal text preserved",
+			"template": "acme-callout acme-callout--{{ attributes.tone }}",
+			"scope": { "attributes": { "tone": "warm" } },
+			"expected": "acme-callout acme-callout--warm"
+		},
+		{
+			"description": "a nested-scope path (repeat's \"item\")",
+			"template": "{{ item.label }}",
+			"scope": { "item": { "label": "One" } },
+			"expected": "One"
+		}
+	],
+	"nodes": [
+		{
+			"description": "tag, class, and text",
+			"node": {
+				"tag": "p",
+				"class": "acme-callout acme-callout--{{ attributes.tone }}",
+				"text": "{{ attributes.heading }}"
+			},
+			"scope": { "attributes": { "tone": "warm", "heading": "Hi" } },
+			"expected": [
+				{ "tag": "p", "className": "acme-callout acme-callout--warm", "attrs": {}, "text": "Hi", "children": [] }
+			]
+		},
+		{
+			"description": "attrs are interpolated",
+			"node": { "tag": "div", "attrs": { "data-open": "{{ attributes.is_open }}" } },
+			"scope": { "attributes": { "is_open": true } },
+			"expected": [
+				{ "tag": "div", "className": null, "attrs": { "data-open": "1" }, "text": null, "children": [] }
+			]
+		},
+		{
+			"description": "void elements have no text or children",
+			"node": { "tag": "img", "attrs": { "src": "{{ attributes.src }}" } },
+			"scope": { "attributes": { "src": "https://example.com/x.png" } },
+			"expected": [
+				{ "tag": "img", "className": null, "attrs": { "src": "https://example.com/x.png" }, "text": null, "children": [] }
+			]
+		},
+		{
+			"description": "children render recursively",
+			"node": {
+				"tag": "div",
+				"children": [
+					{ "tag": "span", "text": "A" },
+					{ "tag": "span", "text": "B" }
+				]
+			},
+			"scope": { "attributes": {} },
+			"expected": [
+				{
+					"tag": "div",
+					"className": null,
+					"attrs": {},
+					"text": null,
+					"children": [
+						{ "tag": "span", "className": null, "attrs": {}, "text": "A", "children": [] },
+						{ "tag": "span", "className": null, "attrs": {}, "text": "B", "children": [] }
+					]
+				}
+			]
+		},
+		{
+			"description": "repeat renders once per item",
+			"node": {
+				"tag": "li",
+				"text": "{{ item.label }}",
+				"repeat": { "over": "attributes.items", "as": "item" }
+			},
+			"scope": { "attributes": { "items": [ { "label": "One" }, { "label": "Two" } ] } },
+			"expected": [
+				{ "tag": "li", "className": null, "attrs": {}, "text": "One", "children": [] },
+				{ "tag": "li", "className": null, "attrs": {}, "text": "Two", "children": [] }
+			]
+		}
+	]
+}

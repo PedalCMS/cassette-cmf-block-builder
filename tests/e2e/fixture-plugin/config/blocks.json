@@ -1,0 +1,174 @@
+{
+    "blocks": [
+        {
+            "id": "acme-e2e/callout",
+            "args": {
+                "title": "E2E Callout",
+                "category": "text",
+                "icon": "megaphone"
+            },
+            "fields": [
+                {
+                    "name": "is_dismissible",
+                    "type": "toolbar_toggle",
+                    "area": "toolbar",
+                    "label": "Dismissible",
+                    "icon": "no"
+                },
+                {
+                    "name": "settings",
+                    "type": "panel",
+                    "title": "Callout settings",
+                    "initial_open": true,
+                    "fields": [
+                        {
+                            "name": "heading",
+                            "type": "text",
+                            "label": "Heading"
+                        },
+                        {
+                            "name": "dismiss_label",
+                            "type": "text",
+                            "label": "Dismiss button label",
+                            "conditional": {
+                                "rules": [
+                                    { "field": "is_dismissible", "operator": "==", "value": true }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ],
+            "render": {
+                "mode": "dynamic",
+                "markup": {
+                    "tag": "div",
+                    "class": "acme-e2e-callout",
+                    "children": [
+                        { "tag": "strong", "class": "acme-e2e-callout__heading", "text": "{{ attributes.heading }}" },
+                        {
+                            "tag": "button",
+                            "class": "acme-e2e-callout__dismiss",
+                            "text": "{{ attributes.dismiss_label }}",
+                            "when": {
+                                "rules": [
+                                    { "field": "is_dismissible", "operator": "==", "value": true }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "id": "acme-e2e/container",
+            "args": {
+                "title": "E2E Container",
+                "category": "text",
+                "icon": "layout"
+            },
+            "inner_blocks": {
+                "allowed": [ "core/paragraph", "core/heading" ],
+                "template": [ [ "core/paragraph", { "placeholder": "Container content..." } ] ]
+            },
+            "render": {
+                "mode": "dynamic",
+                "markup": {
+                    "tag": "div",
+                    "class": "acme-e2e-container",
+                    "slot": "inner_blocks"
+                }
+            }
+        },
+        {
+            "id": "acme-e2e/child",
+            "args": {
+                "title": "E2E Child",
+                "category": "text",
+                "icon": "admin-page",
+                "parent": [ "acme-e2e/container" ]
+            },
+            "fields": [
+                { "name": "label", "type": "text", "label": "Label" }
+            ],
+            "render": {
+                "mode": "dynamic",
+                "markup": { "tag": "span", "text": "{{ attributes.label }}" }
+            }
+        },
+        {
+            "id": "acme-e2e/quote",
+            "args": {
+                "title": "E2E Quote",
+                "category": "text",
+                "icon": "format-quote"
+            },
+            "fields": [
+                { "name": "quote_text", "type": "textarea", "label": "Quote" },
+                { "name": "cite", "type": "text", "label": "Attribution" }
+            ],
+            "render": {
+                "mode": "static",
+                "markup": {
+                    "tag": "blockquote",
+                    "class": "acme-e2e-quote",
+                    "children": [
+                        { "tag": "p", "text": "{{ attributes.quote_text }}" },
+                        {
+                            "tag": "cite",
+                            "text": "{{ attributes.cite }}",
+                            "when": { "rules": [ { "field": "cite", "operator": "not_empty" } ] }
+                        }
+                    ]
+                },
+                "deprecated": [
+                    {
+                        "markup": {
+                            "tag": "blockquote",
+                            "class": "acme-e2e-quote-v1",
+                            "text": "{{ attributes.quote_text }}"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "acme-e2e/server-preview",
+            "args": {
+                "title": "E2E Server Preview",
+                "category": "text",
+                "icon": "clock"
+            },
+            "fields": [
+                { "name": "note", "type": "text", "label": "Note" }
+            ],
+            "preview": {
+                "mode": "server"
+            },
+            "render": {
+                "mode": "dynamic",
+                "markup": { "tag": "div", "class": "acme-e2e-server-preview", "text": "{{ attributes.note }}" }
+            }
+        },
+        {
+            "id": "acme-e2e/document-panel",
+            "args": {
+                "title": "E2E Document Panel"
+            },
+            "document_scope": {
+                "post_types": [ "post" ],
+                "when_present": true
+            },
+            "fields": [
+                {
+                    "name": "internal_note",
+                    "type": "text",
+                    "area": "sidebar",
+                    "label": "Internal note",
+                    "source": "meta",
+                    "meta": { "key": "acme_e2e_internal_note" }
+                }
+            ]
+        }
+    ]
+}

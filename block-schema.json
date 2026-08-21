@@ -1,0 +1,204 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"title": "Cassette-CMF Blocks configuration",
+	"description": "IDE-tooling schema for the array/JSON shape accepted by CassetteCmfBlocks::register_from_array()/register_from_json(). This is documentation only — the runtime validator is Json\\Block_Schema_Validator, which reads valid control types from Schema\\Control_Catalog::get_registered_types() and valid areas from Schema\\Area_Resolver::known_areas() at run time, and is authoritative when the two disagree. \"type\" is deliberately left as an open string here rather than a closed enum, precisely because the parent library's own schema.json hardcodes such an enum and has drifted out of sync with its runtime validator as a result — see this repository's CHANGELOG.md and docs/RELEASE.md. This file covers only what is implemented so far.",
+	"type": "object",
+	"additionalProperties": false,
+	"properties": {
+		"blocks": {
+			"type": "array",
+			"items": { "$ref": "#/definitions/block" }
+		},
+		"block_categories": {
+			"type": "array",
+			"items": {
+				"type": "object",
+				"required": [ "slug", "title" ],
+				"properties": {
+					"slug": { "type": "string" },
+					"title": { "type": "string" },
+					"icon": { "type": [ "string", "null" ] }
+				}
+			}
+		},
+		"editor_scope": {
+			"type": "object",
+			"description": "Compiled into a single allowed_block_types_all filter. See docs/block-config-reference.md.",
+			"properties": {
+				"post_types": { "type": "array", "items": { "type": "string" } },
+				"allow_only": { "type": "array", "items": { "type": "string" } }
+			}
+		},
+		"patterns": {
+			"type": "array",
+			"description": "See docs/block-config-reference.md's \"patterns / pattern_categories\" section.",
+			"items": {
+				"type": "object",
+				"required": [ "slug", "title" ],
+				"properties": {
+					"slug": { "type": "string" },
+					"title": { "type": "string" },
+					"description": { "type": "string" },
+					"categories": { "type": "array", "items": { "type": "string" } },
+					"keywords": { "type": "array", "items": { "type": "string" } },
+					"content": { "type": "string", "description": "Raw WordPress comment-delimited block HTML. Wins over \"blocks\" when both are present." },
+					"blocks": { "type": "array", "description": "A declarative { blockName, attrs, innerBlocks } tree, serialized into the same shape \"content\" would be." }
+				}
+			}
+		},
+		"pattern_categories": {
+			"type": "array",
+			"items": {
+				"type": "object",
+				"required": [ "slug" ],
+				"properties": {
+					"slug": { "type": "string" },
+					"label": { "type": "string" }
+				}
+			}
+		}
+	},
+	"definitions": {
+		"block": {
+			"type": "object",
+			"required": [ "id" ],
+			"properties": {
+				"id": {
+					"type": "string",
+					"description": "Namespaced block name, e.g. \"acme/callout\".",
+					"pattern": "^[a-z][a-z0-9-]*/[a-z][a-z0-9-]*$"
+				},
+				"args": {
+					"type": "object",
+					"description": "Verbatim block.json-shaped passthrough: title, category, icon, keywords, parent, ancestor, allowedBlocks, supports, styles, variations, selectors, blockHooks, usesContext, providesContext, example, textdomain, apiVersion. Block_Definition translates the camelCase keys among these to the snake_case properties WP_Block_Type actually reads. apiVersion defaults to 3 and supports.html defaults to false for dynamic blocks when not set."
+				},
+				"fields": {
+					"type": "array",
+					"description": "Controls and panels. Recursive — see #/definitions/field.",
+					"items": { "$ref": "#/definitions/field" }
+				},
+				"attributes": {
+					"type": "object",
+					"description": "Pure-data attributes with no control: name => WP attribute schema ({type, default, enum, ...}). Merged with field-derived attributes; a name collision between the two is an error."
+				},
+				"render": {
+					"type": "object",
+					"description": "\"mode\": \"dynamic\" (default), \"static\", or \"none\". See docs/markup-templates.md and docs/static-save.md for \"markup\"/\"callback\"/\"template\"/\"deprecated\", not fully re-modeled here yet.",
+					"properties": {
+						"mode": { "type": "string", "enum": [ "dynamic", "static", "none" ] }
+					}
+				},
+				"document_scope": {
+					"type": "object",
+					"description": "Required whenever a field resolves to the document/document.status/document.excerpt/document.publish.pre/document.publish.post/sidebar/more_menu area. See docs/block-config-reference.md.",
+					"required": [ "post_types" ],
+					"properties": {
+						"post_types": { "type": "array", "items": { "type": "string" } },
+						"when_present": { "type": "boolean" },
+						"target": { "type": "string" }
+					}
+				},
+				"transforms": {
+					"type": "object",
+					"description": "Block-to-block transforms, \"type\": \"block\" only. See docs/block-config-reference.md.",
+					"properties": {
+						"from": { "type": "array", "items": { "$ref": "#/definitions/transform" } },
+						"to": { "type": "array", "items": { "$ref": "#/definitions/transform" } }
+					}
+				}
+			}
+		},
+		"transform": {
+			"type": "object",
+			"required": [ "type", "blocks" ],
+			"properties": {
+				"type": { "type": "string", "enum": [ "block" ] },
+				"blocks": { "type": "array", "items": { "type": "string" } },
+				"map": { "type": "object", "description": "{ targetAttr: sourceAttr } pairs." }
+			}
+		},
+		"field": {
+			"type": "object",
+			"required": [ "name", "type" ],
+			"properties": {
+				"name": {
+					"type": "string",
+					"description": "Must be unique among all value-bearing fields in the block — they share one flat block-attribute namespace."
+				},
+				"type": {
+					"type": "string",
+					"description": "Control type. Validated at runtime against Control_Catalog::get_registered_types(), not against a closed list here."
+				},
+				"cmf_type": {
+					"type": "string",
+					"description": "Optional override of which parent field type provides sanitize()/validate() reuse via Compat\\Cmf_Bridge."
+				},
+				"area": {
+					"type": "string",
+					"description": "Dot-notation \"<surface>[.<group>]\", e.g. \"inspector.styles\", \"toolbar.block\", \"canvas\". Inherited from the nearest enclosing container when omitted; defaults to \"inspector\" at the top level. Validated against Area_Resolver::known_areas()."
+				},
+				"source": {
+					"type": "string",
+					"enum": [ "attribute", "meta", "context", "none" ],
+					"description": "\"attribute\" (the default) produces a block attribute; \"meta\" registers real post/term/user/comment meta (see docs/meta-binding.md) and requires a \"meta\" config. \"context\"/\"none\" are recognised and excluded from the attribute schema, but \"context\" has no read/write wiring yet."
+				},
+				"meta": {
+					"type": "object",
+					"description": "Only meaningful when \"source\" is \"meta\". See docs/meta-binding.md.",
+					"properties": {
+						"key": { "type": "string" },
+						"object_type": { "type": "string", "enum": [ "post", "term", "user", "comment" ] },
+						"object_subtype": { "type": "string" },
+						"single": { "type": "boolean" },
+						"auth": { "type": "string" },
+						"revisions": { "type": "boolean" }
+					}
+				},
+				"value_type": {
+					"type": "string",
+					"enum": [ "string", "number", "integer", "boolean", "array", "object" ],
+					"description": "Overrides the control type's inferred WP attribute schema type."
+				},
+				"default": {},
+				"required": { "type": "boolean" },
+				"options": {
+					"type": "object",
+					"description": "value => label map, matching the parent library's convention. Produces an \"enum\" of the option keys in the attribute schema."
+				},
+				"enum": {
+					"type": "array",
+					"description": "Explicit enum, used when \"options\" isn't a natural fit for the control."
+				},
+				"role": {
+					"type": "string",
+					"description": "WP attribute \"role\" (e.g. \"content\"), passed through when set."
+				},
+				"conditional": { "$ref": "#/definitions/conditional" },
+				"fields": {
+					"type": "array",
+					"description": "Child fields, for container control types (panel, tab_panel, group, row, stack, toolbar_group, repeater).",
+					"items": { "$ref": "#/definitions/field" }
+				}
+			}
+		},
+		"conditional": {
+			"type": "object",
+			"required": [ "rules" ],
+			"properties": {
+				"relation": { "type": "string", "enum": [ "AND", "OR", "and", "or" ] },
+				"rules": {
+					"type": "array",
+					"items": {
+						"type": "object",
+						"required": [ "field" ],
+						"properties": {
+							"field": { "type": "string" },
+							"operator": { "type": "string" },
+							"value": {}
+						}
+					}
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,180 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+      - 'V*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+          tools: composer
+
+      - name: Get version from tag
+        id: version
+        run: |
+          # Remove refs/tags/ prefix and v/V prefix
+          TAG=${GITHUB_REF#refs/tags/}
+          VERSION=${TAG#v}
+          VERSION=${VERSION#V}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+
+      - name: Validate version format
+        run: |
+          if ! [[ "${{ steps.version.outputs.version }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Invalid version format. Expected: X.Y.Z"
+            exit 1
+          fi
+
+      - name: Sync version from tag
+        shell: bash
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          bash bin/set-version.sh "${VERSION}"
+          if ! git diff --quiet; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git commit -am "chore: sync version to ${VERSION}"
+            echo "Committed version sync to ${VERSION}; release assets will be built from the corrected tree."
+          else
+            echo "Version already matches ${VERSION}; nothing to sync."
+          fi
+
+      - name: Verify the committed editor bundle is not stale
+        run: |
+          if [ ! -f src/assets/build/editor.js ]; then
+            echo "::error::src/assets/build/editor.js is missing. Run 'npm run build' and commit the result before tagging."
+            exit 1
+          fi
+
+      - name: Install dependencies (production only)
+        run: composer install --prefer-dist --no-dev --no-progress --optimize-autoloader
+
+      - name: Create distribution package
+        run: |
+          mkdir -p dist/cassette-cmf-block-builder
+
+          # Copy only production files
+          cp -r src dist/cassette-cmf-block-builder/
+          cp composer.json dist/cassette-cmf-block-builder/
+          cp README.md dist/cassette-cmf-block-builder/
+          cp LICENSE dist/cassette-cmf-block-builder/
+          cp CHANGELOG.md dist/cassette-cmf-block-builder/ 2>/dev/null || echo "No CHANGELOG.md found"
+
+          # Copy vendor (production only - already installed with --no-dev)
+          cp -r vendor dist/cassette-cmf-block-builder/
+
+          cd dist/cassette-cmf-block-builder
+
+          # JS source is not shipped — only the committed compiled bundle
+          # (src/assets/build/) ships. Consumers never run npm/webpack.
+          rm -rf src/assets/src
+
+          # Remove dev/test files that might have been copied
+          rm -rf tests/
+          rm -rf bin/
+          rm -rf docs/
+          rm -rf examples/
+          rm -rf .github/
+          rm -rf .git/
+          rm -rf .cache/
+          rm -f .gitignore
+          rm -f .gitattributes
+          rm -f .editorconfig
+          rm -f phpunit.xml.dist
+          rm -f phpcs.xml.dist
+          rm -f phpstan.neon.dist
+          rm -f composer.lock
+          rm -f .phpcs.xml
+          rm -f .phpstan.neon
+          rm -f block-schema.json
+          rm -f .wp-env.json
+          rm -f playwright.config.js
+          rm -f package.json
+          rm -f package-lock.json
+          rm -f webpack.config.js
+
+          cd ..
+
+          # Create zip archive
+          zip -r ../cassette-cmf-block-builder-${{ steps.version.outputs.version }}.zip cassette-cmf-block-builder
+
+          # Create tarball
+          tar -czf ../cassette-cmf-block-builder-${{ steps.version.outputs.version }}.tar.gz cassette-cmf-block-builder
+
+          cd ..
+
+          # Show what's included
+          echo "Package contents:"
+          unzip -l cassette-cmf-block-builder-${{ steps.version.outputs.version }}.zip | head -50
+
+      - name: Generate release notes
+        id: release_notes
+        run: |
+          # Extract notes from CHANGELOG.md if it exists
+          if [ -f CHANGELOG.md ]; then
+            # Extract section for current version
+            NOTES=$(awk '/^## \[?${{ steps.version.outputs.version }}\]?/{flag=1; next} /^## \[?[0-9]+\.[0-9]+\.[0-9]+\]?/{flag=0} flag' CHANGELOG.md)
+            if [ -n "$NOTES" ]; then
+              echo "notes<<EOF" >> $GITHUB_OUTPUT
+              echo "$NOTES" >> $GITHUB_OUTPUT
+              echo "EOF" >> $GITHUB_OUTPUT
+            else
+              echo "notes=Release ${{ steps.version.outputs.tag }}" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "notes=Release ${{ steps.version.outputs.tag }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Delete existing release if present
+        run: |
+          # Check if release exists and delete it (handles immutable releases)
+          if gh release view ${{ steps.version.outputs.tag }} &>/dev/null; then
+            echo "Deleting existing release..."
+            gh release delete ${{ steps.version.outputs.tag }} --yes --cleanup-tag=false
+            sleep 5  # Wait for GitHub API to propagate deletion
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: Cassette-CMF Blocks ${{ steps.version.outputs.tag }}
+          body: ${{ steps.release_notes.outputs.notes }}
+          draft: false
+          prerelease: ${{ contains(github.ref, '-alpha') || contains(github.ref, '-beta') || contains(github.ref, '-rc') }}
+          files: |
+            cassette-cmf-block-builder-${{ steps.version.outputs.version }}.zip
+            cassette-cmf-block-builder-${{ steps.version.outputs.version }}.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Summary
+        run: |
+          echo "## Release Created Successfully! :rocket:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Version:** ${{ steps.version.outputs.tag }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Assets:**" >> $GITHUB_STEP_SUMMARY
+          echo "- cassette-cmf-block-builder-${{ steps.version.outputs.version }}.zip" >> $GITHUB_STEP_SUMMARY
+          echo "- cassette-cmf-block-builder-${{ steps.version.outputs.version }}.tar.gz" >> $GITHUB_STEP_SUMMARY

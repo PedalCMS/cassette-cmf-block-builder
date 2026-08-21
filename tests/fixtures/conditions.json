@@ -1,0 +1,124 @@
+{
+	"cases": [
+		{
+			"description": "== matches equal values",
+			"normalized": { "relation": "AND", "rules": [ { "field": "tone", "operator": "==", "value": "warm" } ] },
+			"context": { "tone": "warm" },
+			"expected": true
+		},
+		{
+			"description": "== does not match different values",
+			"normalized": { "relation": "AND", "rules": [ { "field": "tone", "operator": "==", "value": "warm" } ] },
+			"context": { "tone": "cool" },
+			"expected": false
+		},
+		{
+			"description": "== normalizes booleans to \"1\"/\"0\" before comparing",
+			"normalized": { "relation": "AND", "rules": [ { "field": "is_open", "operator": "==", "value": true } ] },
+			"context": { "is_open": true },
+			"expected": true
+		},
+		{
+			"description": "!= is the inverse of ==",
+			"normalized": { "relation": "AND", "rules": [ { "field": "tone", "operator": "!=", "value": "warm" } ] },
+			"context": { "tone": "cool" },
+			"expected": true
+		},
+		{
+			"description": "> compares numerically",
+			"normalized": { "relation": "AND", "rules": [ { "field": "count", "operator": ">", "value": 5 } ] },
+			"context": { "count": 10 },
+			"expected": true
+		},
+		{
+			"description": ">= is inclusive at the boundary",
+			"normalized": { "relation": "AND", "rules": [ { "field": "count", "operator": ">=", "value": 5 } ] },
+			"context": { "count": 5 },
+			"expected": true
+		},
+		{
+			"description": "< compares numerically",
+			"normalized": { "relation": "AND", "rules": [ { "field": "count", "operator": "<", "value": 5 } ] },
+			"context": { "count": 3 },
+			"expected": true
+		},
+		{
+			"description": "<= is inclusive at the boundary",
+			"normalized": { "relation": "AND", "rules": [ { "field": "count", "operator": "<=", "value": 5 } ] },
+			"context": { "count": 5 },
+			"expected": true
+		},
+		{
+			"description": "a numeric rule against a non-numeric value never matches",
+			"normalized": { "relation": "AND", "rules": [ { "field": "count", "operator": ">", "value": 5 } ] },
+			"context": { "count": "not-a-number" },
+			"expected": false
+		},
+		{
+			"description": "in matches one of several values",
+			"normalized": { "relation": "AND", "rules": [ { "field": "tone", "operator": "in", "value": [ "warm", "hot" ] } ] },
+			"context": { "tone": "hot" },
+			"expected": true
+		},
+		{
+			"description": "not_in is the inverse of in",
+			"normalized": { "relation": "AND", "rules": [ { "field": "tone", "operator": "not_in", "value": [ "warm", "hot" ] } ] },
+			"context": { "tone": "cool" },
+			"expected": true
+		},
+		{
+			"description": "in matches when the actual value is itself an array (any element)",
+			"normalized": { "relation": "AND", "rules": [ { "field": "tags", "operator": "in", "value": [ "a", "b" ] } ] },
+			"context": { "tags": [ "x", "b" ] },
+			"expected": true
+		},
+		{
+			"description": "empty matches a missing field",
+			"normalized": { "relation": "AND", "rules": [ { "field": "missing", "operator": "empty" } ] },
+			"context": {},
+			"expected": true
+		},
+		{
+			"description": "empty matches an empty string",
+			"normalized": { "relation": "AND", "rules": [ { "field": "tone", "operator": "empty" } ] },
+			"context": { "tone": "" },
+			"expected": true
+		},
+		{
+			"description": "not_empty is the inverse of empty",
+			"normalized": { "relation": "AND", "rules": [ { "field": "tone", "operator": "not_empty" } ] },
+			"context": { "tone": "warm" },
+			"expected": true
+		},
+		{
+			"description": "AND relation requires every rule to pass",
+			"normalized": {
+				"relation": "AND",
+				"rules": [
+					{ "field": "tone", "operator": "==", "value": "warm" },
+					{ "field": "is_open", "operator": "==", "value": true }
+				]
+			},
+			"context": { "tone": "warm", "is_open": false },
+			"expected": false
+		},
+		{
+			"description": "OR relation requires at least one rule to pass",
+			"normalized": {
+				"relation": "OR",
+				"rules": [
+					{ "field": "tone", "operator": "==", "value": "warm" },
+					{ "field": "is_open", "operator": "==", "value": true }
+				]
+			},
+			"context": { "tone": "cool", "is_open": true },
+			"expected": true
+		},
+		{
+			"description": "no rules always evaluates true",
+			"normalized": { "relation": "AND", "rules": [] },
+			"context": { "tone": "cool" },
+			"expected": true
+		}
+	]
+}

@@ -1,0 +1,476 @@
+{
+    "block_categories": [
+        { "slug": "cassette-cmf-forms", "title": "Form fields", "icon": "feedback" }
+    ],
+    "blocks": [
+        {
+            "id": "cassette-cmf-forms/field-text",
+            "args": {
+                "title": "Text",
+                "category": "cassette-cmf-forms",
+                "icon": "editor-textcolor"
+            },
+            "fields": [
+                {
+                    "name": "settings",
+                    "type": "panel",
+                    "title": "Text Field",
+                    "initial_open": true,
+                    "fields": [
+                        {
+                            "name": "label",
+                            "type": "text",
+                            "label": "Label",
+                            "default": "Text field"
+                        },
+                        {
+                            "name": "slug",
+                            "type": "text",
+                            "label": "Field name (slug)",
+                            "description": "Used as the entry column name.",
+                            "default": "text_field",
+                            "derive_from": "label",
+                            "format": "slug"
+                        },
+                        {
+                            "name": "placeholder",
+                            "type": "text",
+                            "label": "Placeholder"
+                        },
+                        {
+                            "name": "help_text",
+                            "type": "textarea",
+                            "label": "Help text"
+                        },
+                        {
+                            "name": "required",
+                            "type": "toggle",
+                            "label": "Required",
+                            "default": false
+                        }
+                    ]
+                }
+            ],
+            "render": {
+                "markup": {
+                    "tag": "div",
+                    "class": "cassette-cmf-block-builder-field-preview",
+                    "children": [
+                        {
+                            "tag": "div",
+                            "class": "cassette-cmf-block-builder-field-preview__label-row",
+                            "children": [
+                                { "tag": "strong", "text": "{{ attributes.label }}" },
+                                {
+                                    "tag": "span",
+                                    "class": "cassette-cmf-block-builder-field-preview__required",
+                                    "text": "*",
+                                    "when": { "rules": [ { "field": "required", "operator": "==", "value": true } ] }
+                                },
+                                {
+                                    "tag": "span",
+                                    "class": "cassette-cmf-block-builder-field-preview__badge",
+                                    "text": "Text"
+                                }
+                            ]
+                        },
+                        {
+                            "tag": "input",
+                            "class": "cassette-cmf-block-builder-field-preview__control",
+                            "attrs": {
+                                "type": "text",
+                                "disabled": "disabled",
+                                "placeholder": "{{ attributes.placeholder }}"
+                            }
+                        },
+                        {
+                            "tag": "p",
+                            "class": "cassette-cmf-block-builder-field-preview__help",
+                            "text": "{{ attributes.help_text }}",
+                            "when": { "rules": [ { "field": "help_text", "operator": "not_empty" } ] }
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "id": "cassette-cmf-forms/field-textarea",
+            "args": {
+                "title": "Textarea",
+                "category": "cassette-cmf-forms",
+                "icon": "editor-alignleft"
+            },
+            "fields": [
+                {
+                    "name": "settings",
+                    "type": "panel",
+                    "title": "Textarea Field",
+                    "initial_open": true,
+                    "fields": [
+                        {
+                            "name": "label",
+                            "type": "text",
+                            "label": "Label",
+                            "default": "Textarea field"
+                        },
+                        {
+                            "name": "slug",
+                            "type": "text",
+                            "label": "Field name (slug)",
+                            "description": "Used as the entry column name.",
+                            "default": "textarea_field",
+                            "derive_from": "label",
+                            "format": "slug"
+                        },
+                        {
+                            "name": "placeholder",
+                            "type": "text",
+                            "label": "Placeholder"
+                        },
+                        {
+                            "name": "help_text",
+                            "type": "textarea",
+                            "label": "Help text"
+                        },
+                        {
+                            "name": "required",
+                            "type": "toggle",
+                            "label": "Required",
+                            "default": false
+                        }
+                    ]
+                }
+            ],
+            "render": {
+                "markup": {
+                    "tag": "div",
+                    "class": "cassette-cmf-block-builder-field-preview",
+                    "children": [
+                        {
+                            "tag": "div",
+                            "class": "cassette-cmf-block-builder-field-preview__label-row",
+                            "children": [
+                                { "tag": "strong", "text": "{{ attributes.label }}" },
+                                {
+                                    "tag": "span",
+                                    "class": "cassette-cmf-block-builder-field-preview__required",
+                                    "text": "*",
+                                    "when": { "rules": [ { "field": "required", "operator": "==", "value": true } ] }
+                                },
+                                {
+                                    "tag": "span",
+                                    "class": "cassette-cmf-block-builder-field-preview__badge",
+                                    "text": "Textarea"
+                                }
+                            ]
+                        },
+                        {
+                            "tag": "textarea",
+                            "class": "cassette-cmf-block-builder-field-preview__control",
+                            "attrs": {
+                                "disabled": "disabled",
+                                "placeholder": "{{ attributes.placeholder }}",
+                                "rows": "3"
+                            }
+                        },
+                        {
+                            "tag": "p",
+                            "class": "cassette-cmf-block-builder-field-preview__help",
+                            "text": "{{ attributes.help_text }}",
+                            "when": { "rules": [ { "field": "help_text", "operator": "not_empty" } ] }
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "id": "cassette-cmf-forms/field-email",
+            "args": {
+                "title": "Email",
+                "category": "cassette-cmf-forms",
+                "icon": "email"
+            },
+            "fields": [
+                {
+                    "name": "settings",
+                    "type": "panel",
+                    "title": "Email Field",
+                    "initial_open": true,
+                    "fields": [
+                        {
+                            "name": "label",
+                            "type": "text",
+                            "label": "Label",
+                            "default": "Email field"
+                        },
+                        {
+                            "name": "slug",
+                            "type": "text",
+                            "label": "Field name (slug)",
+                            "description": "Used as the entry column name.",
+                            "default": "email_field",
+                            "derive_from": "label",
+                            "format": "slug"
+                        },
+                        {
+                            "name": "placeholder",
+                            "type": "text",
+                            "label": "Placeholder"
+                        },
+                        {
+                            "name": "help_text",
+                            "type": "textarea",
+                            "label": "Help text"
+                        },
+                        {
+                            "name": "required",
+                            "type": "toggle",
+                            "label": "Required",
+                            "default": false
+                        }
+                    ]
+                }
+            ],
+            "render": {
+                "markup": {
+                    "tag": "div",
+                    "class": "cassette-cmf-block-builder-field-preview",
+                    "children": [
+                        {
+                            "tag": "div",
+                            "class": "cassette-cmf-block-builder-field-preview__label-row",
+                            "children": [
+                                { "tag": "strong", "text": "{{ attributes.label }}" },
+                                {
+                                    "tag": "span",
+                                    "class": "cassette-cmf-block-builder-field-preview__required",
+                                    "text": "*",
+                                    "when": { "rules": [ { "field": "required", "operator": "==", "value": true } ] }
+                                },
+                                {
+                                    "tag": "span",
+                                    "class": "cassette-cmf-block-builder-field-preview__badge",
+                                    "text": "Email"
+                                }
+                            ]
+                        },
+                        {
+                            "tag": "input",
+                            "class": "cassette-cmf-block-builder-field-preview__control",
+                            "attrs": {
+                                "type": "email",
+                                "disabled": "disabled",
+                                "placeholder": "{{ attributes.placeholder }}"
+                            }
+                        },
+                        {
+                            "tag": "p",
+                            "class": "cassette-cmf-block-builder-field-preview__help",
+                            "text": "{{ attributes.help_text }}",
+                            "when": { "rules": [ { "field": "help_text", "operator": "not_empty" } ] }
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "id": "cassette-cmf-forms/field-select",
+            "args": {
+                "title": "Select",
+                "category": "cassette-cmf-forms",
+                "icon": "menu"
+            },
+            "fields": [
+                {
+                    "name": "settings",
+                    "type": "panel",
+                    "title": "Select Field",
+                    "initial_open": true,
+                    "fields": [
+                        {
+                            "name": "label",
+                            "type": "text",
+                            "label": "Label",
+                            "default": "Select field"
+                        },
+                        {
+                            "name": "slug",
+                            "type": "text",
+                            "label": "Field name (slug)",
+                            "description": "Used as the entry column name.",
+                            "default": "select_field",
+                            "derive_from": "label",
+                            "format": "slug"
+                        },
+                        {
+                            "name": "options",
+                            "type": "options_list",
+                            "label": "Options",
+                            "default": [
+                                { "value": "option_1", "label": "Option 1" },
+                                { "value": "option_2", "label": "Option 2" }
+                            ]
+                        },
+                        {
+                            "name": "help_text",
+                            "type": "textarea",
+                            "label": "Help text"
+                        },
+                        {
+                            "name": "required",
+                            "type": "toggle",
+                            "label": "Required",
+                            "default": false
+                        }
+                    ]
+                }
+            ],
+            "render": {
+                "markup": {
+                    "tag": "div",
+                    "class": "cassette-cmf-block-builder-field-preview",
+                    "children": [
+                        {
+                            "tag": "div",
+                            "class": "cassette-cmf-block-builder-field-preview__label-row",
+                            "children": [
+                                { "tag": "strong", "text": "{{ attributes.label }}" },
+                                {
+                                    "tag": "span",
+                                    "class": "cassette-cmf-block-builder-field-preview__required",
+                                    "text": "*",
+                                    "when": { "rules": [ { "field": "required", "operator": "==", "value": true } ] }
+                                },
+                                {
+                                    "tag": "span",
+                                    "class": "cassette-cmf-block-builder-field-preview__badge",
+                                    "text": "Select"
+                                }
+                            ]
+                        },
+                        {
+                            "tag": "select",
+                            "class": "cassette-cmf-block-builder-field-preview__control",
+                            "attrs": { "disabled": "disabled" },
+                            "children": [
+                                {
+                                    "tag": "option",
+                                    "text": "{{ opt.label }}",
+                                    "repeat": { "over": "attributes.options", "as": "opt" }
+                                }
+                            ]
+                        },
+                        {
+                            "tag": "p",
+                            "class": "cassette-cmf-block-builder-field-preview__help",
+                            "text": "{{ attributes.help_text }}",
+                            "when": { "rules": [ { "field": "help_text", "operator": "not_empty" } ] }
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "id": "cassette-cmf-forms/field-checkbox",
+            "args": {
+                "title": "Checkbox",
+                "category": "cassette-cmf-forms",
+                "icon": "yes-alt"
+            },
+            "fields": [
+                {
+                    "name": "settings",
+                    "type": "panel",
+                    "title": "Checkbox Field",
+                    "initial_open": true,
+                    "fields": [
+                        {
+                            "name": "label",
+                            "type": "text",
+                            "label": "Label",
+                            "default": "Checkbox field"
+                        },
+                        {
+                            "name": "slug",
+                            "type": "text",
+                            "label": "Field name (slug)",
+                            "description": "Used as the entry column name.",
+                            "default": "checkbox_field",
+                            "derive_from": "label",
+                            "format": "slug"
+                        },
+                        {
+                            "name": "checkbox_label",
+                            "type": "text",
+                            "label": "Checkbox label",
+                            "default": "I agree to the terms."
+                        },
+                        {
+                            "name": "checked_value",
+                            "type": "text",
+                            "label": "Checked value",
+                            "default": "yes"
+                        },
+                        {
+                            "name": "help_text",
+                            "type": "textarea",
+                            "label": "Help text"
+                        },
+                        {
+                            "name": "required",
+                            "type": "toggle",
+                            "label": "Required",
+                            "default": false
+                        }
+                    ]
+                }
+            ],
+            "render": {
+                "markup": {
+                    "tag": "div",
+                    "class": "cassette-cmf-block-builder-field-preview",
+                    "children": [
+                        {
+                            "tag": "div",
+                            "class": "cassette-cmf-block-builder-field-preview__label-row",
+                            "children": [
+                                { "tag": "strong", "text": "{{ attributes.label }}" },
+                                {
+                                    "tag": "span",
+                                    "class": "cassette-cmf-block-builder-field-preview__required",
+                                    "text": "*",
+                                    "when": { "rules": [ { "field": "required", "operator": "==", "value": true } ] }
+                                },
+                                {
+                                    "tag": "span",
+                                    "class": "cassette-cmf-block-builder-field-preview__badge",
+                                    "text": "Checkbox"
+                                }
+                            ]
+                        },
+                        {
+                            "tag": "label",
+                            "class": "cassette-cmf-block-builder-field-preview__checkbox-label",
+                            "children": [
+                                {
+                                    "tag": "input",
+                                    "attrs": { "type": "checkbox", "disabled": "disabled" }
+                                },
+                                {
+                                    "tag": "span",
+                                    "text": "{{ attributes.checkbox_label }}"
+                                }
+                            ]
+                        },
+                        {
+                            "tag": "p",
+                            "class": "cassette-cmf-block-builder-field-preview__help",
+                            "text": "{{ attributes.help_text }}",
+                            "when": { "rules": [ { "field": "help_text", "operator": "not_empty" } ] }
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}
