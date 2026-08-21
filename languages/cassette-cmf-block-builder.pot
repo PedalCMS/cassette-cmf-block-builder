@@ -7,7 +7,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-21T23:49:15+05:30\n"
+"POT-Creation-Date: 2026-08-21T18:23:32+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: cassette-cmf-block-builder\n"
@@ -52,17 +52,17 @@ msgid "is one of"
 msgstr ""
 
 #: src/assets/build/editor.js:1
-#: src/assets/src/editor/controls/conditions.js:18
+#: src/assets/src/editor/controls/conditions.js:20
 msgid "is not one of"
 msgstr ""
 
 #: src/assets/build/editor.js:1
-#: src/assets/src/editor/controls/conditions.js:19
+#: src/assets/src/editor/controls/conditions.js:22
 msgid "is empty"
 msgstr ""
 
 #: src/assets/build/editor.js:1
-#: src/assets/src/editor/controls/conditions.js:22
+#: src/assets/src/editor/controls/conditions.js:25
 msgid "is not empty"
 msgstr ""
 
@@ -72,41 +72,41 @@ msgid "Link sides"
 msgstr ""
 
 #: src/assets/build/editor.js:1
-#: src/assets/src/editor/util/border-fields.js:29
+#: src/assets/src/editor/util/border-fields.js:32
 msgid "Width"
 msgstr ""
 
 #: src/assets/build/editor.js:1
 #: src/assets/build/editor.js:2
 #: src/assets/src/editor/controls/font-appearance.js:44
-#: src/assets/src/editor/util/border-fields.js:34
+#: src/assets/src/editor/util/border-fields.js:37
 msgid "Style"
 msgstr ""
 
 #: src/assets/build/editor.js:1
 #: src/assets/build/editor.js:2
 #: src/assets/src/editor/controls/shadow.js:20
-#: src/assets/src/editor/util/border-fields.js:39
+#: src/assets/src/editor/util/border-fields.js:42
 msgid "None"
 msgstr ""
 
 #: src/assets/build/editor.js:1
-#: src/assets/src/editor/util/border-fields.js:43
+#: src/assets/src/editor/util/border-fields.js:46
 msgid "Solid"
 msgstr ""
 
 #: src/assets/build/editor.js:1
-#: src/assets/src/editor/util/border-fields.js:47
+#: src/assets/src/editor/util/border-fields.js:50
 msgid "Dashed"
 msgstr ""
 
 #: src/assets/build/editor.js:1
-#: src/assets/src/editor/util/border-fields.js:51
+#: src/assets/src/editor/util/border-fields.js:54
 msgid "Dotted"
 msgstr ""
 
 #: src/assets/build/editor.js:1
-#: src/assets/src/editor/util/border-fields.js:57
+#: src/assets/src/editor/util/border-fields.js:60
 msgid "Color"
 msgstr ""
 
@@ -173,69 +173,69 @@ msgid "Select media"
 msgstr ""
 
 #: src/assets/build/editor.js:2
-#: src/assets/src/editor/controls/key-value.js:67
+#: src/assets/src/editor/controls/key-value.js:73
 #: src/assets/src/editor/controls/media.js:51
-#: src/assets/src/editor/controls/options-list.js:54
-#: src/assets/src/editor/node-renderer.js:228
+#: src/assets/src/editor/controls/options-list.js:60
+#: src/assets/src/editor/node-renderer.js:234
 msgid "Remove"
 msgstr ""
 
 #: src/assets/build/editor.js:2
-#: src/assets/src/editor/controls/conditions.js:123
+#: src/assets/src/editor/controls/conditions.js:135
 #: src/assets/src/editor/controls/sibling-field.js:32
 msgid "— Select a field —"
 msgstr ""
 
 #: src/assets/build/editor.js:2
-#: src/assets/src/editor/controls/conditions.js:86
+#: src/assets/src/editor/controls/conditions.js:89
 #: src/assets/src/editor/controls/query-builder.js:64
 msgid "Match"
 msgstr ""
 
 #: src/assets/build/editor.js:2
-#: src/assets/src/editor/controls/conditions.js:91
+#: src/assets/src/editor/controls/conditions.js:94
 #: src/assets/src/editor/controls/query-builder.js:69
 msgid "All rules"
 msgstr ""
 
 #: src/assets/build/editor.js:2
-#: src/assets/src/editor/controls/conditions.js:95
-#: src/assets/src/editor/controls/query-builder.js:73
+#: src/assets/src/editor/controls/conditions.js:101
+#: src/assets/src/editor/controls/query-builder.js:76
 msgid "Any rule"
 msgstr ""
 
 #: src/assets/build/editor.js:2
-#: src/assets/src/editor/controls/conditions.js:118
+#: src/assets/src/editor/controls/conditions.js:127
 msgid "Field"
 msgstr ""
 
 #: src/assets/build/editor.js:2
-#: src/assets/src/editor/controls/conditions.js:135
+#: src/assets/src/editor/controls/conditions.js:147
 msgid "Condition"
 msgstr ""
 
 #: src/assets/build/editor.js:2
-#: src/assets/src/editor/controls/conditions.js:144
-#: src/assets/src/editor/controls/key-value.js:52
+#: src/assets/src/editor/controls/conditions.js:159
+#: src/assets/src/editor/controls/key-value.js:55
 #: src/assets/src/editor/controls/options-list.js:38
-#: src/assets/src/editor/controls/query-builder.js:109
+#: src/assets/src/editor/controls/query-builder.js:118
 msgid "Value"
 msgstr ""
 
 #: src/assets/build/editor.js:2
-#: src/assets/src/editor/controls/conditions.js:147
+#: src/assets/src/editor/controls/conditions.js:165
 msgid "Comma-separated"
 msgstr ""
 
 #: src/assets/build/editor.js:2
-#: src/assets/src/editor/controls/conditions.js:173
-#: src/assets/src/editor/controls/query-builder.js:125
+#: src/assets/src/editor/controls/conditions.js:191
+#: src/assets/src/editor/controls/query-builder.js:137
 msgid "Remove rule"
 msgstr ""
 
 #: src/assets/build/editor.js:2
-#: src/assets/src/editor/controls/conditions.js:180
-#: src/assets/src/editor/controls/query-builder.js:140
+#: src/assets/src/editor/controls/conditions.js:201
+#: src/assets/src/editor/controls/query-builder.js:155
 msgid "Add rule"
 msgstr ""
 
@@ -263,23 +263,23 @@ msgstr ""
 
 #: src/assets/build/editor.js:2
 #: src/assets/src/editor/controls/key-value.js:43
-#: src/assets/src/editor/controls/query-builder.js:92
+#: src/assets/src/editor/controls/query-builder.js:98
 msgid "Key"
 msgstr ""
 
 #: src/assets/build/editor.js:2
-#: src/assets/src/editor/controls/key-value.js:75
-#: src/assets/src/editor/node-renderer.js:236
+#: src/assets/src/editor/controls/key-value.js:81
+#: src/assets/src/editor/node-renderer.js:242
 msgid "Add row"
 msgstr ""
 
 #: src/assets/build/editor.js:2
-#: src/assets/src/editor/controls/options-list.js:43
+#: src/assets/src/editor/controls/options-list.js:46
 msgid "Label"
 msgstr ""
 
 #: src/assets/build/editor.js:2
-#: src/assets/src/editor/controls/options-list.js:64
+#: src/assets/src/editor/controls/options-list.js:70
 msgid "Add option"
 msgstr ""
 
@@ -294,7 +294,7 @@ msgid "Full size"
 msgstr ""
 
 #: src/assets/build/editor.js:2
-#: src/assets/src/editor/controls/query-builder.js:97
+#: src/assets/src/editor/controls/query-builder.js:103
 msgid "Compare"
 msgstr ""
 
@@ -324,6 +324,6 @@ msgid "Move up"
 msgstr ""
 
 #: src/assets/build/editor.js:2
-#: src/assets/src/editor/node-renderer.js:221
+#: src/assets/src/editor/node-renderer.js:224
 msgid "Move down"
 msgstr ""
