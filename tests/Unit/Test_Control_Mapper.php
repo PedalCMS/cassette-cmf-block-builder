@@ -2,18 +2,18 @@
 /**
  * Control_Mapper test.
  *
- * @package Pedalcms\CassetteCmfBlocks\Tests\Unit
+ * @package PedalCMS\CassetteCMFBlocks\Tests\Unit
  */
 
-use Pedalcms\CassetteCmfBlocks\Schema\Control_Catalog;
-use Pedalcms\CassetteCmfBlocks\Schema\Control_Mapper;
+use PedalCMS\CassetteCMFBlocks\Schema\Control_Catalog;
+use PedalCMS\CassetteCMFBlocks\Schema\Control_Mapper;
 
-require_once __DIR__ . '/CassetteCmfBlocks_UnitTestCase.php';
+require_once __DIR__ . '/CassetteCMFBlocks_UnitTestCase.php';
 
 /**
  * Class Test_Control_Mapper
  */
-class Test_Control_Mapper extends CassetteCmfBlocks_UnitTestCase {
+class Test_Control_Mapper extends CassetteCMFBlocks_UnitTestCase {
 
 	/**
 	 * Reset the catalog before each test.

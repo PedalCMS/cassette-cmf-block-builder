@@ -11,15 +11,15 @@
  * normalisation/evaluation — never render(), which produces jQuery-oriented
  * admin HTML unsuited to the block editor.
  *
- * @package Pedalcms\CassetteCmfBlocks
+ * @package PedalCMS\CassetteCMFBlocks
  * @since 0.1.0
  */
 
-namespace Pedalcms\CassetteCmfBlocks\Compat;
+namespace PedalCMS\CassetteCMFBlocks\Compat;
 
-use Pedalcms\CassetteCmf\Field\Field_Factory;
-use Pedalcms\CassetteCmf\Field\Field_Interface;
-use Pedalcms\CassetteCmf\Field\Abstract_Field;
+use PedalCMS\CassetteCMF\Field\Field_Factory;
+use PedalCMS\CassetteCMF\Field\Field_Interface;
+use PedalCMS\CassetteCMF\Field\Abstract_Field;
 
 /**
  * Class Cmf_Bridge

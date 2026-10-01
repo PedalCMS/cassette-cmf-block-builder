@@ -2,17 +2,17 @@
 /**
  * Markup_Renderer test.
  *
- * @package Pedalcms\CassetteCmfBlocks\Tests\Unit
+ * @package PedalCMS\CassetteCMFBlocks\Tests\Unit
  */
 
-use Pedalcms\CassetteCmfBlocks\Render\Markup_Renderer;
+use PedalCMS\CassetteCMFBlocks\Render\Markup_Renderer;
 
-require_once __DIR__ . '/CassetteCmfBlocks_UnitTestCase.php';
+require_once __DIR__ . '/CassetteCMFBlocks_UnitTestCase.php';
 
 /**
  * Class Test_Markup_Renderer
  */
-class Test_Markup_Renderer extends CassetteCmfBlocks_UnitTestCase {
+class Test_Markup_Renderer extends CassetteCMFBlocks_UnitTestCase {
 
 	/**
 	 * A basic element with interpolated class and escaped text.

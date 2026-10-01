@@ -2,19 +2,19 @@
 /**
  * Attribute_Schema_Mapper test.
  *
- * @package Pedalcms\CassetteCmfBlocks\Tests\Unit
+ * @package PedalCMS\CassetteCMFBlocks\Tests\Unit
  */
 
-use Pedalcms\CassetteCmfBlocks\Core\Field_Collection;
-use Pedalcms\CassetteCmfBlocks\Schema\Attribute_Schema_Mapper;
-use Pedalcms\CassetteCmfBlocks\Schema\Control_Catalog;
+use PedalCMS\CassetteCMFBlocks\Core\Field_Collection;
+use PedalCMS\CassetteCMFBlocks\Schema\Attribute_Schema_Mapper;
+use PedalCMS\CassetteCMFBlocks\Schema\Control_Catalog;
 
-require_once __DIR__ . '/CassetteCmfBlocks_UnitTestCase.php';
+require_once __DIR__ . '/CassetteCMFBlocks_UnitTestCase.php';
 
 /**
  * Class Test_Attribute_Schema_Mapper
  */
-class Test_Attribute_Schema_Mapper extends CassetteCmfBlocks_UnitTestCase {
+class Test_Attribute_Schema_Mapper extends CassetteCMFBlocks_UnitTestCase {
 
 	/**
 	 * Reset the catalog before each test.

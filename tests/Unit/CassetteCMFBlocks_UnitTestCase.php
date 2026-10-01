@@ -4,19 +4,19 @@
  *
  * Base test case class for Cassette-CMF Blocks tests that handles WordPress
  * block registry notices. Copied from the parent library's base test case
- * (cassette-cmf/tests/Unit/CassetteCmf_UnitTestCase.php) because this library
+ * (cassette-cmf/tests/Unit/CassetteCMF_UnitTestCase.php) because this library
  * registers far more block types per test run than the parent ever does.
  *
- * @package Pedalcms\CassetteCmfBlocks\Tests\Unit
+ * @package PedalCMS\CassetteCMFBlocks\Tests\Unit
  */
 
 /**
- * Class CassetteCmfBlocks_UnitTestCase
+ * Class CassetteCMFBlocks_UnitTestCase
  *
  * Base test case that ignores WordPress block/bindings registry notices which
  * may occur during repeated register_block_type() calls across test methods.
  */
-abstract class CassetteCmfBlocks_UnitTestCase extends WP_UnitTestCase {
+abstract class CassetteCMFBlocks_UnitTestCase extends WP_UnitTestCase {
 
 	/**
 	 * Set up test fixtures.
@@ -49,7 +49,7 @@ abstract class CassetteCmfBlocks_UnitTestCase extends WP_UnitTestCase {
 		$ignored_notices = [
 			'WP_Block_Type_Registry::register'     => true,
 			'WP_Block_Bindings_Registry::register' => true,
-			'Pedalcms\CassetteCmfBlocks\Core\Block_Manager::register_blocks' => true,
+			'PedalCMS\CassetteCMFBlocks\Core\Block_Manager::register_blocks' => true,
 		];
 
 		$this->caught_doing_it_wrong = array_diff_key( $this->caught_doing_it_wrong, $ignored_notices );

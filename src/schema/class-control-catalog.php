@@ -24,11 +24,11 @@
  *                    holds an array value, matching the parent's
  *                    Repeater_Field semantics.
  *
- * @package Pedalcms\CassetteCmfBlocks
+ * @package PedalCMS\CassetteCMFBlocks
  * @since 0.1.0
  */
 
-namespace Pedalcms\CassetteCmfBlocks\Schema;
+namespace PedalCMS\CassetteCMFBlocks\Schema;
 
 /**
  * Class Control_Catalog

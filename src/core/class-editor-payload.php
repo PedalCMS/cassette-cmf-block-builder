@@ -9,16 +9,16 @@
  * parse of post_content) or a generated block.json on disk (vendor/ is
  * read-only on many deploys).
  *
- * @package Pedalcms\CassetteCmfBlocks
+ * @package PedalCMS\CassetteCMFBlocks
  * @since 0.1.0
  */
 
-namespace Pedalcms\CassetteCmfBlocks\Core;
+namespace PedalCMS\CassetteCMFBlocks\Core;
 
-use Pedalcms\CassetteCmfBlocks\Compat\Cmf_Bridge;
-use Pedalcms\CassetteCmfBlocks\Compat\Requirements;
-use Pedalcms\CassetteCmfBlocks\Render\Deprecation_Builder;
-use Pedalcms\CassetteCmfBlocks\Schema\Area_Resolver;
+use PedalCMS\CassetteCMFBlocks\Compat\Cmf_Bridge;
+use PedalCMS\CassetteCMFBlocks\Compat\Requirements;
+use PedalCMS\CassetteCMFBlocks\Render\Deprecation_Builder;
+use PedalCMS\CassetteCMFBlocks\Schema\Area_Resolver;
 
 /**
  * Class Editor_Payload

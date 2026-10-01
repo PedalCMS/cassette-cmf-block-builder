@@ -2,18 +2,18 @@
 /**
  * Block_Definition test.
  *
- * @package Pedalcms\CassetteCmfBlocks\Tests\Unit
+ * @package PedalCMS\CassetteCMFBlocks\Tests\Unit
  */
 
-use Pedalcms\CassetteCmfBlocks\Core\Block_Definition;
-use Pedalcms\CassetteCmfBlocks\Schema\Control_Catalog;
+use PedalCMS\CassetteCMFBlocks\Core\Block_Definition;
+use PedalCMS\CassetteCMFBlocks\Schema\Control_Catalog;
 
-require_once __DIR__ . '/CassetteCmfBlocks_UnitTestCase.php';
+require_once __DIR__ . '/CassetteCMFBlocks_UnitTestCase.php';
 
 /**
  * Class Test_Block_Definition
  */
-class Test_Block_Definition extends CassetteCmfBlocks_UnitTestCase {
+class Test_Block_Definition extends CassetteCMFBlocks_UnitTestCase {
 
 	/**
 	 * Reset the catalog before each test.
@@ -137,7 +137,7 @@ class Test_Block_Definition extends CassetteCmfBlocks_UnitTestCase {
 	 * in register_block_type_from_metadata()).
 	 */
 	public function test_block_hooks_self_reference_is_dropped(): void {
-		$this->setExpectedIncorrectUsage( 'Pedalcms\CassetteCmfBlocks\Core\Block_Definition::translate_block_hooks' );
+		$this->setExpectedIncorrectUsage( 'PedalCMS\CassetteCMFBlocks\Core\Block_Definition::translate_block_hooks' );
 
 		$definition = new Block_Definition(
 			[

@@ -7,13 +7,13 @@
  * then filter. Bound per-block as a closure captured at registration — see
  * Core\Block_Definition::get_render_callback().
  *
- * @package Pedalcms\CassetteCmfBlocks
+ * @package PedalCMS\CassetteCMFBlocks
  * @since 0.1.0
  */
 
-namespace Pedalcms\CassetteCmfBlocks\Render;
+namespace PedalCMS\CassetteCMFBlocks\Render;
 
-use Pedalcms\CassetteCmfBlocks\Core\Block_Definition;
+use PedalCMS\CassetteCMFBlocks\Core\Block_Definition;
 
 /**
  * Class Block_Renderer

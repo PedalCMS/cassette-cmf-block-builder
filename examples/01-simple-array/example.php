@@ -2,7 +2,7 @@
 /**
  * Simple array registration example.
  *
- * Demonstrates CassetteCmfBlocks::register_from_array() registering a real
+ * Demonstrates CassetteCMFBlocks::register_from_array() registering a real
  * block with a working inspector panel, toolbar toggle, and a declarative
  * "render.markup" tree — the same tree drives the front-end HTML (via
  * Render\Block_Renderer/Markup_Renderer) and the editor's instant canvas
@@ -14,18 +14,18 @@
  * in the inspector and the canvas preview as you edit — not just on the
  * front end. See docs/control-catalog.md's conditionals section.
  *
- * @package Pedalcms\CassetteCmfBlocks\Examples
+ * @package PedalCMS\CassetteCMFBlocks\Examples
  */
 
 require_once dirname( __DIR__, 2 ) . '/vendor/autoload.php';
 
-use Pedalcms\CassetteCmfBlocks\CassetteCmfBlocks;
+use PedalCMS\CassetteCMFBlocks\CassetteCMFBlocks;
 
 /**
  * Register a single block's configuration.
  */
 function cassette_cmf_blocks_simple_array_init() {
-	CassetteCmfBlocks::register_from_array(
+	CassetteCMFBlocks::register_from_array(
 		[
 			'blocks' => [
 				[

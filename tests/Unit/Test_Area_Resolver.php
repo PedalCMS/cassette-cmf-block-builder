@@ -2,17 +2,17 @@
 /**
  * Area_Resolver test.
  *
- * @package Pedalcms\CassetteCmfBlocks\Tests\Unit
+ * @package PedalCMS\CassetteCMFBlocks\Tests\Unit
  */
 
-use Pedalcms\CassetteCmfBlocks\Schema\Area_Resolver;
+use PedalCMS\CassetteCMFBlocks\Schema\Area_Resolver;
 
-require_once __DIR__ . '/CassetteCmfBlocks_UnitTestCase.php';
+require_once __DIR__ . '/CassetteCMFBlocks_UnitTestCase.php';
 
 /**
  * Class Test_Area_Resolver
  */
-class Test_Area_Resolver extends CassetteCmfBlocks_UnitTestCase {
+class Test_Area_Resolver extends CassetteCMFBlocks_UnitTestCase {
 
 	/**
 	 * null/empty should resolve to the default area.
@@ -37,7 +37,7 @@ class Test_Area_Resolver extends CassetteCmfBlocks_UnitTestCase {
 	 * the test unless the notice is unexpected — expect it explicitly here).
 	 */
 	public function test_unknown_area_falls_back_and_warns(): void {
-		$this->setExpectedIncorrectUsage( 'Pedalcms\CassetteCmfBlocks\Schema\Area_Resolver::normalize' );
+		$this->setExpectedIncorrectUsage( 'PedalCMS\CassetteCMFBlocks\Schema\Area_Resolver::normalize' );
 
 		$this->assertSame( 'inspector', Area_Resolver::normalize( 'not-a-real-area' ) );
 	}

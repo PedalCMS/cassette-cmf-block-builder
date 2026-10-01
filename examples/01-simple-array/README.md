@@ -1,6 +1,6 @@
 # Simple Example - PHP Array Configuration
 
-A minimal example demonstrating `cassette-cmf-block-builder` basics using PHP array configuration: one block, registered with `CassetteCmfBlocks::register_from_array()`, with a working toolbar control, an inspector panel, a conditional field, and a declarative `render.markup` tree that drives both the front-end HTML and the editor's instant canvas preview.
+A minimal example demonstrating `cassette-cmf-block-builder` basics using PHP array configuration: one block, registered with `CassetteCMFBlocks::register_from_array()`, with a working toolbar control, an inspector panel, a conditional field, and a declarative `render.markup` tree that drives both the front-end HTML and the editor's instant canvas preview.
 
 ## What This Example Creates
 
@@ -24,10 +24,10 @@ The block's `render.markup` renders a `<div class="acme-callout">` with a headin
 ## Usage
 
 ```php
-use Pedalcms\CassetteCmfBlocks\CassetteCmfBlocks;
+use PedalCMS\CassetteCMFBlocks\CassetteCMFBlocks;
 
 add_action( 'init', function () {
-    CassetteCmfBlocks::register_from_array( [
+    CassetteCMFBlocks::register_from_array( [
         'blocks' => [
             [
                 'id'     => 'acme/callout',

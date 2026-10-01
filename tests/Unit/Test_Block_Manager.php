@@ -2,18 +2,18 @@
 /**
  * Block_Manager test.
  *
- * @package Pedalcms\CassetteCmfBlocks\Tests\Unit
+ * @package PedalCMS\CassetteCMFBlocks\Tests\Unit
  */
 
-use Pedalcms\CassetteCmfBlocks\CassetteCmfBlocks;
-use Pedalcms\CassetteCmfBlocks\Core\Block_Manager;
+use PedalCMS\CassetteCMFBlocks\CassetteCMFBlocks;
+use PedalCMS\CassetteCMFBlocks\Core\Block_Manager;
 
-require_once __DIR__ . '/CassetteCmfBlocks_UnitTestCase.php';
+require_once __DIR__ . '/CassetteCMFBlocks_UnitTestCase.php';
 
 /**
  * Class Test_Block_Manager
  */
-class Test_Block_Manager extends CassetteCmfBlocks_UnitTestCase {
+class Test_Block_Manager extends CassetteCMFBlocks_UnitTestCase {
 
 	/**
 	 * Reset the singleton before each test so tests don't leak state.
@@ -34,7 +34,7 @@ class Test_Block_Manager extends CassetteCmfBlocks_UnitTestCase {
 	 * register_from_array() should store a block config keyed by its id.
 	 */
 	public function test_register_from_array_stores_block_by_id(): void {
-		$manager = CassetteCmfBlocks::register_from_array(
+		$manager = CassetteCMFBlocks::register_from_array(
 			[
 				'blocks' => [
 					[

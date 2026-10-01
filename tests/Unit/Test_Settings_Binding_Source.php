@@ -2,17 +2,17 @@
 /**
  * Settings_Binding_Source test.
  *
- * @package Pedalcms\CassetteCmfBlocks\Tests\Unit
+ * @package PedalCMS\CassetteCMFBlocks\Tests\Unit
  */
 
-use Pedalcms\CassetteCmfBlocks\Binding\Settings_Binding_Source;
+use PedalCMS\CassetteCMFBlocks\Binding\Settings_Binding_Source;
 
-require_once __DIR__ . '/CassetteCmfBlocks_UnitTestCase.php';
+require_once __DIR__ . '/CassetteCMFBlocks_UnitTestCase.php';
 
 /**
  * Class Test_Settings_Binding_Source
  */
-class Test_Settings_Binding_Source extends CassetteCmfBlocks_UnitTestCase {
+class Test_Settings_Binding_Source extends CassetteCMFBlocks_UnitTestCase {
 
 	/**
 	 * Build a bare WP_Block instance with the given block context.
@@ -129,7 +129,7 @@ class Test_Settings_Binding_Source extends CassetteCmfBlocks_UnitTestCase {
 	}
 
 	/**
-	 * A resolvable value round-trips through CassetteCmf::get_field()
+	 * A resolvable value round-trips through CassetteCMF::get_field()
 	 * correctly for a 'settings' binding.
 	 */
 	public function test_settings_binding_resolves_via_cassette_cmf(): void {

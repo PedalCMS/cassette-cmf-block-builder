@@ -2,20 +2,20 @@
 /**
  * Editor_Scope_Registrar test.
  *
- * @package Pedalcms\CassetteCmfBlocks\Tests\Unit
+ * @package PedalCMS\CassetteCMFBlocks\Tests\Unit
  */
 
-use Pedalcms\CassetteCmfBlocks\CassetteCmfBlocks;
-use Pedalcms\CassetteCmfBlocks\Core\Block_Manager;
-use Pedalcms\CassetteCmfBlocks\Core\Editor_Scope_Registrar;
-use Pedalcms\CassetteCmfBlocks\Schema\Control_Catalog;
+use PedalCMS\CassetteCMFBlocks\CassetteCMFBlocks;
+use PedalCMS\CassetteCMFBlocks\Core\Block_Manager;
+use PedalCMS\CassetteCMFBlocks\Core\Editor_Scope_Registrar;
+use PedalCMS\CassetteCMFBlocks\Schema\Control_Catalog;
 
-require_once __DIR__ . '/CassetteCmfBlocks_UnitTestCase.php';
+require_once __DIR__ . '/CassetteCMFBlocks_UnitTestCase.php';
 
 /**
  * Class Test_Editor_Scope_Registrar
  */
-class Test_Editor_Scope_Registrar extends CassetteCmfBlocks_UnitTestCase {
+class Test_Editor_Scope_Registrar extends CassetteCMFBlocks_UnitTestCase {
 
 	/**
 	 * Reset library singletons before each test.
@@ -52,7 +52,7 @@ class Test_Editor_Scope_Registrar extends CassetteCmfBlocks_UnitTestCase {
 	 * unrestricted.
 	 */
 	public function test_unscoped_post_type_is_unrestricted(): void {
-		CassetteCmfBlocks::register_from_array(
+		CassetteCMFBlocks::register_from_array(
 			[
 				'editor_scope' => [
 					'post_types' => [ 'page' ],
@@ -73,7 +73,7 @@ class Test_Editor_Scope_Registrar extends CassetteCmfBlocks_UnitTestCase {
 		register_block_type( 'acme-test/scope-a', [] );
 		register_block_type( 'acme-test/scope-b', [] );
 
-		CassetteCmfBlocks::register_from_array(
+		CassetteCMFBlocks::register_from_array(
 			[
 				'editor_scope' => [
 					'post_types' => [ 'page' ],
@@ -99,7 +99,7 @@ class Test_Editor_Scope_Registrar extends CassetteCmfBlocks_UnitTestCase {
 	 * over from every registered block.
 	 */
 	public function test_scoped_post_type_filters_an_existing_array(): void {
-		CassetteCmfBlocks::register_from_array(
+		CassetteCMFBlocks::register_from_array(
 			[
 				'editor_scope' => [
 					'post_types' => [ 'page' ],

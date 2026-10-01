@@ -3,19 +3,19 @@
  * End-to-end block registration test — the milestone deliverable: a PHP
  * config produces registered block types with correct schemas.
  *
- * @package Pedalcms\CassetteCmfBlocks\Tests\Unit
+ * @package PedalCMS\CassetteCMFBlocks\Tests\Unit
  */
 
-use Pedalcms\CassetteCmfBlocks\CassetteCmfBlocks;
-use Pedalcms\CassetteCmfBlocks\Core\Block_Manager;
-use Pedalcms\CassetteCmfBlocks\Schema\Control_Catalog;
+use PedalCMS\CassetteCMFBlocks\CassetteCMFBlocks;
+use PedalCMS\CassetteCMFBlocks\Core\Block_Manager;
+use PedalCMS\CassetteCMFBlocks\Schema\Control_Catalog;
 
-require_once __DIR__ . '/CassetteCmfBlocks_UnitTestCase.php';
+require_once __DIR__ . '/CassetteCMFBlocks_UnitTestCase.php';
 
 /**
  * Class Test_Block_Registration
  */
-class Test_Block_Registration extends CassetteCmfBlocks_UnitTestCase {
+class Test_Block_Registration extends CassetteCMFBlocks_UnitTestCase {
 
 	/**
 	 * Block names this test registered, unregistered in tear_down() so
@@ -57,7 +57,7 @@ class Test_Block_Registration extends CassetteCmfBlocks_UnitTestCase {
 		$name                       = 'acme-test/full-registration';
 		$this->registered_in_test[] = $name;
 
-		CassetteCmfBlocks::register_from_array(
+		CassetteCMFBlocks::register_from_array(
 			[
 				'blocks' => [
 					[
@@ -167,7 +167,7 @@ class Test_Block_Registration extends CassetteCmfBlocks_UnitTestCase {
 			]
 		);
 
-		CassetteCmfBlocks::register_from_json( $json );
+		CassetteCMFBlocks::register_from_json( $json );
 		Block_Manager::init()->register_blocks();
 
 		$this->assertTrue( WP_Block_Type_Registry::get_instance()->is_registered( $name ) );
@@ -182,7 +182,7 @@ class Test_Block_Registration extends CassetteCmfBlocks_UnitTestCase {
 		$name                       = 'acme-test/idempotent';
 		$this->registered_in_test[] = $name;
 
-		CassetteCmfBlocks::register_from_array( [ 'blocks' => [ [ 'id' => $name ] ] ] );
+		CassetteCMFBlocks::register_from_array( [ 'blocks' => [ [ 'id' => $name ] ] ] );
 
 		$manager = Block_Manager::init();
 		$manager->register_blocks();
@@ -204,8 +204,8 @@ class Test_Block_Registration extends CassetteCmfBlocks_UnitTestCase {
 		// Block_Manager::register_blocks() notices (both the "could not be
 		// registered" one this test triggers, and the "registered late" one
 		// every register_from_array() call triggers in this test harness)
-		// are ignored by CassetteCmfBlocks_UnitTestCase::assert_post_conditions().
-		CassetteCmfBlocks::register_from_array(
+		// are ignored by CassetteCMFBlocks_UnitTestCase::assert_post_conditions().
+		CassetteCMFBlocks::register_from_array(
 			[
 				'blocks' => [
 					[ 'id' => $good_name ],

@@ -2,18 +2,18 @@
 /**
  * Field_Collection test.
  *
- * @package Pedalcms\CassetteCmfBlocks\Tests\Unit
+ * @package PedalCMS\CassetteCMFBlocks\Tests\Unit
  */
 
-use Pedalcms\CassetteCmfBlocks\Core\Field_Collection;
-use Pedalcms\CassetteCmfBlocks\Schema\Control_Catalog;
+use PedalCMS\CassetteCMFBlocks\Core\Field_Collection;
+use PedalCMS\CassetteCMFBlocks\Schema\Control_Catalog;
 
-require_once __DIR__ . '/CassetteCmfBlocks_UnitTestCase.php';
+require_once __DIR__ . '/CassetteCMFBlocks_UnitTestCase.php';
 
 /**
  * Class Test_Field_Collection
  */
-class Test_Field_Collection extends CassetteCmfBlocks_UnitTestCase {
+class Test_Field_Collection extends CassetteCMFBlocks_UnitTestCase {
 
 	/**
 	 * Reset the catalog before each test.

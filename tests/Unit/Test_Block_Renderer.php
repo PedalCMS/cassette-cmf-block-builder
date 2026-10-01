@@ -2,19 +2,19 @@
 /**
  * Block_Renderer test.
  *
- * @package Pedalcms\CassetteCmfBlocks\Tests\Unit
+ * @package PedalCMS\CassetteCMFBlocks\Tests\Unit
  */
 
-use Pedalcms\CassetteCmfBlocks\Core\Block_Definition;
-use Pedalcms\CassetteCmfBlocks\Render\Block_Renderer;
-use Pedalcms\CassetteCmfBlocks\Schema\Control_Catalog;
+use PedalCMS\CassetteCMFBlocks\Core\Block_Definition;
+use PedalCMS\CassetteCMFBlocks\Render\Block_Renderer;
+use PedalCMS\CassetteCMFBlocks\Schema\Control_Catalog;
 
-require_once __DIR__ . '/CassetteCmfBlocks_UnitTestCase.php';
+require_once __DIR__ . '/CassetteCMFBlocks_UnitTestCase.php';
 
 /**
  * Class Test_Block_Renderer
  */
-class Test_Block_Renderer extends CassetteCmfBlocks_UnitTestCase {
+class Test_Block_Renderer extends CassetteCMFBlocks_UnitTestCase {
 
 	/**
 	 * Reset the catalog before each test.

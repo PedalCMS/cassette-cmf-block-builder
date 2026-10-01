@@ -2,18 +2,18 @@
 /**
  * Block_Schema_Validator test.
  *
- * @package Pedalcms\CassetteCmfBlocks\Tests\Unit
+ * @package PedalCMS\CassetteCMFBlocks\Tests\Unit
  */
 
-use Pedalcms\CassetteCmfBlocks\Json\Block_Schema_Validator;
-use Pedalcms\CassetteCmfBlocks\Schema\Control_Catalog;
+use PedalCMS\CassetteCMFBlocks\Json\Block_Schema_Validator;
+use PedalCMS\CassetteCMFBlocks\Schema\Control_Catalog;
 
-require_once __DIR__ . '/CassetteCmfBlocks_UnitTestCase.php';
+require_once __DIR__ . '/CassetteCMFBlocks_UnitTestCase.php';
 
 /**
  * Class Test_Block_Schema_Validator
  */
-class Test_Block_Schema_Validator extends CassetteCmfBlocks_UnitTestCase {
+class Test_Block_Schema_Validator extends CassetteCMFBlocks_UnitTestCase {
 
 	/**
 	 * The validator under test.

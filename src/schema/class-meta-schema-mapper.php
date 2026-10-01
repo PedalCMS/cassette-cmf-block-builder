@@ -13,11 +13,11 @@
  * never calls register_post_meta() for its own meta fields at all (see
  * Binding\Meta_Registrar's docblock).
  *
- * @package Pedalcms\CassetteCmfBlocks
+ * @package PedalCMS\CassetteCMFBlocks
  * @since 0.1.0
  */
 
-namespace Pedalcms\CassetteCmfBlocks\Schema;
+namespace PedalCMS\CassetteCMFBlocks\Schema;
 
 /**
  * Class Meta_Schema_Mapper

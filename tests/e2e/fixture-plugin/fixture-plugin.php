@@ -5,17 +5,17 @@
  * Version: 0.0.0
  * License: GPL-2.0-or-later
  *
- * @package Pedalcms\CassetteCmfBlocks\Tests\E2E\FixturePlugin
+ * @package PedalCMS\CassetteCMFBlocks\Tests\E2E\FixturePlugin
  */
 
 require_once __DIR__ . '/vendor/autoload.php';
 
-use Pedalcms\CassetteCmfBlocks\CassetteCmfBlocks;
+use PedalCMS\CassetteCMFBlocks\CassetteCMFBlocks;
 
 add_action(
 	'init',
 	static function () {
-		CassetteCmfBlocks::register_from_json( __DIR__ . '/config/blocks.json' );
+		CassetteCMFBlocks::register_from_json( __DIR__ . '/config/blocks.json' );
 	},
 	5
 );

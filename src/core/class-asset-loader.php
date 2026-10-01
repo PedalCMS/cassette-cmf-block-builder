@@ -17,13 +17,13 @@
  * markup tree drives three runtimes"), so its chrome classes need to
  * resolve identically wherever that markup renders.
  *
- * @package Pedalcms\CassetteCmfBlocks
+ * @package PedalCMS\CassetteCMFBlocks
  * @since 0.1.0
  */
 
-namespace Pedalcms\CassetteCmfBlocks\Core;
+namespace PedalCMS\CassetteCMFBlocks\Core;
 
-use Pedalcms\CassetteCmfBlocks\Compat\Requirements;
+use PedalCMS\CassetteCMFBlocks\Compat\Requirements;
 
 /**
  * Class Asset_Loader

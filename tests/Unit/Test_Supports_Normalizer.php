@@ -2,17 +2,17 @@
 /**
  * Supports_Normalizer test.
  *
- * @package Pedalcms\CassetteCmfBlocks\Tests\Unit
+ * @package PedalCMS\CassetteCMFBlocks\Tests\Unit
  */
 
-use Pedalcms\CassetteCmfBlocks\Schema\Supports_Normalizer;
+use PedalCMS\CassetteCMFBlocks\Schema\Supports_Normalizer;
 
-require_once __DIR__ . '/CassetteCmfBlocks_UnitTestCase.php';
+require_once __DIR__ . '/CassetteCMFBlocks_UnitTestCase.php';
 
 /**
  * Class Test_Supports_Normalizer
  */
-class Test_Supports_Normalizer extends CassetteCmfBlocks_UnitTestCase {
+class Test_Supports_Normalizer extends CassetteCMFBlocks_UnitTestCase {
 
 	/**
 	 * apiVersion should default to 3 — WP_Block_Type::$api_version defaults

@@ -1,17 +1,17 @@
 # Block configuration reference
 
-`CassetteCmfBlocks` registers Gutenberg blocks from a plain PHP array or a JSON file — the same field-declaration style `cassette-cmf` uses for post types and settings pages. A consumer plugin writes PHP or JSON only; the compiled editor bundle that turns this configuration into inspector panels, toolbars, and a live canvas preview ships inside the package.
+`CassetteCMFBlocks` registers Gutenberg blocks from a plain PHP array or a JSON file — the same field-declaration style `cassette-cmf` uses for post types and settings pages. A consumer plugin writes PHP or JSON only; the compiled editor bundle that turns this configuration into inspector panels, toolbars, and a live canvas preview ships inside the package.
 
 ## Registration
 
 ```php
-use Pedalcms\CassetteCmfBlocks\CassetteCmfBlocks;
+use PedalCMS\CassetteCMFBlocks\CassetteCMFBlocks;
 
-CassetteCmfBlocks::init(): Core\Block_Manager;
-CassetteCmfBlocks::register_from_array( array $config ): Core\Block_Manager;
-CassetteCmfBlocks::register_from_json( string $path_or_json, bool $validate = true ): Core\Block_Manager;
-CassetteCmfBlocks::get_block( string $name ): ?Core\Block_Definition;
-CassetteCmfBlocks::render( string $name, array $attributes = [], string $content = '' ): string;
+CassetteCMFBlocks::init(): Core\Block_Manager;
+CassetteCMFBlocks::register_from_array( array $config ): Core\Block_Manager;
+CassetteCMFBlocks::register_from_json( string $path_or_json, bool $validate = true ): Core\Block_Manager;
+CassetteCMFBlocks::get_block( string $name ): ?Core\Block_Definition;
+CassetteCMFBlocks::render( string $name, array $attributes = [], string $content = '' ): string;
 ```
 
 `register_from_json()` accepts either a filesystem path or a raw JSON string. With `$validate` true (the default), the config is checked against `Json\Block_Schema_Validator` first — a bad config throws `InvalidArgumentException` listing every problem found, not just the first.
@@ -22,7 +22,7 @@ Call these **on `init`, priority 5 or earlier — never priority 10 or later.** 
 add_action(
     'init',
     function () {
-        CassetteCmfBlocks::register_from_json( __DIR__ . '/config/blocks.json' );
+        CassetteCMFBlocks::register_from_json( __DIR__ . '/config/blocks.json' );
     },
     5
 );

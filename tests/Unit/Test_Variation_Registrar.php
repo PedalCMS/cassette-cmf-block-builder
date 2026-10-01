@@ -2,19 +2,19 @@
 /**
  * Variation_Registrar test.
  *
- * @package Pedalcms\CassetteCmfBlocks\Tests\Unit
+ * @package PedalCMS\CassetteCMFBlocks\Tests\Unit
  */
 
-use Pedalcms\CassetteCmfBlocks\Core\Block_Definition;
-use Pedalcms\CassetteCmfBlocks\Core\Variation_Registrar;
-use Pedalcms\CassetteCmfBlocks\Schema\Control_Catalog;
+use PedalCMS\CassetteCMFBlocks\Core\Block_Definition;
+use PedalCMS\CassetteCMFBlocks\Core\Variation_Registrar;
+use PedalCMS\CassetteCMFBlocks\Schema\Control_Catalog;
 
-require_once __DIR__ . '/CassetteCmfBlocks_UnitTestCase.php';
+require_once __DIR__ . '/CassetteCMFBlocks_UnitTestCase.php';
 
 /**
  * Class Test_Variation_Registrar
  */
-class Test_Variation_Registrar extends CassetteCmfBlocks_UnitTestCase {
+class Test_Variation_Registrar extends CassetteCMFBlocks_UnitTestCase {
 
 	/**
 	 * Reset the catalog before each test.
@@ -47,7 +47,7 @@ class Test_Variation_Registrar extends CassetteCmfBlocks_UnitTestCase {
 	 * A variation missing "name" is dropped, with a _doing_it_wrong().
 	 */
 	public function test_a_variation_missing_name_is_dropped(): void {
-		$this->setExpectedIncorrectUsage( 'Pedalcms\CassetteCmfBlocks\Core\Variation_Registrar::normalize' );
+		$this->setExpectedIncorrectUsage( 'PedalCMS\CassetteCMFBlocks\Core\Variation_Registrar::normalize' );
 
 		$result = Variation_Registrar::normalize(
 			[ [ 'title' => 'Outline' ] ],
@@ -61,7 +61,7 @@ class Test_Variation_Registrar extends CassetteCmfBlocks_UnitTestCase {
 	 * A variation missing "title" is dropped, with a _doing_it_wrong().
 	 */
 	public function test_a_variation_missing_title_is_dropped(): void {
-		$this->setExpectedIncorrectUsage( 'Pedalcms\CassetteCmfBlocks\Core\Variation_Registrar::normalize' );
+		$this->setExpectedIncorrectUsage( 'PedalCMS\CassetteCMFBlocks\Core\Variation_Registrar::normalize' );
 
 		$result = Variation_Registrar::normalize(
 			[ [ 'name' => 'outline' ] ],
@@ -76,7 +76,7 @@ class Test_Variation_Registrar extends CassetteCmfBlocks_UnitTestCase {
 	 * rather than one bad entry discarding the whole list.
 	 */
 	public function test_a_valid_variation_survives_alongside_an_invalid_one(): void {
-		$this->setExpectedIncorrectUsage( 'Pedalcms\CassetteCmfBlocks\Core\Variation_Registrar::normalize' );
+		$this->setExpectedIncorrectUsage( 'PedalCMS\CassetteCMFBlocks\Core\Variation_Registrar::normalize' );
 
 		$result = Variation_Registrar::normalize(
 			[
@@ -105,7 +105,7 @@ class Test_Variation_Registrar extends CassetteCmfBlocks_UnitTestCase {
 	 * automatically — an invalid variation there is dropped the same way.
 	 */
 	public function test_block_definition_normalizes_its_own_variations(): void {
-		$this->setExpectedIncorrectUsage( 'Pedalcms\CassetteCmfBlocks\Core\Variation_Registrar::normalize' );
+		$this->setExpectedIncorrectUsage( 'PedalCMS\CassetteCMFBlocks\Core\Variation_Registrar::normalize' );
 
 		$definition = new Block_Definition(
 			[

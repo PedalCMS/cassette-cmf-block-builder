@@ -10,17 +10,17 @@
  * label/slug/help/required field set each block shares is written out in
  * full per block instead of assembled from a shared function call.
  *
- * @package Pedalcms\CassetteCmfBlocks\Examples
+ * @package PedalCMS\CassetteCMFBlocks\Examples
  */
 
 require_once dirname( __DIR__, 2 ) . '/vendor/autoload.php';
 
-use Pedalcms\CassetteCmfBlocks\CassetteCmfBlocks;
+use PedalCMS\CassetteCMFBlocks\CassetteCMFBlocks;
 
 /**
  * Register block configuration from the JSON file in this directory.
  */
 function cassette_cmf_blocks_advanced_json_init() {
-	CassetteCmfBlocks::register_from_json( __DIR__ . '/config.json' );
+	CassetteCMFBlocks::register_from_json( __DIR__ . '/config.json' );
 }
 add_action( 'init', 'cassette_cmf_blocks_advanced_json_init', 5 );

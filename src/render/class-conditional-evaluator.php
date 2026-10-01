@@ -22,11 +22,11 @@
  * possible in the first place — markup/conditions.js is the JS half of the
  * exact same port, kept honest against this class by the same fixture.
  *
- * @package Pedalcms\CassetteCmfBlocks
+ * @package PedalCMS\CassetteCMFBlocks
  * @since 0.1.0
  */
 
-namespace Pedalcms\CassetteCmfBlocks\Render;
+namespace PedalCMS\CassetteCMFBlocks\Render;
 
 /**
  * Class Conditional_Evaluator

@@ -7,11 +7,11 @@
  * definitions that have already passed Field_Collection/Attribute_Schema_Mapper
  * validation.
  *
- * @package Pedalcms\CassetteCmfBlocks
+ * @package PedalCMS\CassetteCMFBlocks
  * @since 0.1.0
  */
 
-namespace Pedalcms\CassetteCmfBlocks\Core;
+namespace PedalCMS\CassetteCMFBlocks\Core;
 
 /**
  * Class Block_Registry

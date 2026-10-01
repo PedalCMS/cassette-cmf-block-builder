@@ -13,11 +13,11 @@
  * quoting headaches as comfortably as PHP can) has an equally first-class
  * way to author a pattern.
  *
- * @package Pedalcms\CassetteCmfBlocks
+ * @package PedalCMS\CassetteCMFBlocks
  * @since 0.1.0
  */
 
-namespace Pedalcms\CassetteCmfBlocks\Core;
+namespace PedalCMS\CassetteCMFBlocks\Core;
 
 /**
  * Class Pattern_Registrar

@@ -6,7 +6,7 @@
  * library's bootstrap, which couples its test suite to cassette-cmf-example.php).
  * This suite tests the library in isolation.
  *
- * @package Pedalcms\CassetteCmfBlocks\Tests
+ * @package PedalCMS\CassetteCMFBlocks\Tests
  */
 
 define( 'TESTS_PLUGIN_DIR', dirname( __DIR__ ) );
@@ -83,11 +83,11 @@ require_once $_tests_dir . '/includes/functions.php';
 
 /**
  * Load the library under test. No consumer plugin is loaded — this suite
- * exercises Pedalcms\CassetteCmfBlocks in isolation from any host plugin.
+ * exercises PedalCMS\CassetteCMFBlocks in isolation from any host plugin.
  */
 function _manually_load_cassette_cmf_blocks() {
-	if ( class_exists( \Pedalcms\CassetteCmfBlocks\CassetteCmfBlocks::class ) ) {
-		\Pedalcms\CassetteCmfBlocks\CassetteCmfBlocks::init();
+	if ( class_exists( \PedalCMS\CassetteCMFBlocks\CassetteCMFBlocks::class ) ) {
+		\PedalCMS\CassetteCMFBlocks\CassetteCMFBlocks::init();
 	}
 }
 

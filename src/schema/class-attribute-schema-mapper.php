@@ -13,13 +13,13 @@
  * "none" means the field carries no persisted value at all (e.g. a
  * display-only control that isn't already excluded by holds_value).
  *
- * @package Pedalcms\CassetteCmfBlocks
+ * @package PedalCMS\CassetteCMFBlocks
  * @since 0.1.0
  */
 
-namespace Pedalcms\CassetteCmfBlocks\Schema;
+namespace PedalCMS\CassetteCMFBlocks\Schema;
 
-use Pedalcms\CassetteCmfBlocks\Core\Field_Collection;
+use PedalCMS\CassetteCMFBlocks\Core\Field_Collection;
 
 /**
  * Class Attribute_Schema_Mapper

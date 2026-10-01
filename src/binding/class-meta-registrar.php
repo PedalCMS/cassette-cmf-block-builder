@@ -27,16 +27,16 @@
  * post type is a side effect this library has no business taking on
  * unprompted. See docs/meta-binding.md.
  *
- * @package Pedalcms\CassetteCmfBlocks
+ * @package PedalCMS\CassetteCMFBlocks
  * @since 0.1.0
  */
 
-namespace Pedalcms\CassetteCmfBlocks\Binding;
+namespace PedalCMS\CassetteCMFBlocks\Binding;
 
-use Pedalcms\CassetteCmfBlocks\Compat\Cmf_Bridge;
-use Pedalcms\CassetteCmfBlocks\Compat\Requirements;
-use Pedalcms\CassetteCmfBlocks\Core\Block_Manager;
-use Pedalcms\CassetteCmfBlocks\Schema\Meta_Schema_Mapper;
+use PedalCMS\CassetteCMFBlocks\Compat\Cmf_Bridge;
+use PedalCMS\CassetteCMFBlocks\Compat\Requirements;
+use PedalCMS\CassetteCMFBlocks\Core\Block_Manager;
+use PedalCMS\CassetteCMFBlocks\Schema\Meta_Schema_Mapper;
 
 /**
  * Class Meta_Registrar

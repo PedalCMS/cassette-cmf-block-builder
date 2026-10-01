@@ -11,18 +11,18 @@
  * markup/expr.js's for why this tests expression *values*, not full markup
  * output (an HTML string and a React element tree aren't directly comparable).
  *
- * @package Pedalcms\CassetteCmfBlocks\Tests\Unit
+ * @package PedalCMS\CassetteCMFBlocks\Tests\Unit
  */
 
-use Pedalcms\CassetteCmfBlocks\Render\Expression;
-use Pedalcms\CassetteCmfBlocks\Render\Markup_Renderer;
+use PedalCMS\CassetteCMFBlocks\Render\Expression;
+use PedalCMS\CassetteCMFBlocks\Render\Markup_Renderer;
 
-require_once __DIR__ . '/CassetteCmfBlocks_UnitTestCase.php';
+require_once __DIR__ . '/CassetteCMFBlocks_UnitTestCase.php';
 
 /**
  * Class Test_Markup_Fixtures
  */
-class Test_Markup_Fixtures extends CassetteCmfBlocks_UnitTestCase {
+class Test_Markup_Fixtures extends CassetteCMFBlocks_UnitTestCase {
 
 	/**
 	 * Every case in tests/fixtures/markup.json must interpolate to its

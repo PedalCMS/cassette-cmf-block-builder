@@ -2,17 +2,17 @@
 /**
  * Cmf_Bridge test.
  *
- * @package Pedalcms\CassetteCmfBlocks\Tests\Unit
+ * @package PedalCMS\CassetteCMFBlocks\Tests\Unit
  */
 
-use Pedalcms\CassetteCmfBlocks\Compat\Cmf_Bridge;
+use PedalCMS\CassetteCMFBlocks\Compat\Cmf_Bridge;
 
-require_once __DIR__ . '/CassetteCmfBlocks_UnitTestCase.php';
+require_once __DIR__ . '/CassetteCMFBlocks_UnitTestCase.php';
 
 /**
  * Class Test_Cmf_Bridge
  */
-class Test_Cmf_Bridge extends CassetteCmfBlocks_UnitTestCase {
+class Test_Cmf_Bridge extends CassetteCMFBlocks_UnitTestCase {
 
 	/**
 	 * sanitize() should delegate to the parent's field type — "email"

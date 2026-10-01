@@ -20,11 +20,11 @@
  * future auto-synthesis tool (or a consumer's own migration tooling) would
  * need, not that tool itself.
  *
- * @package Pedalcms\CassetteCmfBlocks
+ * @package PedalCMS\CassetteCMFBlocks
  * @since 0.1.0
  */
 
-namespace Pedalcms\CassetteCmfBlocks\Render;
+namespace PedalCMS\CassetteCMFBlocks\Render;
 
 /**
  * Class Deprecation_Builder

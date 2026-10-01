@@ -4,7 +4,7 @@
  *
  * A simple test to verify the WordPress test environment is working.
  *
- * @package Pedalcms\CassetteCmfBlocks\Tests\Unit
+ * @package PedalCMS\CassetteCMFBlocks\Tests\Unit
  */
 
 /**
@@ -28,7 +28,7 @@ class Test_Sample extends WP_UnitTestCase {
 		global $wp_version;
 
 		$this->assertTrue(
-			version_compare( $wp_version, \Pedalcms\CassetteCmfBlocks\Compat\Requirements::MIN_WP_VERSION, '>=' ),
+			version_compare( $wp_version, \PedalCMS\CassetteCMFBlocks\Compat\Requirements::MIN_WP_VERSION, '>=' ),
 			"Running WP $wp_version does not meet the library's floor."
 		);
 	}
@@ -37,6 +37,6 @@ class Test_Sample extends WP_UnitTestCase {
 	 * Test the parent library autoloads alongside this one.
 	 */
 	public function test_parent_library_is_loaded(): void {
-		$this->assertTrue( class_exists( \Pedalcms\CassetteCmf\Field\Field_Factory::class ) );
+		$this->assertTrue( class_exists( \PedalCMS\CassetteCMF\Field\Field_Factory::class ) );
 	}
 }

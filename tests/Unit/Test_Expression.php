@@ -2,17 +2,17 @@
 /**
  * Expression test.
  *
- * @package Pedalcms\CassetteCmfBlocks\Tests\Unit
+ * @package PedalCMS\CassetteCMFBlocks\Tests\Unit
  */
 
-use Pedalcms\CassetteCmfBlocks\Render\Expression;
+use PedalCMS\CassetteCMFBlocks\Render\Expression;
 
-require_once __DIR__ . '/CassetteCmfBlocks_UnitTestCase.php';
+require_once __DIR__ . '/CassetteCMFBlocks_UnitTestCase.php';
 
 /**
  * Class Test_Expression
  */
-class Test_Expression extends CassetteCmfBlocks_UnitTestCase {
+class Test_Expression extends CassetteCMFBlocks_UnitTestCase {
 
 	/**
 	 * A bare path with no filters resolves to the scope value.

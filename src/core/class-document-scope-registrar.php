@@ -11,11 +11,11 @@
  * them to the way inspector/toolbar/canvas fields are. Per the design
  * plan: "Without it the library refuses to mount and logs."
  *
- * @package Pedalcms\CassetteCmfBlocks
+ * @package PedalCMS\CassetteCMFBlocks
  * @since 0.1.0
  */
 
-namespace Pedalcms\CassetteCmfBlocks\Core;
+namespace PedalCMS\CassetteCMFBlocks\Core;
 
 /**
  * Class Document_Scope_Registrar

@@ -13,14 +13,14 @@
  * REST-based bridge for in the first place (see that plan's "PHP↔JS
  * bridge" section).
  *
- * @package Pedalcms\CassetteCmfBlocks
+ * @package PedalCMS\CassetteCMFBlocks
  * @since 0.1.0
  */
 
-namespace Pedalcms\CassetteCmfBlocks\Rest;
+namespace PedalCMS\CassetteCMFBlocks\Rest;
 
-use Pedalcms\CassetteCmfBlocks\Core\Block_Manager;
-use Pedalcms\CassetteCmfBlocks\Core\Editor_Payload;
+use PedalCMS\CassetteCMFBlocks\Core\Block_Manager;
+use PedalCMS\CassetteCMFBlocks\Core\Editor_Payload;
 
 /**
  * Class Config_Controller

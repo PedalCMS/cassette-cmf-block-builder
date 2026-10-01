@@ -5,11 +5,11 @@
  * Fills in defaults for a block's "args" passthrough that WordPress itself
  * would otherwise apply inconsistently or not at all.
  *
- * @package Pedalcms\CassetteCmfBlocks
+ * @package PedalCMS\CassetteCMFBlocks
  * @since 0.1.0
  */
 
-namespace Pedalcms\CassetteCmfBlocks\Schema;
+namespace PedalCMS\CassetteCMFBlocks\Schema;
 
 /**
  * Class Supports_Normalizer

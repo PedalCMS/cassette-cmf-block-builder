@@ -2,17 +2,17 @@
 /**
  * Requirements test.
  *
- * @package Pedalcms\CassetteCmfBlocks\Tests\Unit
+ * @package PedalCMS\CassetteCMFBlocks\Tests\Unit
  */
 
-use Pedalcms\CassetteCmfBlocks\Compat\Requirements;
+use PedalCMS\CassetteCMFBlocks\Compat\Requirements;
 
-require_once __DIR__ . '/CassetteCmfBlocks_UnitTestCase.php';
+require_once __DIR__ . '/CassetteCMFBlocks_UnitTestCase.php';
 
 /**
  * Class Test_Requirements
  */
-class Test_Requirements extends CassetteCmfBlocks_UnitTestCase {
+class Test_Requirements extends CassetteCMFBlocks_UnitTestCase {
 
 	/**
 	 * Reset the cached check result before each test.

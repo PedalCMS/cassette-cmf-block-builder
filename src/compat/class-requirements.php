@@ -8,14 +8,14 @@
  * block registry can corrupt content — and surface an admin notice instead
  * of fataling.
  *
- * @package Pedalcms\CassetteCmfBlocks
+ * @package PedalCMS\CassetteCMFBlocks
  * @since 0.1.0
  */
 
-namespace Pedalcms\CassetteCmfBlocks\Compat;
+namespace PedalCMS\CassetteCMFBlocks\Compat;
 
-use Pedalcms\CassetteCmf\Field\Field_Factory;
-use Pedalcms\CassetteCmf\Field\Field_Interface;
+use PedalCMS\CassetteCMF\Field\Field_Factory;
+use PedalCMS\CassetteCMF\Field\Field_Interface;
 
 /**
  * Class Requirements

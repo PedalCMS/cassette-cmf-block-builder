@@ -16,14 +16,14 @@
  * would be on save). The real XSS defence is Markup_Renderer's own
  * per-node-kind output escaping — this exists alongside it, not instead of it.
  *
- * @package Pedalcms\CassetteCmfBlocks
+ * @package PedalCMS\CassetteCMFBlocks
  * @since 0.1.0
  */
 
-namespace Pedalcms\CassetteCmfBlocks\Render;
+namespace PedalCMS\CassetteCMFBlocks\Render;
 
-use Pedalcms\CassetteCmfBlocks\Compat\Cmf_Bridge;
-use Pedalcms\CassetteCmfBlocks\Core\Field_Collection;
+use PedalCMS\CassetteCMFBlocks\Compat\Cmf_Bridge;
+use PedalCMS\CassetteCMFBlocks\Core\Field_Collection;
 
 /**
  * Class Attribute_Sanitizer

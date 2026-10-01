@@ -11,11 +11,11 @@
  * differently between the two languages would silently desync the front-end
  * render from the editor preview.
  *
- * @package Pedalcms\CassetteCmfBlocks
+ * @package PedalCMS\CassetteCMFBlocks
  * @since 0.1.0
  */
 
-namespace Pedalcms\CassetteCmfBlocks\Render;
+namespace PedalCMS\CassetteCMFBlocks\Render;
 
 /**
  * Class Expression

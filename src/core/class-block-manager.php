@@ -12,17 +12,17 @@
  *     built lazily and only once each field/attribute config has passed
  *     Field_Collection/Attribute_Schema_Mapper validation.
  *
- * @package Pedalcms\CassetteCmfBlocks
+ * @package PedalCMS\CassetteCMFBlocks
  * @since 0.1.0
  */
 
-namespace Pedalcms\CassetteCmfBlocks\Core;
+namespace PedalCMS\CassetteCMFBlocks\Core;
 
-use Pedalcms\CassetteCmfBlocks\Binding\Binding_Source_Registrar;
-use Pedalcms\CassetteCmfBlocks\Binding\Meta_Registrar;
-use Pedalcms\CassetteCmfBlocks\Compat\Requirements;
-use Pedalcms\CassetteCmfBlocks\Json\Block_Schema_Validator;
-use Pedalcms\CassetteCmfBlocks\Rest\Config_Controller;
+use PedalCMS\CassetteCMFBlocks\Binding\Binding_Source_Registrar;
+use PedalCMS\CassetteCMFBlocks\Binding\Meta_Registrar;
+use PedalCMS\CassetteCMFBlocks\Compat\Requirements;
+use PedalCMS\CassetteCMFBlocks\Json\Block_Schema_Validator;
+use PedalCMS\CassetteCMFBlocks\Rest\Config_Controller;
 
 /**
  * Class Block_Manager

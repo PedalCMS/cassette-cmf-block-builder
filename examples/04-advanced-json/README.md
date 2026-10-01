@@ -14,10 +14,10 @@ The same 5 field blocks as [`03-advanced-array`](../03-advanced-array/), registe
 ## Usage
 
 ```php
-use Pedalcms\CassetteCmfBlocks\CassetteCmfBlocks;
+use PedalCMS\CassetteCMFBlocks\CassetteCMFBlocks;
 
 add_action( 'init', function () {
-    CassetteCmfBlocks::register_from_json( __DIR__ . '/config.json' );
+    CassetteCMFBlocks::register_from_json( __DIR__ . '/config.json' );
 }, 5 );
 ```
 

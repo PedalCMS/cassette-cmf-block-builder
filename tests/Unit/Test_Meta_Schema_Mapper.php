@@ -2,17 +2,17 @@
 /**
  * Meta_Schema_Mapper test.
  *
- * @package Pedalcms\CassetteCmfBlocks\Tests\Unit
+ * @package PedalCMS\CassetteCMFBlocks\Tests\Unit
  */
 
-use Pedalcms\CassetteCmfBlocks\Schema\Meta_Schema_Mapper;
+use PedalCMS\CassetteCMFBlocks\Schema\Meta_Schema_Mapper;
 
-require_once __DIR__ . '/CassetteCmfBlocks_UnitTestCase.php';
+require_once __DIR__ . '/CassetteCMFBlocks_UnitTestCase.php';
 
 /**
  * Class Test_Meta_Schema_Mapper
  */
-class Test_Meta_Schema_Mapper extends CassetteCmfBlocks_UnitTestCase {
+class Test_Meta_Schema_Mapper extends CassetteCMFBlocks_UnitTestCase {
 
 	/**
 	 * A scalar field maps to a plain JSON Schema type/default.

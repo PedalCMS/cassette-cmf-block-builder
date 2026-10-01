@@ -3,26 +3,26 @@
  * Cassette-CMF Blocks Main Entry Point
  *
  * The primary facade class for Cassette-CMF Blocks, mirroring the parent
- * library's Pedalcms\CassetteCmf\CassetteCmf facade.
+ * library's PedalCMS\CassetteCMF\CassetteCMF facade.
  *
- * @package Pedalcms\CassetteCmfBlocks
+ * @package PedalCMS\CassetteCMFBlocks
  * @since 0.1.0
  */
 
-namespace Pedalcms\CassetteCmfBlocks;
+namespace PedalCMS\CassetteCMFBlocks;
 
-use Pedalcms\CassetteCmfBlocks\Core\Block_Manager;
+use PedalCMS\CassetteCMFBlocks\Core\Block_Manager;
 
 /**
- * Class CassetteCmfBlocks
+ * Class CassetteCMFBlocks
  *
  * Usage:
- *   use Pedalcms\CassetteCmfBlocks\CassetteCmfBlocks;
+ *   use PedalCMS\CassetteCMFBlocks\CassetteCMFBlocks;
  *
- *   CassetteCmfBlocks::register_from_array( $config );
- *   CassetteCmfBlocks::register_from_json( $json_file );
+ *   CassetteCMFBlocks::register_from_array( $config );
+ *   CassetteCMFBlocks::register_from_json( $json_file );
  */
-class CassetteCmfBlocks {
+class CassetteCMFBlocks {
 
 	/**
 	 * Get the Block_Manager singleton instance.

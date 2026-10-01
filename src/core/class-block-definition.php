@@ -6,15 +6,15 @@
  * fields into a Field_Collection, maps them into a WP attribute schema, and
  * assembles the args register_block_type() expects.
  *
- * @package Pedalcms\CassetteCmfBlocks
+ * @package PedalCMS\CassetteCMFBlocks
  * @since 0.1.0
  */
 
-namespace Pedalcms\CassetteCmfBlocks\Core;
+namespace PedalCMS\CassetteCMFBlocks\Core;
 
-use Pedalcms\CassetteCmfBlocks\Render\Block_Renderer;
-use Pedalcms\CassetteCmfBlocks\Schema\Attribute_Schema_Mapper;
-use Pedalcms\CassetteCmfBlocks\Schema\Supports_Normalizer;
+use PedalCMS\CassetteCMFBlocks\Render\Block_Renderer;
+use PedalCMS\CassetteCMFBlocks\Schema\Attribute_Schema_Mapper;
+use PedalCMS\CassetteCMFBlocks\Schema\Supports_Normalizer;
 
 /**
  * Class Block_Definition

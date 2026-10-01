@@ -2,20 +2,20 @@
 /**
  * Config_Controller test.
  *
- * @package Pedalcms\CassetteCmfBlocks\Tests\Unit
+ * @package PedalCMS\CassetteCMFBlocks\Tests\Unit
  */
 
-use Pedalcms\CassetteCmfBlocks\CassetteCmfBlocks;
-use Pedalcms\CassetteCmfBlocks\Core\Block_Manager;
-use Pedalcms\CassetteCmfBlocks\Rest\Config_Controller;
-use Pedalcms\CassetteCmfBlocks\Schema\Control_Catalog;
+use PedalCMS\CassetteCMFBlocks\CassetteCMFBlocks;
+use PedalCMS\CassetteCMFBlocks\Core\Block_Manager;
+use PedalCMS\CassetteCMFBlocks\Rest\Config_Controller;
+use PedalCMS\CassetteCMFBlocks\Schema\Control_Catalog;
 
-require_once __DIR__ . '/CassetteCmfBlocks_UnitTestCase.php';
+require_once __DIR__ . '/CassetteCMFBlocks_UnitTestCase.php';
 
 /**
  * Class Test_Config_Controller
  */
-class Test_Config_Controller extends CassetteCmfBlocks_UnitTestCase {
+class Test_Config_Controller extends CassetteCMFBlocks_UnitTestCase {
 
 	/**
 	 * Reset library singletons before each test.
@@ -83,7 +83,7 @@ class Test_Config_Controller extends CassetteCmfBlocks_UnitTestCase {
 		$user_id = self::factory()->user->create( [ 'role' => 'editor' ] );
 		wp_set_current_user( $user_id );
 
-		CassetteCmfBlocks::register_from_array(
+		CassetteCMFBlocks::register_from_array(
 			[
 				'blocks' => [
 					[

@@ -10,11 +10,11 @@
  * completely unrestricted — this only ever narrows the inserter, never
  * widens it beyond what WordPress/other plugins already allow.
  *
- * @package Pedalcms\CassetteCmfBlocks
+ * @package PedalCMS\CassetteCMFBlocks
  * @since 0.1.0
  */
 
-namespace Pedalcms\CassetteCmfBlocks\Core;
+namespace PedalCMS\CassetteCMFBlocks\Core;
 
 /**
  * Class Editor_Scope_Registrar

@@ -2,17 +2,17 @@
 /**
  * Document_Scope_Registrar test.
  *
- * @package Pedalcms\CassetteCmfBlocks\Tests\Unit
+ * @package PedalCMS\CassetteCMFBlocks\Tests\Unit
  */
 
-use Pedalcms\CassetteCmfBlocks\Core\Document_Scope_Registrar;
+use PedalCMS\CassetteCMFBlocks\Core\Document_Scope_Registrar;
 
-require_once __DIR__ . '/CassetteCmfBlocks_UnitTestCase.php';
+require_once __DIR__ . '/CassetteCMFBlocks_UnitTestCase.php';
 
 /**
  * Class Test_Document_Scope_Registrar
  */
-class Test_Document_Scope_Registrar extends CassetteCmfBlocks_UnitTestCase {
+class Test_Document_Scope_Registrar extends CassetteCMFBlocks_UnitTestCase {
 
 	/**
 	 * A valid "document_scope" normalizes with its declared post_types,
@@ -63,7 +63,7 @@ class Test_Document_Scope_Registrar extends CassetteCmfBlocks_UnitTestCase {
 	 * Missing "document_scope" entirely returns null and logs.
 	 */
 	public function test_null_input_returns_null_and_logs(): void {
-		$this->setExpectedIncorrectUsage( 'Pedalcms\CassetteCmfBlocks\Core\Document_Scope_Registrar::normalize' );
+		$this->setExpectedIncorrectUsage( 'PedalCMS\CassetteCMFBlocks\Core\Document_Scope_Registrar::normalize' );
 
 		$this->assertNull( Document_Scope_Registrar::normalize( null, 'acme/callout' ) );
 	}
@@ -72,7 +72,7 @@ class Test_Document_Scope_Registrar extends CassetteCmfBlocks_UnitTestCase {
 	 * An empty "post_types" array is invalid — there's nothing to gate on.
 	 */
 	public function test_empty_post_types_returns_null_and_logs(): void {
-		$this->setExpectedIncorrectUsage( 'Pedalcms\CassetteCmfBlocks\Core\Document_Scope_Registrar::normalize' );
+		$this->setExpectedIncorrectUsage( 'PedalCMS\CassetteCMFBlocks\Core\Document_Scope_Registrar::normalize' );
 
 		$this->assertNull(
 			Document_Scope_Registrar::normalize( [ 'post_types' => [] ], 'acme/callout' )

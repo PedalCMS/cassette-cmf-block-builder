@@ -26,10 +26,10 @@ The same capabilities as [`01-simple-array`](../01-simple-array/), registered fr
 ### Loading JSON Config
 
 ```php
-use Pedalcms\CassetteCmfBlocks\CassetteCmfBlocks;
+use PedalCMS\CassetteCMFBlocks\CassetteCMFBlocks;
 
 add_action( 'init', function () {
-    CassetteCmfBlocks::register_from_json( __DIR__ . '/config.json' );
+    CassetteCMFBlocks::register_from_json( __DIR__ . '/config.json' );
 }, 5 );
 ```
 
@@ -39,10 +39,10 @@ Registering at `init` priority 5 (not the default 10) matters here too — see [
 
 ```php
 // With validation (default)
-CassetteCmfBlocks::register_from_json( $path );
+CassetteCMFBlocks::register_from_json( $path );
 
 // Skip validation
-CassetteCmfBlocks::register_from_json( $path, false );
+CassetteCMFBlocks::register_from_json( $path, false );
 ```
 
 `Json\Block_Schema_Validator` reads its valid control types from `Schema\Control_Catalog` and its valid areas from `Schema\Area_Resolver` rather than a hardcoded list, so it never drifts out of sync with what the runtime actually accepts.

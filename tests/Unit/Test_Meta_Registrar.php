@@ -2,20 +2,20 @@
 /**
  * Meta_Registrar test.
  *
- * @package Pedalcms\CassetteCmfBlocks\Tests\Unit
+ * @package PedalCMS\CassetteCMFBlocks\Tests\Unit
  */
 
-use Pedalcms\CassetteCmfBlocks\Binding\Meta_Registrar;
-use Pedalcms\CassetteCmfBlocks\CassetteCmfBlocks;
-use Pedalcms\CassetteCmfBlocks\Core\Block_Manager;
-use Pedalcms\CassetteCmfBlocks\Schema\Control_Catalog;
+use PedalCMS\CassetteCMFBlocks\Binding\Meta_Registrar;
+use PedalCMS\CassetteCMFBlocks\CassetteCMFBlocks;
+use PedalCMS\CassetteCMFBlocks\Core\Block_Manager;
+use PedalCMS\CassetteCMFBlocks\Schema\Control_Catalog;
 
-require_once __DIR__ . '/CassetteCmfBlocks_UnitTestCase.php';
+require_once __DIR__ . '/CassetteCMFBlocks_UnitTestCase.php';
 
 /**
  * Class Test_Meta_Registrar
  */
-class Test_Meta_Registrar extends CassetteCmfBlocks_UnitTestCase {
+class Test_Meta_Registrar extends CassetteCMFBlocks_UnitTestCase {
 
 	/**
 	 * Reset library singletons before each test.
@@ -42,7 +42,7 @@ class Test_Meta_Registrar extends CassetteCmfBlocks_UnitTestCase {
 	 * A "meta"-sourced field is registered with a real show_in_rest schema.
 	 */
 	public function test_registers_a_meta_sourced_field_with_a_rest_schema(): void {
-		CassetteCmfBlocks::register_from_array(
+		CassetteCMFBlocks::register_from_array(
 			[
 				'blocks' => [
 					[
@@ -77,7 +77,7 @@ class Test_Meta_Registrar extends CassetteCmfBlocks_UnitTestCase {
 	 * name independently, e.g. to match an existing meta key).
 	 */
 	public function test_meta_key_override(): void {
-		CassetteCmfBlocks::register_from_array(
+		CassetteCMFBlocks::register_from_array(
 			[
 				'blocks' => [
 					[
@@ -105,7 +105,7 @@ class Test_Meta_Registrar extends CassetteCmfBlocks_UnitTestCase {
 	 * An attribute-sourced field (the default) is never registered as meta.
 	 */
 	public function test_attribute_sourced_fields_are_not_registered(): void {
-		CassetteCmfBlocks::register_from_array(
+		CassetteCMFBlocks::register_from_array(
 			[
 				'blocks' => [
 					[
@@ -130,7 +130,7 @@ class Test_Meta_Registrar extends CassetteCmfBlocks_UnitTestCase {
 	 * "meta.object_type" registers against a different object type (e.g. "term").
 	 */
 	public function test_registers_against_a_declared_object_type(): void {
-		CassetteCmfBlocks::register_from_array(
+		CassetteCMFBlocks::register_from_array(
 			[
 				'blocks' => [
 					[
@@ -159,7 +159,7 @@ class Test_Meta_Registrar extends CassetteCmfBlocks_UnitTestCase {
 	 * field's own "name", the same as leaving "meta.key" out entirely.
 	 */
 	public function test_empty_meta_key_falls_back_to_the_field_name(): void {
-		CassetteCmfBlocks::register_from_array(
+		CassetteCMFBlocks::register_from_array(
 			[
 				'blocks' => [
 					[
@@ -191,7 +191,7 @@ class Test_Meta_Registrar extends CassetteCmfBlocks_UnitTestCase {
 	 * Test_Attribute_Schema_Mapper::test_repeater_sub_fields_are_excluded_from_the_attribute_schema().
 	 */
 	public function test_meta_sourced_repeater_sub_fields_are_not_registered(): void {
-		CassetteCmfBlocks::register_from_array(
+		CassetteCMFBlocks::register_from_array(
 			[
 				'blocks' => [
 					[

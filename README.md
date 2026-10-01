@@ -41,14 +41,14 @@ This also pulls in `pedalcms/cassette-cmf`. No `npm install` or build step is re
 ## Quick start
 
 ```php
-use Pedalcms\CassetteCmf\CassetteCmf;
-use Pedalcms\CassetteCmfBlocks\CassetteCmfBlocks;
+use PedalCMS\CassetteCMF\CassetteCMF;
+use PedalCMS\CassetteCMFBlocks\CassetteCMFBlocks;
 
 add_action(
 	'init',
 	function () {
-		CassetteCmf::register_from_json( __DIR__ . '/config/content.json' );
-		CassetteCmfBlocks::register_from_json( __DIR__ . '/config/blocks.json' );
+		CassetteCMF::register_from_json( __DIR__ . '/config/content.json' );
+		CassetteCMFBlocks::register_from_json( __DIR__ . '/config/blocks.json' );
 	},
 	5
 );

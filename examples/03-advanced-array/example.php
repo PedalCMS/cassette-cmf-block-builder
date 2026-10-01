@@ -10,12 +10,12 @@
  * author-defined options ("options_list"), and a checkbox with its own
  * label/value pair.
  *
- * @package Pedalcms\CassetteCmfBlocks\Examples
+ * @package PedalCMS\CassetteCMFBlocks\Examples
  */
 
 require_once dirname( __DIR__, 2 ) . '/vendor/autoload.php';
 
-use Pedalcms\CassetteCmfBlocks\CassetteCmfBlocks;
+use PedalCMS\CassetteCMFBlocks\CassetteCMFBlocks;
 
 /**
  * The label/slug field pair every field block shares.
@@ -135,7 +135,7 @@ function cassette_cmf_forms_field_preview_markup( string $type_label, array $con
  * Register the field blocks.
  */
 function cassette_cmf_forms_init() {
-	CassetteCmfBlocks::register_from_array(
+	CassetteCMFBlocks::register_from_array(
 		[
 			'block_categories' => [
 				[

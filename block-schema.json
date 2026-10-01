@@ -1,7 +1,7 @@
 {
 	"$schema": "http://json-schema.org/draft-07/schema#",
 	"title": "Cassette-CMF Blocks configuration",
-	"description": "IDE-tooling schema for the array/JSON shape accepted by CassetteCmfBlocks::register_from_array()/register_from_json(). This is documentation only — the runtime validator is Json\\Block_Schema_Validator, which reads valid control types from Schema\\Control_Catalog::get_registered_types() and valid areas from Schema\\Area_Resolver::known_areas() at run time, and is authoritative when the two disagree. \"type\" is deliberately left as an open string here rather than a closed enum, precisely because the parent library's own schema.json hardcodes such an enum and has drifted out of sync with its runtime validator as a result — see this repository's CHANGELOG.md and docs/RELEASE.md. This file covers only what is implemented so far.",
+	"description": "IDE-tooling schema for the array/JSON shape accepted by CassetteCMFBlocks::register_from_array()/register_from_json(). This is documentation only — the runtime validator is Json\\Block_Schema_Validator, which reads valid control types from Schema\\Control_Catalog::get_registered_types() and valid areas from Schema\\Area_Resolver::known_areas() at run time, and is authoritative when the two disagree. \"type\" is deliberately left as an open string here rather than a closed enum, precisely because the parent library's own schema.json hardcodes such an enum and has drifted out of sync with its runtime validator as a result — see this repository's CHANGELOG.md and docs/RELEASE.md. This file covers only what is implemented so far.",
 	"type": "object",
 	"additionalProperties": false,
 	"properties": {

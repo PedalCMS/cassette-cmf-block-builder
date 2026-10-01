@@ -4,7 +4,7 @@
  *
  * Registers the "cassette-cmf/field" Block Bindings source (Mechanism B of
  * meta binding) — a block can bind any attribute to a value from the
- * parent library's own public CassetteCmf::get_field() facade: post meta,
+ * parent library's own public CassetteCMF::get_field() facade: post meta,
  * term meta, or a settings-page option. This is the strongest argument for
  * the two libraries existing together: a site-wide setting authored on a
  * CMF settings page can render inside a *core* block (e.g. core/paragraph)
@@ -21,13 +21,13 @@
  * Use Meta_Registrar (Mechanism A) for editable, revisioned values;
  * this for read-only/derived and cross-entity references.
  *
- * @package Pedalcms\CassetteCmfBlocks
+ * @package PedalCMS\CassetteCMFBlocks
  * @since 0.1.0
  */
 
-namespace Pedalcms\CassetteCmfBlocks\Binding;
+namespace PedalCMS\CassetteCMFBlocks\Binding;
 
-use Pedalcms\CassetteCmfBlocks\Compat\Requirements;
+use PedalCMS\CassetteCMFBlocks\Compat\Requirements;
 
 /**
  * Class Binding_Source_Registrar

@@ -5,7 +5,7 @@
  * This file configures the WordPress test environment.
  * Customize the database credentials for your local environment.
  *
- * @package Pedalcms\CassetteCmfBlocks\Tests
+ * @package PedalCMS\CassetteCMFBlocks\Tests
  */
 
 // Path to WordPress installation - dynamically calculated from plugin location.

@@ -2,21 +2,21 @@
 /**
  * Editor_Payload test.
  *
- * @package Pedalcms\CassetteCmfBlocks\Tests\Unit
+ * @package PedalCMS\CassetteCMFBlocks\Tests\Unit
  */
 
-use Pedalcms\CassetteCmfBlocks\CassetteCmfBlocks;
-use Pedalcms\CassetteCmfBlocks\Core\Block_Manager;
-use Pedalcms\CassetteCmfBlocks\Core\Editor_Payload;
-use Pedalcms\CassetteCmfBlocks\Render\Deprecation_Builder;
-use Pedalcms\CassetteCmfBlocks\Schema\Control_Catalog;
+use PedalCMS\CassetteCMFBlocks\CassetteCMFBlocks;
+use PedalCMS\CassetteCMFBlocks\Core\Block_Manager;
+use PedalCMS\CassetteCMFBlocks\Core\Editor_Payload;
+use PedalCMS\CassetteCMFBlocks\Render\Deprecation_Builder;
+use PedalCMS\CassetteCMFBlocks\Schema\Control_Catalog;
 
-require_once __DIR__ . '/CassetteCmfBlocks_UnitTestCase.php';
+require_once __DIR__ . '/CassetteCMFBlocks_UnitTestCase.php';
 
 /**
  * Class Test_Editor_Payload
  */
-class Test_Editor_Payload extends CassetteCmfBlocks_UnitTestCase {
+class Test_Editor_Payload extends CassetteCMFBlocks_UnitTestCase {
 
 	/**
 	 * Reset library singletons before each test.
@@ -42,7 +42,7 @@ class Test_Editor_Payload extends CassetteCmfBlocks_UnitTestCase {
 	 * registerBlockType() call expects.
 	 */
 	public function test_settings_use_camel_case_for_the_client(): void {
-		CassetteCmfBlocks::register_from_array(
+		CassetteCMFBlocks::register_from_array(
 			[
 				'blocks' => [
 					[
@@ -71,7 +71,7 @@ class Test_Editor_Payload extends CassetteCmfBlocks_UnitTestCase {
 	 * schema the server registered — the whole point of sharing one source.
 	 */
 	public function test_attributes_are_merged_into_settings(): void {
-		CassetteCmfBlocks::register_from_array(
+		CassetteCMFBlocks::register_from_array(
 			[
 				'blocks' => [
 					[
@@ -100,7 +100,7 @@ class Test_Editor_Payload extends CassetteCmfBlocks_UnitTestCase {
 	 * not the flattened leaf list — the editor needs the panel/tab nesting to render into.
 	 */
 	public function test_fields_is_the_nested_editor_tree(): void {
-		CassetteCmfBlocks::register_from_array(
+		CassetteCMFBlocks::register_from_array(
 			[
 				'blocks' => [
 					[
@@ -138,7 +138,7 @@ class Test_Editor_Payload extends CassetteCmfBlocks_UnitTestCase {
 	 * which mean anything client-side.
 	 */
 	public function test_render_payload_ships_mode_and_markup_only(): void {
-		CassetteCmfBlocks::register_from_array(
+		CassetteCMFBlocks::register_from_array(
 			[
 				'blocks' => [
 					[
@@ -175,7 +175,7 @@ class Test_Editor_Payload extends CassetteCmfBlocks_UnitTestCase {
 	 * "render" entry (mode defaulted, markup null) rather than a missing key.
 	 */
 	public function test_render_payload_defaults_when_absent(): void {
-		CassetteCmfBlocks::register_from_array( [ 'blocks' => [ [ 'id' => 'acme-test/payload-no-render' ] ] ] );
+		CassetteCMFBlocks::register_from_array( [ 'blocks' => [ [ 'id' => 'acme-test/payload-no-render' ] ] ] );
 
 		$render = Editor_Payload::build( Block_Manager::init() )['blocks']['acme-test/payload-no-render']['render'];
 
@@ -195,7 +195,7 @@ class Test_Editor_Payload extends CassetteCmfBlocks_UnitTestCase {
 			'text' => 'hi',
 		];
 
-		CassetteCmfBlocks::register_from_array(
+		CassetteCMFBlocks::register_from_array(
 			[
 				'blocks' => [
 					[
@@ -220,7 +220,7 @@ class Test_Editor_Payload extends CassetteCmfBlocks_UnitTestCase {
 	 * an entry missing "markup" is dropped rather than shipped broken.
 	 */
 	public function test_render_payload_ships_deprecated_entries(): void {
-		CassetteCmfBlocks::register_from_array(
+		CassetteCMFBlocks::register_from_array(
 			[
 				'blocks' => [
 					[
@@ -255,7 +255,7 @@ class Test_Editor_Payload extends CassetteCmfBlocks_UnitTestCase {
 	 * and omits "migrate" entirely in that case.
 	 */
 	public function test_render_payload_deprecated_entry_defaults(): void {
-		CassetteCmfBlocks::register_from_array(
+		CassetteCMFBlocks::register_from_array(
 			[
 				'blocks' => [
 					[
@@ -281,7 +281,7 @@ class Test_Editor_Payload extends CassetteCmfBlocks_UnitTestCase {
 	 * CanvasArea falls back to render.markup itself when preview.markup is null.
 	 */
 	public function test_preview_payload_defaults(): void {
-		CassetteCmfBlocks::register_from_array( [ 'blocks' => [ [ 'id' => 'acme-test/payload-preview' ] ] ] );
+		CassetteCMFBlocks::register_from_array( [ 'blocks' => [ [ 'id' => 'acme-test/payload-preview' ] ] ] );
 
 		$preview = Editor_Payload::build( Block_Manager::init() )['blocks']['acme-test/payload-preview']['preview'];
 
@@ -293,7 +293,7 @@ class Test_Editor_Payload extends CassetteCmfBlocks_UnitTestCase {
 	 * A declared preview.markup ships through as-is, distinct from render.markup.
 	 */
 	public function test_preview_payload_ships_its_own_markup(): void {
-		CassetteCmfBlocks::register_from_array(
+		CassetteCMFBlocks::register_from_array(
 			[
 				'blocks' => [
 					[
@@ -338,7 +338,7 @@ class Test_Editor_Payload extends CassetteCmfBlocks_UnitTestCase {
 	 * matching Block_Manager::register_blocks()'s own per-block isolation.
 	 */
 	public function test_uncompilable_block_is_skipped(): void {
-		CassetteCmfBlocks::register_from_array(
+		CassetteCMFBlocks::register_from_array(
 			[
 				'blocks' => [
 					[
@@ -378,7 +378,7 @@ class Test_Editor_Payload extends CassetteCmfBlocks_UnitTestCase {
 	 * "fields"' "conditional" normalization.
 	 */
 	public function test_render_payload_normalizes_when_recursively(): void {
-		CassetteCmfBlocks::register_from_array(
+		CassetteCMFBlocks::register_from_array(
 			[
 				'blocks' => [
 					[
@@ -435,7 +435,7 @@ class Test_Editor_Payload extends CassetteCmfBlocks_UnitTestCase {
 			],
 		];
 
-		CassetteCmfBlocks::register_from_array(
+		CassetteCMFBlocks::register_from_array(
 			[
 				'blocks' => [
 					[
@@ -459,7 +459,7 @@ class Test_Editor_Payload extends CassetteCmfBlocks_UnitTestCase {
 	 * A block with no "inner_blocks" config at all ships "enabled": false.
 	 */
 	public function test_inner_blocks_payload_disabled_by_default(): void {
-		CassetteCmfBlocks::register_from_array( [ 'blocks' => [ [ 'id' => 'acme-test/payload-no-inner-blocks' ] ] ] );
+		CassetteCMFBlocks::register_from_array( [ 'blocks' => [ [ 'id' => 'acme-test/payload-no-inner-blocks' ] ] ] );
 
 		$inner_blocks = Editor_Payload::build( Block_Manager::init() )['blocks']['acme-test/payload-no-inner-blocks']['innerBlocks'];
 
@@ -471,7 +471,7 @@ class Test_Editor_Payload extends CassetteCmfBlocks_UnitTestCase {
 	 * set to false, and ships allowed/template/templateLock/orientation.
 	 */
 	public function test_inner_blocks_payload_ships_full_config(): void {
-		CassetteCmfBlocks::register_from_array(
+		CassetteCMFBlocks::register_from_array(
 			[
 				'blocks' => [
 					[
@@ -500,7 +500,7 @@ class Test_Editor_Payload extends CassetteCmfBlocks_UnitTestCase {
 	 * An explicit "enabled": false overrides the implied-true default.
 	 */
 	public function test_inner_blocks_payload_explicit_disabled(): void {
-		CassetteCmfBlocks::register_from_array(
+		CassetteCMFBlocks::register_from_array(
 			[
 				'blocks' => [
 					[
@@ -524,7 +524,7 @@ class Test_Editor_Payload extends CassetteCmfBlocks_UnitTestCase {
 	 * transforms.js does the actual interpretation, not this class.
 	 */
 	public function test_transforms_ship_verbatim(): void {
-		CassetteCmfBlocks::register_from_array(
+		CassetteCMFBlocks::register_from_array(
 			[
 				'blocks' => [
 					[
@@ -565,7 +565,7 @@ class Test_Editor_Payload extends CassetteCmfBlocks_UnitTestCase {
 	 * declared" signal for payload introspection/debugging.
 	 */
 	public function test_transforms_default_to_null(): void {
-		CassetteCmfBlocks::register_from_array(
+		CassetteCMFBlocks::register_from_array(
 			[ 'blocks' => [ [ 'id' => 'acme-test/payload-no-transforms' ] ] ]
 		);
 
@@ -581,7 +581,7 @@ class Test_Editor_Payload extends CassetteCmfBlocks_UnitTestCase {
 	 * "document_scope".
 	 */
 	public function test_document_scope_is_null_when_no_field_needs_it(): void {
-		CassetteCmfBlocks::register_from_array(
+		CassetteCMFBlocks::register_from_array(
 			[ 'blocks' => [ [ 'id' => 'acme-test/payload-no-doc-scope' ] ] ]
 		);
 
@@ -595,7 +595,7 @@ class Test_Editor_Payload extends CassetteCmfBlocks_UnitTestCase {
 	 * ships the normalized scope.
 	 */
 	public function test_document_scope_is_normalized_when_valid(): void {
-		CassetteCmfBlocks::register_from_array(
+		CassetteCMFBlocks::register_from_array(
 			[
 				'blocks' => [
 					[
@@ -632,9 +632,9 @@ class Test_Editor_Payload extends CassetteCmfBlocks_UnitTestCase {
 	 * behaviour, exercised here through the full build() path.
 	 */
 	public function test_document_scope_is_null_when_invalid(): void {
-		$this->setExpectedIncorrectUsage( 'Pedalcms\CassetteCmfBlocks\Core\Document_Scope_Registrar::normalize' );
+		$this->setExpectedIncorrectUsage( 'PedalCMS\CassetteCMFBlocks\Core\Document_Scope_Registrar::normalize' );
 
-		CassetteCmfBlocks::register_from_array(
+		CassetteCMFBlocks::register_from_array(
 			[
 				'blocks' => [
 					[
@@ -664,7 +664,7 @@ class Test_Editor_Payload extends CassetteCmfBlocks_UnitTestCase {
 	 * script, not just the one offending key.
 	 */
 	public function test_variation_callback_is_stripped_from_client_settings(): void {
-		CassetteCmfBlocks::register_from_array(
+		CassetteCMFBlocks::register_from_array(
 			[
 				'blocks' => [
 					[
@@ -694,7 +694,7 @@ class Test_Editor_Payload extends CassetteCmfBlocks_UnitTestCase {
 	 * recomputes fresh, same as calling build() directly.
 	 */
 	public function test_build_cached_skips_the_cache_under_wp_debug(): void {
-		CassetteCmfBlocks::register_from_array(
+		CassetteCMFBlocks::register_from_array(
 			[
 				'blocks' => [
 					[
@@ -726,7 +726,7 @@ class Test_Editor_Payload extends CassetteCmfBlocks_UnitTestCase {
 	public function test_build_cached_reuses_a_cache_hit(): void {
 		add_filter( 'cassette_cmf_blocks_payload_cache_skip', '__return_false' );
 
-		CassetteCmfBlocks::register_from_array(
+		CassetteCMFBlocks::register_from_array(
 			[
 				'blocks' => [
 					[
@@ -762,7 +762,7 @@ class Test_Editor_Payload extends CassetteCmfBlocks_UnitTestCase {
 	public function test_build_cached_a_different_config_is_a_cache_miss(): void {
 		add_filter( 'cassette_cmf_blocks_payload_cache_skip', '__return_false' );
 
-		CassetteCmfBlocks::register_from_array(
+		CassetteCMFBlocks::register_from_array(
 			[
 				'blocks' => [
 					[
@@ -776,7 +776,7 @@ class Test_Editor_Payload extends CassetteCmfBlocks_UnitTestCase {
 
 		Block_Manager::reset();
 
-		CassetteCmfBlocks::register_from_array(
+		CassetteCMFBlocks::register_from_array(
 			[
 				'blocks' => [
 					[
@@ -803,7 +803,7 @@ class Test_Editor_Payload extends CassetteCmfBlocks_UnitTestCase {
 	public function test_build_cached_falls_back_to_the_transient(): void {
 		add_filter( 'cassette_cmf_blocks_payload_cache_skip', '__return_false' );
 
-		CassetteCmfBlocks::register_from_array(
+		CassetteCMFBlocks::register_from_array(
 			[
 				'blocks' => [
 					[

@@ -2,20 +2,20 @@
 /**
  * Category_Registrar test.
  *
- * @package Pedalcms\CassetteCmfBlocks\Tests\Unit
+ * @package PedalCMS\CassetteCMFBlocks\Tests\Unit
  */
 
-use Pedalcms\CassetteCmfBlocks\CassetteCmfBlocks;
-use Pedalcms\CassetteCmfBlocks\Core\Block_Manager;
-use Pedalcms\CassetteCmfBlocks\Core\Category_Registrar;
-use Pedalcms\CassetteCmfBlocks\Schema\Control_Catalog;
+use PedalCMS\CassetteCMFBlocks\CassetteCMFBlocks;
+use PedalCMS\CassetteCMFBlocks\Core\Block_Manager;
+use PedalCMS\CassetteCMFBlocks\Core\Category_Registrar;
+use PedalCMS\CassetteCMFBlocks\Schema\Control_Catalog;
 
-require_once __DIR__ . '/CassetteCmfBlocks_UnitTestCase.php';
+require_once __DIR__ . '/CassetteCMFBlocks_UnitTestCase.php';
 
 /**
  * Class Test_Category_Registrar
  */
-class Test_Category_Registrar extends CassetteCmfBlocks_UnitTestCase {
+class Test_Category_Registrar extends CassetteCMFBlocks_UnitTestCase {
 
 	/**
 	 * Reset library singletons before each test.
@@ -39,7 +39,7 @@ class Test_Category_Registrar extends CassetteCmfBlocks_UnitTestCase {
 	 * A registered "block_categories" entry is appended to the existing list.
 	 */
 	public function test_filter_categories_appends_registered_categories(): void {
-		CassetteCmfBlocks::register_from_array(
+		CassetteCMFBlocks::register_from_array(
 			[
 				'block_categories' => [
 					[
@@ -78,7 +78,7 @@ class Test_Category_Registrar extends CassetteCmfBlocks_UnitTestCase {
 	 * A category with no "slug" is skipped — WordPress itself requires one.
 	 */
 	public function test_filter_categories_skips_entries_without_a_slug(): void {
-		CassetteCmfBlocks::register_from_array( [ 'block_categories' => [ [ 'title' => 'No slug' ] ] ] );
+		CassetteCMFBlocks::register_from_array( [ 'block_categories' => [ [ 'title' => 'No slug' ] ] ] );
 
 		$result = Category_Registrar::filter_categories( [] );
 
@@ -90,7 +90,7 @@ class Test_Category_Registrar extends CassetteCmfBlocks_UnitTestCase {
 	 * never duplicated.
 	 */
 	public function test_filter_categories_skips_duplicate_slugs(): void {
-		CassetteCmfBlocks::register_from_array(
+		CassetteCMFBlocks::register_from_array(
 			[
 				'block_categories' => [
 					[

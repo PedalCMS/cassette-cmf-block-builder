@@ -13,13 +13,13 @@
  * one opt-out is an explicit "escape" => "raw" on a node with "text"/"html"
  * content — documented as consumer-owned trust, never the default.
  *
- * @package Pedalcms\CassetteCmfBlocks
+ * @package PedalCMS\CassetteCMFBlocks
  * @since 0.1.0
  */
 
-namespace Pedalcms\CassetteCmfBlocks\Render;
+namespace PedalCMS\CassetteCMFBlocks\Render;
 
-use Pedalcms\CassetteCmfBlocks\Compat\Cmf_Bridge;
+use PedalCMS\CassetteCMFBlocks\Compat\Cmf_Bridge;
 
 /**
  * Class Markup_Renderer

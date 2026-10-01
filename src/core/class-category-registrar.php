@@ -7,11 +7,11 @@
  * Block_Manager::get_block_categories()), through the block_categories_all
  * filter.
  *
- * @package Pedalcms\CassetteCmfBlocks
+ * @package PedalCMS\CassetteCMFBlocks
  * @since 0.1.0
  */
 
-namespace Pedalcms\CassetteCmfBlocks\Core;
+namespace PedalCMS\CassetteCMFBlocks\Core;
 
 /**
  * Class Category_Registrar

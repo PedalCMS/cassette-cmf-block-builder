@@ -26,15 +26,15 @@
  *   - Field name uniqueness among all value-bearing leaves, since they all
  *     become block attributes sharing one flat namespace.
  *
- * @package Pedalcms\CassetteCmfBlocks
+ * @package PedalCMS\CassetteCMFBlocks
  * @since 0.1.0
  */
 
-namespace Pedalcms\CassetteCmfBlocks\Core;
+namespace PedalCMS\CassetteCMFBlocks\Core;
 
-use Pedalcms\CassetteCmfBlocks\Compat\Cmf_Bridge;
-use Pedalcms\CassetteCmfBlocks\Schema\Area_Resolver;
-use Pedalcms\CassetteCmfBlocks\Schema\Control_Mapper;
+use PedalCMS\CassetteCMFBlocks\Compat\Cmf_Bridge;
+use PedalCMS\CassetteCMFBlocks\Schema\Area_Resolver;
+use PedalCMS\CassetteCMFBlocks\Schema\Control_Mapper;
 
 /**
  * Class Field_Collection

@@ -3,17 +3,17 @@
  * Conditional_Evaluator <-> conditions.js parity fixture test, plus direct
  * unit coverage.
  *
- * @package Pedalcms\CassetteCmfBlocks\Tests\Unit
+ * @package PedalCMS\CassetteCMFBlocks\Tests\Unit
  */
 
-use Pedalcms\CassetteCmfBlocks\Render\Conditional_Evaluator;
+use PedalCMS\CassetteCMFBlocks\Render\Conditional_Evaluator;
 
-require_once __DIR__ . '/CassetteCmfBlocks_UnitTestCase.php';
+require_once __DIR__ . '/CassetteCMFBlocks_UnitTestCase.php';
 
 /**
  * Class Test_Conditional_Evaluator
  */
-class Test_Conditional_Evaluator extends CassetteCmfBlocks_UnitTestCase {
+class Test_Conditional_Evaluator extends CassetteCMFBlocks_UnitTestCase {
 
 	/**
 	 * Every case in tests/fixtures/conditions.json — the same file

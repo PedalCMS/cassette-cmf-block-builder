@@ -15,14 +15,14 @@
  * custom control type registered before validation runs is accepted
  * automatically.
  *
- * @package Pedalcms\CassetteCmfBlocks
+ * @package PedalCMS\CassetteCMFBlocks
  * @since 0.1.0
  */
 
-namespace Pedalcms\CassetteCmfBlocks\Json;
+namespace PedalCMS\CassetteCMFBlocks\Json;
 
-use Pedalcms\CassetteCmfBlocks\Schema\Area_Resolver;
-use Pedalcms\CassetteCmfBlocks\Schema\Control_Catalog;
+use PedalCMS\CassetteCMFBlocks\Schema\Area_Resolver;
+use PedalCMS\CassetteCMFBlocks\Schema\Control_Catalog;
 
 /**
  * Class Block_Schema_Validator

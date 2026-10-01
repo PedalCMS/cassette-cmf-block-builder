@@ -2,17 +2,17 @@
 /**
  * Binding_Source_Registrar test.
  *
- * @package Pedalcms\CassetteCmfBlocks\Tests\Unit
+ * @package PedalCMS\CassetteCMFBlocks\Tests\Unit
  */
 
-use Pedalcms\CassetteCmfBlocks\Binding\Binding_Source_Registrar;
+use PedalCMS\CassetteCMFBlocks\Binding\Binding_Source_Registrar;
 
-require_once __DIR__ . '/CassetteCmfBlocks_UnitTestCase.php';
+require_once __DIR__ . '/CassetteCMFBlocks_UnitTestCase.php';
 
 /**
  * Class Test_Binding_Source_Registrar
  */
-class Test_Binding_Source_Registrar extends CassetteCmfBlocks_UnitTestCase {
+class Test_Binding_Source_Registrar extends CassetteCMFBlocks_UnitTestCase {
 
 	/**
 	 * Unregister the source and the test block type after each test.

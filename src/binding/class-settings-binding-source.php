@@ -4,17 +4,17 @@
  *
  * The get_value_callback for the "cassette-cmf/field" block bindings
  * source (Binding_Source_Registrar) — Mechanism B of meta binding. Routes
- * through the parent library's own public CassetteCmf::get_field() facade,
+ * through the parent library's own public CassetteCMF::get_field() facade,
  * so a block can bind to ANY parent-library value: post meta, term meta,
  * or a settings-page option, not just its own block's attributes.
  *
- * @package Pedalcms\CassetteCmfBlocks
+ * @package PedalCMS\CassetteCMFBlocks
  * @since 0.1.0
  */
 
-namespace Pedalcms\CassetteCmfBlocks\Binding;
+namespace PedalCMS\CassetteCMFBlocks\Binding;
 
-use Pedalcms\CassetteCmf\CassetteCmf;
+use PedalCMS\CassetteCMF\CassetteCMF;
 
 /**
  * Class Settings_Binding_Source
@@ -31,7 +31,7 @@ class Settings_Binding_Source {
 	 *               to the block's own static content instead of overwriting it with an empty value.
 	 */
 	public static function get_value( array $source_args, \WP_Block $block_instance ) {
-		if ( ! class_exists( CassetteCmf::class ) ) {
+		if ( ! class_exists( CassetteCMF::class ) ) {
 			return null;
 		}
 
@@ -43,7 +43,7 @@ class Settings_Binding_Source {
 			return null;
 		}
 
-		$value = CassetteCmf::get_field( $field, $context, $context_type, null );
+		$value = CassetteCMF::get_field( $field, $context, $context_type, null );
 
 		return null === $value ? null : $value;
 	}

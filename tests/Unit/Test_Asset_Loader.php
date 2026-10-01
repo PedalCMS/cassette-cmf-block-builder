@@ -2,20 +2,20 @@
 /**
  * Asset_Loader test.
  *
- * @package Pedalcms\CassetteCmfBlocks\Tests\Unit
+ * @package PedalCMS\CassetteCMFBlocks\Tests\Unit
  */
 
-use Pedalcms\CassetteCmfBlocks\CassetteCmfBlocks;
-use Pedalcms\CassetteCmfBlocks\Core\Asset_Loader;
-use Pedalcms\CassetteCmfBlocks\Core\Block_Manager;
-use Pedalcms\CassetteCmfBlocks\Schema\Control_Catalog;
+use PedalCMS\CassetteCMFBlocks\CassetteCMFBlocks;
+use PedalCMS\CassetteCMFBlocks\Core\Asset_Loader;
+use PedalCMS\CassetteCMFBlocks\Core\Block_Manager;
+use PedalCMS\CassetteCMFBlocks\Schema\Control_Catalog;
 
-require_once __DIR__ . '/CassetteCmfBlocks_UnitTestCase.php';
+require_once __DIR__ . '/CassetteCMFBlocks_UnitTestCase.php';
 
 /**
  * Class Test_Asset_Loader
  */
-class Test_Asset_Loader extends CassetteCmfBlocks_UnitTestCase {
+class Test_Asset_Loader extends CassetteCMFBlocks_UnitTestCase {
 
 	/**
 	 * Reset library singletons and the script registry before each test.
@@ -73,7 +73,7 @@ class Test_Asset_Loader extends CassetteCmfBlocks_UnitTestCase {
 	 * containing the registered block's name.
 	 */
 	public function test_enqueue_registers_script_and_inlines_payload(): void {
-		CassetteCmfBlocks::register_from_array(
+		CassetteCMFBlocks::register_from_array(
 			[
 				'blocks' => [
 					[

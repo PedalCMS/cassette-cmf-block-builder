@@ -2,17 +2,17 @@
 /**
  * Deprecation_Builder test.
  *
- * @package Pedalcms\CassetteCmfBlocks\Tests\Unit
+ * @package PedalCMS\CassetteCMFBlocks\Tests\Unit
  */
 
-use Pedalcms\CassetteCmfBlocks\Render\Deprecation_Builder;
+use PedalCMS\CassetteCMFBlocks\Render\Deprecation_Builder;
 
-require_once __DIR__ . '/CassetteCmfBlocks_UnitTestCase.php';
+require_once __DIR__ . '/CassetteCMFBlocks_UnitTestCase.php';
 
 /**
  * Class Test_Deprecation_Builder
  */
-class Test_Deprecation_Builder extends CassetteCmfBlocks_UnitTestCase {
+class Test_Deprecation_Builder extends CassetteCMFBlocks_UnitTestCase {
 
 	/**
 	 * The same (markup, attributes) pair must always hash the same.

@@ -6,11 +6,11 @@
  * Control_Catalog, applying any inline "cmf_type" override, and rejecting
  * control types that have no honest block-editor equivalent.
  *
- * @package Pedalcms\CassetteCmfBlocks
+ * @package PedalCMS\CassetteCMFBlocks
  * @since 0.1.0
  */
 
-namespace Pedalcms\CassetteCmfBlocks\Schema;
+namespace PedalCMS\CassetteCMFBlocks\Schema;
 
 /**
  * Class Control_Mapper

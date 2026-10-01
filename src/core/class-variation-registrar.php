@@ -29,11 +29,11 @@
  * real PHP array (register_from_array()), never from JSON. See
  * Core\Editor_Payload's own guard against shipping it to the client.
  *
- * @package Pedalcms\CassetteCmfBlocks
+ * @package PedalCMS\CassetteCMFBlocks
  * @since 0.1.0
  */
 
-namespace Pedalcms\CassetteCmfBlocks\Core;
+namespace PedalCMS\CassetteCMFBlocks\Core;
 
 /**
  * Class Variation_Registrar

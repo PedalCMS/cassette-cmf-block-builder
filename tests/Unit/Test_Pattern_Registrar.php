@@ -2,20 +2,20 @@
 /**
  * Pattern_Registrar test.
  *
- * @package Pedalcms\CassetteCmfBlocks\Tests\Unit
+ * @package PedalCMS\CassetteCMFBlocks\Tests\Unit
  */
 
-use Pedalcms\CassetteCmfBlocks\CassetteCmfBlocks;
-use Pedalcms\CassetteCmfBlocks\Core\Block_Manager;
-use Pedalcms\CassetteCmfBlocks\Core\Pattern_Registrar;
-use Pedalcms\CassetteCmfBlocks\Schema\Control_Catalog;
+use PedalCMS\CassetteCMFBlocks\CassetteCMFBlocks;
+use PedalCMS\CassetteCMFBlocks\Core\Block_Manager;
+use PedalCMS\CassetteCMFBlocks\Core\Pattern_Registrar;
+use PedalCMS\CassetteCMFBlocks\Schema\Control_Catalog;
 
-require_once __DIR__ . '/CassetteCmfBlocks_UnitTestCase.php';
+require_once __DIR__ . '/CassetteCMFBlocks_UnitTestCase.php';
 
 /**
  * Class Test_Pattern_Registrar
  */
-class Test_Pattern_Registrar extends CassetteCmfBlocks_UnitTestCase {
+class Test_Pattern_Registrar extends CassetteCMFBlocks_UnitTestCase {
 
 	/**
 	 * Reset library singletons before each test.
@@ -48,7 +48,7 @@ class Test_Pattern_Registrar extends CassetteCmfBlocks_UnitTestCase {
 	 * A pattern category registers via register_block_pattern_category().
 	 */
 	public function test_registers_a_pattern_category(): void {
-		CassetteCmfBlocks::register_from_array(
+		CassetteCMFBlocks::register_from_array(
 			[
 				'pattern_categories' => [
 					[
@@ -70,7 +70,7 @@ class Test_Pattern_Registrar extends CassetteCmfBlocks_UnitTestCase {
 	 * A pattern with raw "content" registers that content verbatim.
 	 */
 	public function test_registers_a_pattern_from_raw_content(): void {
-		CassetteCmfBlocks::register_from_array(
+		CassetteCMFBlocks::register_from_array(
 			[
 				'patterns' => [
 					[
@@ -96,7 +96,7 @@ class Test_Pattern_Registrar extends CassetteCmfBlocks_UnitTestCase {
 	 * HTML register_block_pattern() always accepted.
 	 */
 	public function test_registers_a_pattern_from_a_declarative_blocks_tree(): void {
-		CassetteCmfBlocks::register_from_array(
+		CassetteCMFBlocks::register_from_array(
 			[
 				'patterns' => [
 					[
@@ -126,9 +126,9 @@ class Test_Pattern_Registrar extends CassetteCmfBlocks_UnitTestCase {
 	 * A pattern missing "slug" or "title" is skipped, with a _doing_it_wrong().
 	 */
 	public function test_a_pattern_missing_slug_is_skipped(): void {
-		$this->setExpectedIncorrectUsage( 'Pedalcms\CassetteCmfBlocks\Core\Pattern_Registrar::register_one_pattern' );
+		$this->setExpectedIncorrectUsage( 'PedalCMS\CassetteCMFBlocks\Core\Pattern_Registrar::register_one_pattern' );
 
-		CassetteCmfBlocks::register_from_array(
+		CassetteCMFBlocks::register_from_array(
 			[
 				'patterns' => [
 					[
@@ -150,9 +150,9 @@ class Test_Pattern_Registrar extends CassetteCmfBlocks_UnitTestCase {
 	 * _doing_it_wrong().
 	 */
 	public function test_a_pattern_with_no_content_source_is_skipped(): void {
-		$this->setExpectedIncorrectUsage( 'Pedalcms\CassetteCmfBlocks\Core\Pattern_Registrar::register_one_pattern' );
+		$this->setExpectedIncorrectUsage( 'PedalCMS\CassetteCMFBlocks\Core\Pattern_Registrar::register_one_pattern' );
 
-		CassetteCmfBlocks::register_from_array(
+		CassetteCMFBlocks::register_from_array(
 			[
 				'patterns' => [
 					[
