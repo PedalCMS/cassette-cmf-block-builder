@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "49c289b7f5669a8669b47320cd8ca4bb",
+    "content-hash": "cddc3c6d0ad6f3a14318c14fa6b4a668",
     "packages": [
         {
             "name": "pedalcms/cassette-cmf",
-            "version": "0.1.0",
+            "version": "0.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PedalCMS/cassette-cmf.git",
-                "reference": "c5945bb522406baf079c4904f23c2918680c9a28"
+                "reference": "dc2f716913f9c1da9f7a9a260ff2879e8fadda6b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PedalCMS/cassette-cmf/zipball/c5945bb522406baf079c4904f23c2918680c9a28",
-                "reference": "c5945bb522406baf079c4904f23c2918680c9a28",
+                "url": "https://api.github.com/repos/PedalCMS/cassette-cmf/zipball/dc2f716913f9c1da9f7a9a260ff2879e8fadda6b",
+                "reference": "dc2f716913f9c1da9f7a9a260ff2879e8fadda6b",
                 "shasum": ""
             },
             "require": {
@@ -54,9 +54,9 @@
             "description": "WP Content Modeling Framework",
             "support": {
                 "issues": "https://github.com/PedalCMS/cassette-cmf/issues",
-                "source": "https://github.com/PedalCMS/cassette-cmf/tree/v0.1.0"
+                "source": "https://github.com/PedalCMS/cassette-cmf/tree/v0.1.1"
             },
-            "time": "2026-08-18T20:38:09+00:00"
+            "time": "2026-10-01T15:08:58+00:00"
         }
     ],
     "packages-dev": [
