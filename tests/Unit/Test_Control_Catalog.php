@@ -81,12 +81,97 @@ class Test_Control_Catalog extends CassetteCMFBlocks_UnitTestCase {
 	}
 
 	/**
-	 * register_type() should reject a spec missing a required key.
+	 * register_type() requires "value_type" and nothing else.
 	 */
-	public function test_register_type_requires_all_keys(): void {
+	public function test_register_type_requires_value_type(): void {
 		$this->expectException( InvalidArgumentException::class );
 
-		Control_Catalog::register_type( 'incomplete', [ 'value_type' => 'string' ] );
+		Control_Catalog::register_type( 'incomplete', [ 'cmf_type' => 'text' ] );
+	}
+
+	/**
+	 * A minimal spec is completed with the documented defaults.
+	 */
+	public function test_register_type_completes_a_minimal_spec(): void {
+		Control_Catalog::register_type( 'stars', [ 'value_type' => 'integer' ] );
+		Control_Catalog::register_type( 'divider_line', [ 'value_type' => null ] );
+
+		$this->assertSame(
+			[
+				'value_type'   => 'integer',
+				'cmf_type'     => null,
+				'is_container' => false,
+				'holds_value'  => true,
+			],
+			Control_Catalog::get_type( 'stars' )
+		);
+		$this->assertFalse( Control_Catalog::get_type( 'divider_line' )['holds_value'] );
+	}
+
+	/**
+	 * Malformed ids and value types are rejected.
+	 *
+	 * @dataProvider provide_invalid_registrations
+	 *
+	 * @param string               $type Type id.
+	 * @param array<string, mixed> $spec Spec.
+	 */
+	public function test_register_type_rejects_malformed_input( string $type, array $spec ): void {
+		$this->expectException( InvalidArgumentException::class );
+
+		Control_Catalog::register_type( $type, $spec );
+	}
+
+	/**
+	 * Invalid registrations.
+	 *
+	 * @return array<string, array{0: string, 1: array<string, mixed>}>
+	 */
+	public function provide_invalid_registrations(): array {
+		return [
+			'uppercase id'      => [ 'Stars', [ 'value_type' => 'string' ] ],
+			'prototype key'     => [ '__proto__', [ 'value_type' => 'string' ] ],
+			'dash in id'        => [ 'star-rating', [ 'value_type' => 'string' ] ],
+			'empty id'          => [ '', [ 'value_type' => 'string' ] ],
+			'unknown json type' => [ 'stars', [ 'value_type' => 'float' ] ],
+			'bad cmf_type'      => [
+				'stars',
+				[
+					'value_type' => 'string',
+					'cmf_type'   => [ 'text' ],
+				],
+			],
+		];
+	}
+
+	/**
+	 * A catalog filter that returns a malformed entry loses that entry only.
+	 */
+	public function test_catalog_filter_drops_malformed_entries(): void {
+		$this->setExpectedIncorrectUsage( 'cassette_cmf_blocks_control_catalog' );
+
+		add_filter(
+			'cassette_cmf_blocks_control_catalog',
+			static function ( $types ) {
+				$types['Bad Type']  = [ 'value_type' => 'string' ];
+				$types['good_type'] = [ 'value_type' => 'string' ];
+				return $types;
+			}
+		);
+
+		$this->assertTrue( Control_Catalog::has_type( 'good_type' ) );
+		$this->assertFalse( Control_Catalog::has_type( 'Bad Type' ) );
+		$this->assertTrue( Control_Catalog::has_type( 'text' ) );
+	}
+
+	/**
+	 * The stable extension surface is tagged @api.
+	 */
+	public function test_register_type_is_tagged_api(): void {
+		foreach ( [ 'register_type', 'get_type', 'has_type', 'get_registered_types' ] as $method ) {
+			$doc = ( new \ReflectionMethod( Control_Catalog::class, $method ) )->getDocComment();
+			$this->assertStringContainsString( '@api', (string) $doc, $method );
+		}
 	}
 
 	/**

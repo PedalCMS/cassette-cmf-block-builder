@@ -19,13 +19,9 @@ test.describe( 'acme-e2e/callout — publish and front-end render', () => {
 			.getByRole( 'textbox', { name: 'Heading' } )
 			.fill( 'Published heading' );
 
-		await editor.publishPost();
+		const postId = await editor.publishPost();
 
-		const viewPostLink = page.getByRole( 'link', { name: 'View Post' } );
-		await viewPostLink.waitFor();
-		const href = await viewPostLink.getAttribute( 'href' );
-
-		await page.goto( href );
+		await page.goto( `/?p=${ postId }` );
 
 		await expect(
 			page.locator( '.acme-e2e-callout__heading' )

@@ -163,4 +163,53 @@ class Test_Variation_Registrar extends CassetteCMFBlocks_UnitTestCase {
 			$result
 		);
 	}
+
+	/**
+	 * "scope" and "innerBlocks" reach the registered block type unchanged (the variation picker reads them).
+	 */
+	public function test_scope_and_inner_blocks_pass_through(): void {
+		$variations = [
+			[
+				'name'        => 'two-columns',
+				'title'       => 'Two columns',
+				'scope'       => [ 'block' ],
+				'attributes'  => [ 'columns' => 2 ],
+				'innerBlocks' => [
+					[ 'core/paragraph', [ 'content' => 'A' ] ],
+					[ 'core/paragraph', [ 'content' => 'B' ] ],
+				],
+			],
+		];
+
+		$this->assertSame( $variations, Variation_Registrar::normalize( $variations, 'acme/cols' ) );
+	}
+
+	/**
+	 * An unknown scope or a non-list innerBlocks is dropped with a notice, the variation is kept.
+	 */
+	public function test_malformed_scope_and_inner_blocks_are_dropped(): void {
+		$this->setExpectedIncorrectUsage( Variation_Registrar::class );
+
+		$result = Variation_Registrar::normalize(
+			[
+				[
+					'name'        => 'x',
+					'title'       => 'X',
+					'scope'       => [ 'block', 'nowhere' ],
+					'innerBlocks' => 'nope',
+				],
+			],
+			'acme/cols'
+		);
+
+		$this->assertSame(
+			[
+				[
+					'name'  => 'x',
+					'title' => 'X',
+				],
+			],
+			$result
+		);
+	}
 }

@@ -87,7 +87,7 @@ require_once $_tests_dir . '/includes/functions.php';
  */
 function _manually_load_cassette_cmf_blocks() {
 	if ( class_exists( \PedalCMS\CassetteCMFBlocks\CassetteCMFBlocks::class ) ) {
-		\PedalCMS\CassetteCMFBlocks\CassetteCMFBlocks::init();
+		\PedalCMS\CassetteCMFBlocks\CassetteCMFBlocks::boot( [ 'prefix' => 'test' ] );
 	}
 }
 

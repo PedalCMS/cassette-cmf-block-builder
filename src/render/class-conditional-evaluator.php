@@ -23,7 +23,7 @@
  * exact same port, kept honest against this class by the same fixture.
  *
  * @package PedalCMS\CassetteCMFBlocks
- * @since 0.1.0
+ * @since 0.2.0
  */
 
 namespace PedalCMS\CassetteCMFBlocks\Render;
@@ -36,12 +36,17 @@ class Conditional_Evaluator {
 	/**
 	 * Evaluate an already-normalized conditional config against a context.
 	 *
-	 * @param array<string, mixed> $normalized { relation: 'AND'|'OR', rules: [ { field, operator, value? } ] }. Empty (no rules) always evaluates true.
+	 * @param array<string, mixed> $normalized { relation: 'AND'|'OR', rules: [ { field, operator, value? } ] }. Empty (no rules) always evaluates true. Cross-block rules (`ref`) are ignored, see is_cross_block_rule().
 	 * @param array<string, mixed> $context    Field-name => value map.
 	 * @return bool
 	 */
 	public static function evaluate( array $normalized, array $context ): bool {
-		$rules = $normalized['rules'] ?? [];
+		$rules = array_filter(
+			$normalized['rules'] ?? [],
+			static function ( $rule ): bool {
+				return ! self::is_cross_block_rule( $rule );
+			}
+		);
 
 		if ( empty( $rules ) ) {
 			return true;
@@ -58,6 +63,26 @@ class Conditional_Evaluator {
 		}
 
 		return ! in_array( false, $results, true );
+	}
+
+	/**
+	 * Whether a rule targets another block's value by name
+	 * (`{ source: 'block', ref: 'name', operator, value? }`) instead of an
+	 * attribute of this block (`{ field, operator, value? }`).
+	 *
+	 * The builder does not evaluate such rules: the value they refer to lives
+	 * in a different block, so only the consumer can resolve it. evaluate()
+	 * ignores them as if they were not in the list (an ignored rule neither
+	 * passes nor fails: a set of only cross-block rules evaluates true, and
+	 * AND / OR run over the remaining own-attribute rules). JS parity:
+	 * conditions/evaluate.js.
+	 *
+	 * @api
+	 * @param mixed $rule A rule.
+	 * @return bool
+	 */
+	public static function is_cross_block_rule( $rule ): bool {
+		return is_array( $rule ) && ( 'block' === ( $rule['source'] ?? null ) || isset( $rule['ref'] ) );
 	}
 
 	/**

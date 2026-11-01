@@ -10,6 +10,9 @@ module.exports = {
 	...defaultConfig,
 	moduleNameMapper: {
 		...defaultConfig.moduleNameMapper,
+		'^@wordpress/a11y$': '<rootDir>/tests/js/mocks/wordpress-a11y.js',
+		'^@wordpress/api-fetch$':
+			'<rootDir>/tests/js/mocks/wordpress-api-fetch.js',
 		'^@wordpress/blocks$': '<rootDir>/tests/js/mocks/wordpress-blocks.js',
 		'^@wordpress/block-editor$':
 			'<rootDir>/tests/js/mocks/wordpress-block-editor.js',

@@ -72,9 +72,9 @@ describe( 'useFieldValue', () => {
 		expect( setValue2 ).not.toHaveBeenCalled();
 	} );
 
-	it( 'returns an inert [ undefined, noop ] for an unimplemented source ("context")', () => {
+	it( 'returns an inert [ undefined, noop ] for source "none"', () => {
 		const [ value, setValue ] = useFieldValue(
-			{ config: { name: 'x', source: 'context' } },
+			{ config: { name: 'x', source: 'none' } },
 			{ attributes: {}, setAttributes: jest.fn() }
 		);
 

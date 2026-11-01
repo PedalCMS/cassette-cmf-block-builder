@@ -9,9 +9,10 @@ import { useEntityProp } from '@wordpress/core-data';
  * register_meta() call — see that class's docblock for why a real
  * show_in_rest schema is mandatory for this to work at all).
  *
- * "context"-sourced fields (reading from an ancestor block's
- * providesContext) are not implemented yet — this returns a no-op
- * value/setter for those, same as "none".
+ * "context"-sourced fields read ctx.context[ field.context ] (the provider's
+ * providesContext value, delivered through the block's own "usesContext") and
+ * are read-only: the setter is a no-op. Core\Block_Definition adds the key to
+ * "usesContext" automatically. "none" gets the same inert [ undefined, noop ].
  *
  * Always calls useEntityProp() (a real hook) unconditionally, even for a
  * non-meta field — React's rules of hooks require every call to a
@@ -57,6 +58,10 @@ export function useFieldValue( node, ctx ) {
 			meta?.[ metaKey ],
 			( newValue ) => setMeta( { ...meta, [ metaKey ]: newValue } ),
 		];
+	}
+
+	if ( 'context' === source ) {
+		return [ ctx.context?.[ node.config.context ], noop ];
 	}
 
 	return [ undefined, noop ];

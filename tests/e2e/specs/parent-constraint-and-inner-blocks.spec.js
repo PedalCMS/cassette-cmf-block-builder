@@ -18,7 +18,7 @@ test.describe( 'acme-e2e/container — parent constraint + InnerBlocks template'
 		page,
 	} ) => {
 		await page
-			.getByRole( 'button', { name: 'Toggle block inserter' } )
+			.getByRole( 'button', { name: 'Block Inserter' } )
 			.click();
 
 		await page
@@ -36,7 +36,7 @@ test.describe( 'acme-e2e/container — parent constraint + InnerBlocks template'
 		await editor.insertBlock( { name: 'acme-e2e/container' } );
 
 		await expect(
-			editor.canvas.getByRole( 'document', { name: /Paragraph block/i } )
+			editor.canvas.locator( '[data-type="core/paragraph"]' )
 		).toBeVisible();
 	} );
 
@@ -48,13 +48,13 @@ test.describe( 'acme-e2e/container — parent constraint + InnerBlocks template'
 
 		// Select the container itself (not its templated paragraph child) so
 		// the inserter's "allowed inside this block" context is the container.
-		const containerBlock = editor.canvas.getByRole( 'document', {
-			name: /E2E Container block/i,
-		} );
+		const containerBlock = editor.canvas.locator(
+			'[data-type="acme-e2e/container"]'
+		);
 		await containerBlock.click();
 
 		await page
-			.getByRole( 'button', { name: 'Toggle block inserter' } )
+			.getByRole( 'button', { name: 'Block Inserter' } )
 			.click();
 		await page
 			.getByRole( 'searchbox', { name: 'Search' } )

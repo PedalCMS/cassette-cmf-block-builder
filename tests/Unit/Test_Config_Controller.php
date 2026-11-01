@@ -7,6 +7,7 @@
 
 use PedalCMS\CassetteCMFBlocks\CassetteCMFBlocks;
 use PedalCMS\CassetteCMFBlocks\Core\Block_Manager;
+use PedalCMS\CassetteCMFBlocks\Core\Identity;
 use PedalCMS\CassetteCMFBlocks\Rest\Config_Controller;
 use PedalCMS\CassetteCMFBlocks\Schema\Control_Catalog;
 
@@ -24,6 +25,7 @@ class Test_Config_Controller extends CassetteCMFBlocks_UnitTestCase {
 		parent::set_up();
 		Block_Manager::reset();
 		Control_Catalog::reset();
+		CassetteCMFBlocks::boot( [ 'prefix' => 'acme' ] );
 	}
 
 	/**
@@ -58,9 +60,10 @@ class Test_Config_Controller extends CassetteCMFBlocks_UnitTestCase {
 	public function test_route_is_registered(): void {
 		$this->init_rest_server();
 
-		$routes = rest_get_server()->get_routes( 'cassette-cmf-block-builder/v1' );
+		$routes = rest_get_server()->get_routes( Identity::rest_namespace() );
 
-		$this->assertArrayHasKey( '/cassette-cmf-block-builder/v1/config', $routes );
+		$this->assertSame( 'acme-blocks/v1', Identity::rest_namespace() );
+		$this->assertArrayHasKey( '/acme-blocks/v1/config', $routes );
 	}
 
 	/**
@@ -70,7 +73,7 @@ class Test_Config_Controller extends CassetteCMFBlocks_UnitTestCase {
 		$this->init_rest_server();
 		wp_set_current_user( 0 );
 
-		$request  = new WP_REST_Request( 'GET', '/cassette-cmf-block-builder/v1/config' );
+		$request  = new WP_REST_Request( 'GET', '/' . Identity::rest_namespace() . '/config' );
 		$response = rest_get_server()->dispatch( $request );
 
 		$this->assertSame( 401, $response->get_status() );
@@ -96,7 +99,7 @@ class Test_Config_Controller extends CassetteCMFBlocks_UnitTestCase {
 
 		$this->init_rest_server();
 
-		$request  = new WP_REST_Request( 'GET', '/cassette-cmf-block-builder/v1/config' );
+		$request  = new WP_REST_Request( 'GET', '/' . Identity::rest_namespace() . '/config' );
 		$response = rest_get_server()->dispatch( $request );
 		$data     = $response->get_data();
 

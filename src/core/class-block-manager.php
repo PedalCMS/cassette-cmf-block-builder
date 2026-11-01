@@ -13,7 +13,7 @@
  *     Field_Collection/Attribute_Schema_Mapper validation.
  *
  * @package PedalCMS\CassetteCMFBlocks
- * @since 0.1.0
+ * @since 0.2.0
  */
 
 namespace PedalCMS\CassetteCMFBlocks\Core;
@@ -23,6 +23,7 @@ use PedalCMS\CassetteCMFBlocks\Binding\Meta_Registrar;
 use PedalCMS\CassetteCMFBlocks\Compat\Requirements;
 use PedalCMS\CassetteCMFBlocks\Json\Block_Schema_Validator;
 use PedalCMS\CassetteCMFBlocks\Rest\Config_Controller;
+use PedalCMS\CassetteCMFBlocks\Rest\Transform_Controller;
 
 /**
  * Class Block_Manager
@@ -30,11 +31,42 @@ use PedalCMS\CassetteCMFBlocks\Rest\Config_Controller;
 class Block_Manager {
 
 	/**
+	 * Every boot option with its default. The key order is significant: the
+	 * resolved options are compared with === to detect a conflicting second
+	 * boot() call.
+	 *
+	 * - prefix (string): REQUIRED in practice. Derives every identifier that
+	 *   must not collide between two copies of the library (see Identity). The
+	 *   default is only the fallback used, with a _doing_it_wrong() notice,
+	 *   when no valid prefix is given.
+	 * - bindings_source (bool): register the block bindings source named by
+	 *   Identity::binding_source_name(). Default false (opt-in).
+	 *
+	 * @var array<string, mixed>
+	 */
+	private const DEFAULT_OPTIONS = [
+		'prefix'          => Identity::FALLBACK_PREFIX,
+		'bindings_source' => false,
+	];
+
+	/**
 	 * The singleton instance.
 	 *
 	 * @var Block_Manager|null
 	 */
 	private static ?Block_Manager $instance = null;
+
+	/**
+	 * Boot options, or null while the library has not been booted yet.
+	 *
+	 * Set by boot() or, when register_from_*() / init() runs first, by the
+	 * implicit boot with defaults. Adding an option means adding one entry to
+	 * DEFAULT_OPTIONS (and, when it needs validation beyond the default
+	 * type check, one case in sanitize_option()).
+	 *
+	 * @var array<string, mixed>|null
+	 */
+	private static ?array $options = null;
 
 	/**
 	 * Raw block configuration, keyed by block name.
@@ -109,6 +141,7 @@ class Block_Manager {
 		Binding_Source_Registrar::register();
 		Pattern_Registrar::register();
 		Config_Controller::register();
+		Transform_Controller::register();
 	}
 
 	/**
@@ -117,6 +150,19 @@ class Block_Manager {
 	 * @return Block_Manager
 	 */
 	public static function init(): Block_Manager {
+		if ( null === self::$options ) {
+			// Implicit boot: no boot() call came first, so there is no prefix.
+			self::doing_it_wrong(
+				__METHOD__,
+				sprintf(
+					'Cassette-CMF Blocks was used without CassetteCMFBlocks::boot( [ \'prefix\' => \'your-prefix\' ] ); the fallback prefix "%s" is used, which can collide with another plugin that does the same. Call boot() with your own prefix before registering blocks.',
+					Identity::FALLBACK_PREFIX
+				)
+			);
+
+			self::$options = self::DEFAULT_OPTIONS;
+		}
+
 		if ( null === self::$instance ) {
 			self::$instance = new self();
 		}
@@ -125,17 +171,150 @@ class Block_Manager {
 	}
 
 	/**
-	 * Reset the singleton. Test-only.
+	 * The booted singleton, or null when none exists yet. Unlike init() it
+	 * never creates the instance and never raises the missing-prefix notice.
+	 *
+	 * @return Block_Manager|null
+	 */
+	public static function get_instance(): ?Block_Manager {
+		return self::$instance;
+	}
+
+	/**
+	 * Boot the library with options. Call it before register_from_*().
+	 *
+	 * Unknown option keys, and values of the wrong type, trigger
+	 * _doing_it_wrong() and are ignored. If the library is already booted
+	 * (explicitly, or implicitly because register_from_*() / init() ran first)
+	 * with different options, the call triggers _doing_it_wrong() and is
+	 * ignored: the first boot wins.
+	 *
+	 * @api
+	 * @since 0.2.0
+	 * @param array<string, mixed> $options {
+	 *     Optional. Boot options.
+	 *
+	 *     @type string $prefix          Required. Lowercase letters, digits and hyphens, 3-32 characters,
+	 *                                   starting with a letter. Derives the handles, REST namespace, binding
+	 *                                   source name and JS global (see Identity). Missing or invalid: a
+	 *                                   _doing_it_wrong() notice and the fallback prefix.
+	 *     @type bool   $bindings_source Register the block bindings source. Default false.
+	 * }
+	 * @return Block_Manager
+	 */
+	public static function boot( array $options = [] ): Block_Manager {
+		$resolved = self::resolve_options( $options );
+
+		if ( null === self::$options ) {
+			self::$options = $resolved;
+		} elseif ( self::$options !== $resolved ) {
+			self::doing_it_wrong(
+				__METHOD__,
+				'Cassette-CMF Blocks was already booted with different options (call boot() before register_from_*() or init()). The new options are ignored.'
+			);
+		}
+
+		return self::init();
+	}
+
+	/**
+	 * Read one boot option. Returns the default while not booted.
+	 *
+	 * @api
+	 * @since 0.2.0
+	 * @param string $key Option key, e.g. "bindings_source".
+	 * @return mixed The option value, or null for an unknown key.
+	 */
+	public static function get_option( string $key ) {
+		$options = self::$options ?? self::DEFAULT_OPTIONS;
+
+		return $options[ $key ] ?? null;
+	}
+
+	/**
+	 * Reset the singleton and the boot state. Test-only.
 	 *
 	 * @return void
 	 */
 	public static function reset(): void {
 		self::$instance = null;
+		self::$options  = null;
+	}
+
+	/**
+	 * Merge caller options over the defaults, rejecting unknown keys and
+	 * wrongly-typed values.
+	 *
+	 * @param array<string, mixed> $options Caller options.
+	 * @return array<string, mixed>
+	 */
+	private static function resolve_options( array $options ): array {
+		$resolved = self::DEFAULT_OPTIONS;
+
+		if ( ! array_key_exists( 'prefix', $options ) ) {
+			self::doing_it_wrong(
+				__METHOD__,
+				sprintf(
+					'The "prefix" boot option is required (for example CassetteCMFBlocks::boot( [ \'prefix\' => \'acme\' ] )); the fallback prefix "%s" is used, which can collide with another plugin that does the same.',
+					Identity::FALLBACK_PREFIX
+				)
+			);
+		}
+
+		foreach ( $options as $key => $value ) {
+			if ( ! is_string( $key ) || ! array_key_exists( $key, self::DEFAULT_OPTIONS ) ) {
+				self::doing_it_wrong(
+					__METHOD__,
+					sprintf( 'Unknown boot option "%s" ignored. Known options: %s.', (string) $key, implode( ', ', array_keys( self::DEFAULT_OPTIONS ) ) )
+				);
+				continue;
+			}
+
+			if ( 'prefix' === $key && ! Identity::is_valid_prefix( $value ) ) {
+				self::doing_it_wrong(
+					__METHOD__,
+					sprintf(
+						'Boot option "prefix" must match %1$s (lowercase letters, digits and hyphens, 3-32 characters, starting with a letter); the fallback "%2$s" is used.',
+						Identity::PREFIX_PATTERN,
+						Identity::FALLBACK_PREFIX
+					)
+				);
+				continue;
+			}
+
+			if ( gettype( $value ) !== gettype( self::DEFAULT_OPTIONS[ $key ] ) ) {
+				self::doing_it_wrong(
+					__METHOD__,
+					sprintf( 'Boot option "%1$s" must be of type %2$s; the default is used.', $key, gettype( self::DEFAULT_OPTIONS[ $key ] ) )
+				);
+				continue;
+			}
+
+			$resolved[ $key ] = $value;
+		}
+
+		return $resolved;
+	}
+
+	/**
+	 * Raise a developer-facing _doing_it_wrong() notice when WordPress is loaded.
+	 *
+	 * @param string $function_name Calling function or method.
+	 * @param string $message       Notice text.
+	 * @return void
+	 */
+	private static function doing_it_wrong( string $function_name, string $message ): void {
+		if ( function_exists( '_doing_it_wrong' ) ) {
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- _doing_it_wrong() messages are developer-facing debug notices, not page output.
+			_doing_it_wrong( $function_name, $message, '0.2.0' );
+		}
 	}
 
 	/**
 	 * Register configuration from a PHP array.
 	 *
+	 * @api
+	 * @since 0.2.0
 	 * @param array<string, mixed> $config Configuration array with a 'blocks' key.
 	 * @return Block_Manager
 	 * @throws \InvalidArgumentException If a block entry is missing 'id'.
@@ -212,6 +391,8 @@ class Block_Manager {
 	/**
 	 * Register configuration from a JSON file path or a raw JSON string.
 	 *
+	 * @api
+	 * @since 0.2.0
 	 * @param string $path_or_json Path to a JSON file, or a JSON string.
 	 * @param bool   $validate     Whether to validate against the block schema. Default true.
 	 * @return Block_Manager
@@ -347,7 +528,47 @@ class Block_Manager {
 		$definition = new Block_Definition( $config );
 		$this->registry->add( $definition );
 
+		$this->check_disabled_binding_source( $id, $definition->get_fields()->get_tree() );
+
 		return $definition;
+	}
+
+	/**
+	 * Warn when a field declares a binding to this library's block bindings
+	 * source while the source is not enabled (it would silently never resolve).
+	 *
+	 * @param string                           $id     Block name.
+	 * @param array<int, array<string, mixed>> $fields Field tree (containers hold nested "fields").
+	 * @return void
+	 */
+	private function check_disabled_binding_source( string $id, array $fields ): void {
+		if ( true === self::get_option( 'bindings_source' ) ) {
+			return;
+		}
+
+		foreach ( $fields as $field ) {
+			if ( ! is_array( $field ) ) {
+				continue;
+			}
+
+			$source = is_array( $field['binding'] ?? null ) ? ( $field['binding']['source'] ?? null ) : null;
+
+			if ( Identity::binding_source_name() === $source ) {
+				self::doing_it_wrong(
+					__METHOD__,
+					sprintf(
+						'Field "%1$s" of block "%2$s" binds to the "%3$s" block bindings source, which is disabled. Call CassetteCMFBlocks::boot( [ \'bindings_source\' => true ] ) before registering blocks to enable it.',
+						is_string( $field['name'] ?? null ) ? $field['name'] : '?',
+						$id,
+						Identity::binding_source_name()
+					)
+				);
+			}
+
+			if ( is_array( $field['fields'] ?? null ) ) {
+				$this->check_disabled_binding_source( $id, $field['fields'] );
+			}
+		}
 	}
 
 	/**
@@ -389,7 +610,7 @@ class Block_Manager {
 					_doing_it_wrong(
 						__METHOD__,
 						sprintf( 'Block "%1$s" could not be registered: %2$s', $id, $e->getMessage() ),
-						'0.1.0'
+						'0.2.0'
 					);
 					// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 				}
@@ -414,7 +635,7 @@ class Block_Manager {
 						'Block "%s" was registered after the "init" hook had already fired. Existing editor sessions, or content already parsed during this request, may show it as unavailable ("core/missing"). Register block configuration before or during "init" priority 10.',
 						$id
 					),
-					'0.1.0'
+					'0.2.0'
 				);
 				// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 			}

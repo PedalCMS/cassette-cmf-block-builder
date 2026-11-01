@@ -135,6 +135,9 @@ function cassette_cmf_forms_field_preview_markup( string $type_label, array $con
  * Register the field blocks.
  */
 function cassette_cmf_forms_init() {
+	// Every site that loads this library sets its own prefix (derives the handles, REST namespace,
+	// binding source and JS global); see docs/coexistence.md.
+	CassetteCMFBlocks::boot( [ 'prefix' => 'example' ] );
 	CassetteCMFBlocks::register_from_array(
 		[
 			'block_categories' => [
@@ -403,6 +406,112 @@ function cassette_cmf_forms_init() {
 								],
 							]
 						),
+					],
+				],
+
+				/**
+				 * A container that PROVIDES a value to the blocks inside it
+				 * ("providesContext"): its "formId" attribute is published as
+				 * the "example/formId" context key.
+				 */
+				[
+					'id'           => 'example/form',
+					'args'         => [
+						'title'           => __( 'Form', 'acme' ),
+						'category'        => 'cassette-cmf-forms',
+						'icon'            => 'feedback',
+						'providesContext' => [ 'example/formId' => 'formId' ],
+					],
+					'inner_blocks' => [
+						'allowed' => [ 'example/field', 'core/group', 'core/columns' ],
+					],
+					'fields'       => [
+						[
+							'name'         => 'settings',
+							'type'         => 'panel',
+							'title'        => __( 'Form', 'acme' ),
+							'initial_open' => true,
+							'fields'       => [
+								[
+									'name'        => 'formId',
+									'type'        => 'text',
+									'label'       => __( 'Form ID', 'acme' ),
+									'description' => __( 'Shared with every field block inside this form.', 'acme' ),
+								],
+							],
+						],
+					],
+					'render'       => [
+						'markup' => [
+							'tag'  => 'form',
+							'slot' => 'inner_blocks',
+						],
+					],
+				],
+
+				/**
+				 * A child that CONSUMES the parent's value ("source: context":
+				 * read-only, no attribute, no inspector control) and shows the
+				 * other two instance features: a "uuid" instance id the editor
+				 * generates and keeps unique, and a field name that must be
+				 * unique among the fields of the same form ("unique" with an
+				 * ancestor scope; a copied field is renamed "name-2").
+				 */
+				[
+					'id'     => 'example/field',
+					'args'   => [
+						'title'    => __( 'Form field', 'acme' ),
+						'category' => 'cassette-cmf-forms',
+						'icon'     => 'edit',
+						'ancestor' => [ 'example/form' ],
+					],
+					'fields' => [
+						[
+							'name' => 'instanceId',
+							'type' => 'uuid',
+						],
+						[
+							'name'    => 'formId',
+							'type'    => 'text',
+							'source'  => 'context',
+							'context' => 'example/formId',
+						],
+						[
+							'name'         => 'settings',
+							'type'         => 'panel',
+							'title'        => __( 'Form field', 'acme' ),
+							'initial_open' => true,
+							'fields'       => [
+								[
+									'name'   => 'name',
+									'type'   => 'text',
+									'label'  => __( 'Field name', 'acme' ),
+									'format' => 'slug',
+									'unique' => [
+										'scope' => 'ancestor',
+										'block' => 'example/form',
+									],
+								],
+							],
+						],
+					],
+					'render' => [
+						'markup' => [
+							'tag'      => 'div',
+							'class'    => 'cassette-cmf-block-builder-field-preview',
+							'attrs'    => [ 'data-instance-id' => '{{ attributes.instanceId }}' ],
+							'children' => [
+								[
+									'tag'  => 'strong',
+									'text' => '{{ attributes.name }}',
+								],
+								[
+									'tag'   => 'span',
+									'class' => 'cassette-cmf-block-builder-field-preview__badge',
+									'text'  => 'form: {{ attributes.formId }}',
+								],
+							],
+						],
 					],
 				],
 			],

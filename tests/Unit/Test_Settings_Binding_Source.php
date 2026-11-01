@@ -1,27 +1,29 @@
 <?php
 /**
- * Settings_Binding_Source test.
+ * Settings_Binding_Source test (unit level: args, context, rule order).
+ *
+ * The end-to-end disclosure cases through real block rendering live in
+ * Test_Bindings_Disclosure.
  *
  * @package PedalCMS\CassetteCMFBlocks\Tests\Unit
  */
 
 use PedalCMS\CassetteCMFBlocks\Binding\Settings_Binding_Source;
 
-require_once __DIR__ . '/CassetteCMFBlocks_UnitTestCase.php';
+require_once __DIR__ . '/Bindings_UnitTestCase.php';
 
 /**
  * Class Test_Settings_Binding_Source
  */
-class Test_Settings_Binding_Source extends CassetteCMFBlocks_UnitTestCase {
+class Test_Settings_Binding_Source extends Bindings_UnitTestCase {
 
 	/**
 	 * Build a bare WP_Block instance with the given block context.
 	 *
 	 * WP_Block only exposes the subset of $available_context its own block
 	 * type actually declares via "usesContext" — a real consuming block
-	 * (like Binding_Source_Registrar's own docblock example) must declare
-	 * "usesContext" => [ 'postId' ] itself for Settings_Binding_Source's
-	 * postId fallback to ever see anything, exactly as this fixture does.
+	 * must declare "usesContext" => [ 'postId' ] itself for the postId
+	 * fallback to ever see anything, exactly as this fixture does.
 	 *
 	 * @param array<string, mixed> $context Block context, e.g. [ 'postId' => 123 ].
 	 * @return WP_Block
@@ -53,115 +55,241 @@ class Test_Settings_Binding_Source extends CassetteCMFBlocks_UnitTestCase {
 	}
 
 	/**
-	 * A missing "field" resolves to null.
+	 * Register a marked field and a public post carrying a value.
+	 *
+	 * @return int The post ID.
 	 */
-	public function test_missing_field_resolves_to_null(): void {
-		$result = Settings_Binding_Source::get_value(
+	private function marked_post(): int {
+		$this->register_post_fields(
 			[
-				'context'      => 1,
-				'context_type' => 'post',
-			],
-			$this->make_block()
+				[
+					'name'     => 'agency_phone',
+					'type'     => 'text',
+					'bindings' => true,
+				],
+			]
 		);
+		$post_id = self::factory()->post->create( [ 'post_status' => 'publish' ] );
+		update_post_meta( $post_id, 'agency_phone', '555-0100' );
 
-		$this->assertNull( $result );
+		return $post_id;
 	}
 
 	/**
-	 * A 'post' binding with no explicit "context" falls back to the
-	 * block's own "postId" context.
+	 * A missing "field" resolves to null.
+	 */
+	public function test_missing_field_resolves_to_null(): void {
+		$post_id = $this->marked_post();
+
+		$this->assertNull( Settings_Binding_Source::get_value( [ 'context' => $post_id ], $this->make_block() ) );
+		$this->assertNull( Settings_Binding_Source::get_value( [ 'field' => '' ], $this->make_block( [ 'postId' => $post_id ] ) ) );
+		$this->assertNull( Settings_Binding_Source::get_value( [ 'field' => [ 'agency_phone' ] ], $this->make_block( [ 'postId' => $post_id ] ) ) );
+	}
+
+	/**
+	 * A 'post' binding with no explicit "context" falls back to the block's own "postId" context.
 	 */
 	public function test_post_binding_falls_back_to_block_context_post_id(): void {
-		$post_id = self::factory()->post->create();
-		update_post_meta( $post_id, 'agency_phone', '555-0100' );
+		$post_id = $this->marked_post();
 
-		$result = Settings_Binding_Source::get_value(
-			[ 'field' => 'agency_phone' ],
-			$this->make_block( [ 'postId' => $post_id ] )
+		$this->assertSame(
+			'555-0100',
+			Settings_Binding_Source::get_value( [ 'field' => 'agency_phone' ], $this->make_block( [ 'postId' => $post_id ] ) )
 		);
-
-		$this->assertSame( '555-0100', $result );
 	}
 
 	/**
 	 * An explicit "context" overrides the block's own context.
 	 */
 	public function test_explicit_context_overrides_block_context(): void {
-		$other_post_id = self::factory()->post->create();
-		update_post_meta( $other_post_id, 'agency_phone', '555-0200' );
+		$post_id = $this->marked_post();
 
-		$result = Settings_Binding_Source::get_value(
-			[
-				'field'   => 'agency_phone',
-				'context' => $other_post_id,
-			],
-			$this->make_block( [ 'postId' => 999999 ] )
+		$this->assertSame(
+			'555-0100',
+			Settings_Binding_Source::get_value(
+				[
+					'field'   => 'agency_phone',
+					'context' => $post_id,
+				],
+				$this->make_block( [ 'postId' => 999999 ] )
+			)
 		);
-
-		$this->assertSame( '555-0200', $result );
+		$this->assertSame(
+			'555-0100',
+			Settings_Binding_Source::get_value(
+				[
+					'field'   => 'agency_phone',
+					'context' => (string) $post_id,
+				],
+				$this->make_block()
+			)
+		);
 	}
 
 	/**
-	 * A 'post' binding with neither an explicit "context" nor a "postId"
-	 * block context resolves to null — nothing to resolve against.
+	 * Neither an explicit context nor a postId context: null.
 	 */
 	public function test_post_binding_with_no_context_resolves_to_null(): void {
-		$result = Settings_Binding_Source::get_value( [ 'field' => 'agency_phone' ], $this->make_block() );
+		$this->marked_post();
 
-		$this->assertNull( $result );
+		$this->assertNull( Settings_Binding_Source::get_value( [ 'field' => 'agency_phone' ], $this->make_block() ) );
 	}
 
 	/**
-	 * 'term'/'settings' bindings require an explicit "context" — there's no
-	 * standard "current term"/"current settings page" block context to
-	 * fall back to.
+	 * Malformed contexts and context types resolve to null.
 	 */
-	public function test_term_binding_with_no_explicit_context_resolves_to_null(): void {
-		$result = Settings_Binding_Source::get_value(
-			[
-				'field'        => 'category_color',
-				'context_type' => 'term',
-			],
-			$this->make_block()
-		);
+	public function test_malformed_context_and_type_resolve_to_null(): void {
+		$post_id = $this->marked_post();
+		$block   = $this->make_block( [ 'postId' => $post_id ] );
 
-		$this->assertNull( $result );
+		foreach ( [ -5, 0, '1e3', '12abc', 'abc', true, [ $post_id ] ] as $context ) {
+			$this->assertNull(
+				Settings_Binding_Source::get_value(
+					[
+						'field'   => 'agency_phone',
+						'context' => $context,
+					],
+					$block
+				),
+				'context ' . wp_json_encode( $context )
+			);
+		}
+
+		foreach ( [ 'user', 'comment', '', 5, [ 'post' ] ] as $type ) {
+			$this->assertNull(
+				Settings_Binding_Source::get_value(
+					[
+						'field'        => 'agency_phone',
+						'context_type' => $type,
+					],
+					$block
+				),
+				'context_type ' . wp_json_encode( $type )
+			);
+		}
 	}
 
 	/**
-	 * A resolvable value round-trips through CassetteCMF::get_field()
-	 * correctly for a 'settings' binding.
+	 * 'term'/'settings' bindings require an explicit "context".
+	 */
+	public function test_term_and_settings_bindings_need_an_explicit_context(): void {
+		$block = $this->make_block( [ 'postId' => $this->marked_post() ] );
+
+		foreach ( [ 'term', 'settings' ] as $type ) {
+			$this->assertNull(
+				Settings_Binding_Source::get_value(
+					[
+						'field'        => 'agency_phone',
+						'context_type' => $type,
+					],
+					$block
+				)
+			);
+		}
+	}
+
+	/**
+	 * A marked term-meta field resolves; protected term meta never does.
+	 */
+	public function test_term_binding(): void {
+		$this->register_taxonomy_fields(
+			'category',
+			[
+				[
+					'name'     => 'color',
+					'type'     => 'text',
+					'bindings' => true,
+				],
+				[
+					'name'     => '_hidden_color',
+					'type'     => 'text',
+					'bindings' => true,
+				],
+			]
+		);
+		$term_id = self::factory()->category->create();
+		update_term_meta( $term_id, 'color', 'teal' );
+		update_term_meta( $term_id, '_hidden_color', 'LEAK' );
+
+		$args = [
+			'context_type' => 'term',
+			'context'      => $term_id,
+		];
+
+		$this->assertSame( 'teal', Settings_Binding_Source::get_value( $args + [ 'field' => 'color' ], $this->make_block() ) );
+		$this->assertNull( Settings_Binding_Source::get_value( $args + [ 'field' => '_hidden_color' ], $this->make_block() ) );
+	}
+
+	/**
+	 * A settings binding resolves through CassetteCMF::get_field() once the field is marked.
 	 */
 	public function test_settings_binding_resolves_via_cassette_cmf(): void {
+		$this->register_settings_page(
+			'agency-settings',
+			[
+				[
+					'name'     => 'theme_color',
+					'type'     => 'text',
+					'bindings' => true,
+				],
+			]
+		);
 		update_option( 'agency-settings_theme_color', '#336699' );
 
-		$result = Settings_Binding_Source::get_value(
-			[
-				'field'        => 'theme_color',
-				'context'      => 'agency-settings',
-				'context_type' => 'settings',
-			],
-			$this->make_block()
+		$this->assertSame(
+			'#336699',
+			Settings_Binding_Source::get_value(
+				[
+					'field'        => 'theme_color',
+					'context'      => 'agency-settings',
+					'context_type' => 'settings',
+				],
+				$this->make_block()
+			)
 		);
-
-		$this->assertSame( '#336699', $result );
-
-		delete_option( 'agency-settings_theme_color' );
 	}
 
 	/**
-	 * An unresolvable value resolves to null, never '' — so WordPress
-	 * falls back to the block's own static content instead of overwriting
-	 * it with an empty value.
+	 * An empty value resolves to null, never '', so core keeps the block's content.
 	 */
-	public function test_unresolvable_value_is_null_not_empty_string(): void {
-		$post_id = self::factory()->post->create();
+	public function test_empty_and_unresolvable_values_are_null_not_empty_string(): void {
+		$post_id = $this->marked_post();
+		update_post_meta( $post_id, 'agency_phone', '' );
 
-		$result = Settings_Binding_Source::get_value(
-			[ 'field' => 'nonexistent_field' ],
-			$this->make_block( [ 'postId' => $post_id ] )
-		);
+		$this->assertNull( Settings_Binding_Source::get_value( [ 'field' => 'agency_phone' ], $this->make_block( [ 'postId' => $post_id ] ) ) );
+		$this->assertNull( Settings_Binding_Source::get_value( [ 'field' => 'nonexistent_field' ], $this->make_block( [ 'postId' => $post_id ] ) ) );
+	}
 
-		$this->assertNull( $result );
+	/**
+	 * A parent library without is_field_public() resolves nothing at all.
+	 *
+	 * The guard is a protected static seam (cmf_supports_visibility()), so an
+	 * older parent library is simulated with a subclass.
+	 */
+	public function test_older_parent_library_resolves_nothing(): void {
+		$post_id = $this->marked_post();
+		$old_cmf = new class() extends Settings_Binding_Source {
+			/**
+			 * Pretend the parent library has no is_field_public().
+			 *
+			 * @return bool
+			 */
+			protected static function cmf_supports_visibility(): bool {
+				return false;
+			}
+		};
+
+		$this->assertNull( $old_cmf::get_value( [ 'field' => 'agency_phone' ], $this->make_block( [ 'postId' => $post_id ] ) ) );
+		// Sanity: the real class resolves the same input.
+		$this->assertSame( '555-0100', Settings_Binding_Source::get_value( [ 'field' => 'agency_phone' ], $this->make_block( [ 'postId' => $post_id ] ) ) );
+	}
+
+	/**
+	 * A nonexistent post resolves to null.
+	 */
+	public function test_missing_post_resolves_to_null(): void {
+		$this->marked_post();
+
+		$this->assertNull( Settings_Binding_Source::get_value( [ 'field' => 'agency_phone' ], $this->make_block( [ 'postId' => 987654 ] ) ) );
 	}
 }

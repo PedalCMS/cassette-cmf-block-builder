@@ -49,3 +49,37 @@ export function collectFieldOptions( nodes ) {
 
 	return options;
 }
+
+/**
+ * Collect the block's "source": "context" fields as { fieldName: contextKey },
+ * flattening container nesting and skipping a repeater's row template.
+ *
+ * @param {Array} nodes Resolved tree nodes.
+ * @return {Object} Field name -> block-context key.
+ */
+export function collectContextFields( nodes ) {
+	const fields = {};
+
+	const walk = ( list ) => {
+		( list || [] ).forEach( ( node ) => {
+			if ( node.isContainer ) {
+				if ( 'repeater' !== node.type ) {
+					walk( node.fields );
+				}
+				return;
+			}
+
+			if (
+				'context' === node.config.source &&
+				node.config.name &&
+				node.config.context
+			) {
+				fields[ node.config.name ] = node.config.context;
+			}
+		} );
+	};
+
+	walk( nodes );
+
+	return fields;
+}

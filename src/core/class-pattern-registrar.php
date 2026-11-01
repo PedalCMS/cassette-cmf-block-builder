@@ -14,7 +14,7 @@
  * way to author a pattern.
  *
  * @package PedalCMS\CassetteCMFBlocks
- * @since 0.1.0
+ * @since 0.2.0
  */
 
 namespace PedalCMS\CassetteCMFBlocks\Core;
@@ -93,7 +93,7 @@ class Pattern_Registrar {
 				_doing_it_wrong(
 					__METHOD__,
 					sprintf( 'A pattern missing "slug" or "title" was skipped: %s', wp_json_encode( $pattern ) ),
-					'0.1.0'
+					'0.2.0'
 				);
 			}
 			return;
@@ -111,7 +111,7 @@ class Pattern_Registrar {
 				_doing_it_wrong(
 					__METHOD__,
 					sprintf( 'Pattern "%s" declares neither "content" nor "blocks"; it was skipped.', $pattern['slug'] ),
-					'0.1.0'
+					'0.2.0'
 				);
 				// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 			}

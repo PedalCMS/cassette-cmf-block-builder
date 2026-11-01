@@ -1,5 +1,7 @@
 import { Button, SelectControl, TextControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { AncestorFieldPicker } from './ancestor-field';
+import { convertRule, isCrossBlockRule, newOwnRule } from '../conditions/rules';
 
 const OPERATORS = [
 	{ value: '==', label: __( 'is', 'cassette-cmf-block-builder' ) },
@@ -53,6 +55,10 @@ export default function Conditions( { field, value, onChange, scope } ) {
 	const rules = Array.isArray( value?.rules ) ? value.rules : [];
 	const fieldOptions = scope?.fieldOptions || [];
 
+	// `conditions: { ancestor: 'vendor/form', ... }` on the field turns on the
+	// "another block" rule kind (the ancestor_field picker, same options).
+	const blockConfig = field.conditions?.ancestor ? field.conditions : null;
+
 	const updateRules = ( newRules ) =>
 		onChange( { relation, rules: newRules } );
 
@@ -63,17 +69,18 @@ export default function Conditions( { field, value, onChange, scope } ) {
 			)
 		);
 
+	const replaceRule = ( index, newRule ) =>
+		updateRules(
+			rules.map( ( rule, i ) => ( i === index ? newRule : rule ) )
+		);
+
 	const removeRule = ( index ) =>
 		updateRules( rules.filter( ( rule, i ) => i !== index ) );
 
 	const addRule = () =>
 		updateRules( [
 			...rules,
-			{
-				field: fieldOptions[ 0 ]?.value || '',
-				operator: '==',
-				value: '',
-			},
+			newOwnRule( fieldOptions[ 0 ]?.value || '' ),
 		] );
 
 	return (
@@ -112,6 +119,7 @@ export default function Conditions( { field, value, onChange, scope } ) {
 
 			{ rules.map( ( rule, index ) => {
 				const operator = rule.operator || '==';
+				const crossBlock = isCrossBlockRule( rule );
 				const isMultiValue = MULTI_VALUE_OPERATORS.includes( operator );
 				const displayValue = Array.isArray( rule.value )
 					? rule.value.join( ', ' )
@@ -123,26 +131,76 @@ export default function Conditions( { field, value, onChange, scope } ) {
 						className="cassette-cmf-block-builder-conditions__rule"
 						key={ index }
 					>
-						<SelectControl
-							label={ __(
-								'Field',
-								'cassette-cmf-block-builder'
-							) }
-							value={ rule.field || '' }
-							options={ [
-								{
-									value: '',
-									label: __(
-										'— Select a field —',
-										'cassette-cmf-block-builder'
-									),
-								},
-								...fieldOptions,
-							] }
-							onChange={ ( newField ) =>
-								updateRule( index, { field: newField } )
-							}
-						/>
+						{ blockConfig && (
+							<SelectControl
+								label={ __(
+									'Compare',
+									'cassette-cmf-block-builder'
+								) }
+								value={ crossBlock ? 'block' : 'own' }
+								options={ [
+									{
+										value: 'own',
+										label: __(
+											'A field of this block',
+											'cassette-cmf-block-builder'
+										),
+									},
+									{
+										value: 'block',
+										label: __(
+											'Another block',
+											'cassette-cmf-block-builder'
+										),
+									},
+								] }
+								onChange={ ( kind ) =>
+									replaceRule(
+										index,
+										convertRule(
+											rule,
+											kind,
+											fieldOptions[ 0 ]?.value || ''
+										)
+									)
+								}
+							/>
+						) }
+						{ crossBlock ? (
+							<AncestorFieldPicker
+								label={ __(
+									'Block',
+									'cassette-cmf-block-builder'
+								) }
+								value={ rule.ref || '' }
+								onChange={ ( ref ) =>
+									updateRule( index, { ref } )
+								}
+								config={ blockConfig || { ancestor: '' } }
+								clientId={ scope?.clientId }
+							/>
+						) : (
+							<SelectControl
+								label={ __(
+									'Field',
+									'cassette-cmf-block-builder'
+								) }
+								value={ rule.field || '' }
+								options={ [
+									{
+										value: '',
+										label: __(
+											'— Select a field —',
+											'cassette-cmf-block-builder'
+										),
+									},
+									...fieldOptions,
+								] }
+								onChange={ ( newField ) =>
+									updateRule( index, { field: newField } )
+								}
+							/>
+						) }
 						<SelectControl
 							label={ __(
 								'Condition',

@@ -2,7 +2,7 @@
 /**
  * Config_Controller class for Cassette-CMF Blocks
  *
- * GET /cassette-cmf-block-builder/v1/config — the same Editor_Payload::build()
+ * GET /{prefix}-blocks/v1/config (see Core\Identity) — the same Editor_Payload::build()
  * shape the inline bootstrap script ships, exposed as a real REST route
  * for debugging and WP-CLI introspection ("wp eval-file"/"wp rest" style
  * inspection without reading browser devtools). Never consulted on the
@@ -14,13 +14,14 @@
  * bridge" section).
  *
  * @package PedalCMS\CassetteCMFBlocks
- * @since 0.1.0
+ * @since 0.2.0
  */
 
 namespace PedalCMS\CassetteCMFBlocks\Rest;
 
 use PedalCMS\CassetteCMFBlocks\Core\Block_Manager;
 use PedalCMS\CassetteCMFBlocks\Core\Editor_Payload;
+use PedalCMS\CassetteCMFBlocks\Core\Identity;
 
 /**
  * Class Config_Controller
@@ -49,7 +50,7 @@ class Config_Controller {
 		}
 
 		register_rest_route(
-			'cassette-cmf-block-builder/v1',
+			Identity::rest_namespace(),
 			'/config',
 			[
 				'methods'             => 'GET',
@@ -63,7 +64,7 @@ class Config_Controller {
 
 	/**
 	 * Route callback: the current Editor_Payload, same shape as the inline
-	 * bootstrap script (window.cassetteCmfBlocks) ships.
+	 * bootstrap script (window.cassetteCmfBlocks_{prefix}) ships.
 	 *
 	 * @return \WP_REST_Response
 	 */

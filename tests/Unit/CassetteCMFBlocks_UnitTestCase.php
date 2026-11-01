@@ -52,6 +52,14 @@ abstract class CassetteCMFBlocks_UnitTestCase extends WP_UnitTestCase {
 			'PedalCMS\CassetteCMFBlocks\Core\Block_Manager::register_blocks' => true,
 		];
 
+		// Most tests call register_from_*() / init() without boot(). The
+		// "no prefix" notice that raises is harness noise there; the tests that
+		// care about it expect it explicitly and so still see it.
+		$auto_boot = 'PedalCMS\\CassetteCMFBlocks\\Core\\Block_Manager::init';
+		if ( ! in_array( $auto_boot, $this->expected_doing_it_wrong, true ) ) {
+			$ignored_notices[ $auto_boot ] = true;
+		}
+
 		$this->caught_doing_it_wrong = array_diff_key( $this->caught_doing_it_wrong, $ignored_notices );
 
 		parent::assert_post_conditions();

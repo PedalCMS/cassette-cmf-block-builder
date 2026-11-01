@@ -9,7 +9,7 @@
  * of fataling.
  *
  * @package PedalCMS\CassetteCMFBlocks
- * @since 0.1.0
+ * @since 0.2.0
  */
 
 namespace PedalCMS\CassetteCMFBlocks\Compat;
@@ -25,6 +25,13 @@ use PedalCMS\CassetteCMF\Field\Field_Interface;
 class Requirements {
 
 	/**
+	 * Minimum PHP version this library targets.
+	 *
+	 * @var string
+	 */
+	public const MIN_PHP_VERSION = '7.4.0';
+
+	/**
 	 * Minimum WordPress version this library targets.
 	 *
 	 * @var string
@@ -36,7 +43,7 @@ class Requirements {
 	 *
 	 * @var string
 	 */
-	public const MIN_CMF_VERSION = '0.1.0';
+	public const MIN_CMF_VERSION = '0.2.0';
 
 	/**
 	 * Cached result of the last check() call.
@@ -59,6 +66,13 @@ class Requirements {
 		}
 
 		$errors = [];
+
+		if ( ! self::php_version_sufficient() ) {
+			$errors[] = sprintf(
+				'Cassette-CMF Blocks requires PHP %s or newer.',
+				self::MIN_PHP_VERSION
+			);
+		}
 
 		if ( ! self::cmf_classes_present() ) {
 			$errors[] = 'Cassette-CMF Blocks requires pedalcms/cassette-cmf to be installed and loaded.';
@@ -158,6 +172,18 @@ class Requirements {
 		$version  = $composer['version'] ?? null;
 
 		return is_string( $version ) && '' !== $version ? $version : null;
+	}
+
+	/**
+	 * Whether the running PHP version meets the minimum floor. A no-op on
+	 * every supported PHP; on an older PHP it turns a fatal into a refusal
+	 * to boot plus an admin notice (where the file can still be parsed).
+	 *
+	 * @return bool
+	 */
+	private static function php_version_sufficient(): bool {
+		// Always true on every PHP that can run this code; the check exists for older ones.
+		return PHP_VERSION_ID >= 70400; // @phpstan-ignore greaterOrEqual.alwaysTrue
 	}
 
 	/**

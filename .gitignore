@@ -15,3 +15,6 @@ wp-config.php
 
 # Build output IS committed — do not ignore it.
 !/src/assets/build/
+
+# Playwright output (wp-scripts test-playwright)
+artifacts/

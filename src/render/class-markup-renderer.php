@@ -14,7 +14,7 @@
  * content — documented as consumer-owned trust, never the default.
  *
  * @package PedalCMS\CassetteCMFBlocks
- * @since 0.1.0
+ * @since 0.2.0
  */
 
 namespace PedalCMS\CassetteCMFBlocks\Render;
@@ -184,7 +184,12 @@ class Markup_Renderer {
 	 * @return string
 	 */
 	private static function build_root_open_tag( string $tag, string $class_names, array $attrs ): string {
-		if ( ! function_exists( 'get_block_wrapper_attributes' ) ) {
+		// get_block_wrapper_attributes() reads WP_Block_Supports::$block_to_render, which is only set
+		// while a real WP_Block::render() is running. Outside it (WP 6.8 fatals on the null; newer
+		// WordPress returns an empty or partial string) fall back to the plain open tag.
+		if ( ! function_exists( 'get_block_wrapper_attributes' )
+			|| ! class_exists( \WP_Block_Supports::class )
+			|| null === \WP_Block_Supports::$block_to_render ) {
 			return self::build_open_tag( $tag, $class_names, $attrs );
 		}
 

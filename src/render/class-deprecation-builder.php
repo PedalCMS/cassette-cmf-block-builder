@@ -21,7 +21,7 @@
  * need, not that tool itself.
  *
  * @package PedalCMS\CassetteCMFBlocks
- * @since 0.1.0
+ * @since 0.2.0
  */
 
 namespace PedalCMS\CassetteCMFBlocks\Render;
@@ -67,6 +67,8 @@ class Deprecation_Builder {
 	 * @return array<int|string, mixed>
 	 */
 	private static function normalize( array $value ): array {
+		// array_is_list() is PHP 8.1+. WordPress >= 6.5 polyfills it (wp-includes/compat.php),
+		// so it is safe on PHP 7.4 given this library's WordPress 6.8 floor.
 		$is_list = array_is_list( $value );
 
 		foreach ( $value as $key => $item ) {

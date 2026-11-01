@@ -1,9 +1,7 @@
-import { createElement } from '@wordpress/element';
 import { registerBlockType } from '@wordpress/blocks';
-import { InnerBlocks } from '@wordpress/block-editor';
 import { createEdit } from './block-edit';
 import { createSave } from './save';
-import { buildDeprecations } from './deprecations';
+import { buildDeprecations, createDynamicSave } from './deprecations';
 import { buildTransforms } from './transforms';
 
 /**
@@ -36,25 +34,18 @@ export function registerBlocks( payload ) {
 	Object.values( payload.blocks || {} ).forEach( ( descriptor ) => {
 		const render = descriptor.render || {};
 		const isStatic = 'static' === render.mode;
-		const innerBlocksEnabled = Boolean( descriptor.innerBlocks?.enabled );
-
-		let save;
-		if ( isStatic ) {
-			save = createSave( render.markup );
-		} else if ( innerBlocksEnabled ) {
-			save = function Save() {
-				return createElement( InnerBlocks.Content );
-			};
-		} else {
-			save = () => null;
-		}
+		const save = isStatic
+			? createSave( render.markup )
+			: createDynamicSave( descriptor );
 
 		registerBlockType( descriptor.name, {
 			...descriptor.settings,
 			edit: createEdit( descriptor ),
 			save,
 			deprecated: buildDeprecations( descriptor ),
-			transforms: buildTransforms( descriptor ),
+			transforms: buildTransforms( descriptor, {
+				restNamespace: payload.restNamespace,
+			} ),
 		} );
 	} );
 }

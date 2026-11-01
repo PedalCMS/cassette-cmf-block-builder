@@ -1,28 +1,9 @@
 import { TextControl } from '@wordpress/components';
 import { useEffect, useRef } from '@wordpress/element';
-import { slugify } from '../util/slugify';
+import { applyFormat } from '../util/apply-format';
+import { useUniqueHelp } from './unique-help';
 
-/**
- * Apply "format" to a value: "slug" (reuses the same slugify() used
- * elsewhere for a tab's derived name), "upper", or "lower". Any other
- * value (including unset) passes the value through unchanged.
- *
- * @param {string} value  Value to format.
- * @param {string} format One of "slug"/"upper"/"lower", or unset.
- * @return {string} The formatted value.
- */
-export function applyFormat( value, format ) {
-	if ( 'slug' === format ) {
-		return slugify( value );
-	}
-	if ( 'upper' === format ) {
-		return value.toUpperCase();
-	}
-	if ( 'lower' === format ) {
-		return value.toLowerCase();
-	}
-	return value;
-}
+export { applyFormat };
 
 /**
  * "text" control — a single-line string attribute.
@@ -48,6 +29,8 @@ export function applyFormat( value, format ) {
  */
 export default function Text( { field, value, onChange, scope } ) {
 	const touchedRef = useRef( !! value );
+	const lastDerivedRef = useRef( null );
+	const { help, hasError } = useUniqueHelp( field, scope );
 	const sourceValue = field.derive_from
 		? scope?.attributes?.[ field.derive_from ]
 		: undefined;
@@ -59,6 +42,7 @@ export default function Text( { field, value, onChange, scope } ) {
 
 		const derived = applyFormat( sourceValue || '', field.format );
 		if ( derived !== ( value ?? '' ) ) {
+			lastDerivedRef.current = derived;
 			onChange( derived );
 		}
 		// Deliberately excludes onChange/value: including them would
@@ -67,10 +51,20 @@ export default function Text( { field, value, onChange, scope } ) {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ sourceValue, field.derive_from, field.format ] );
 
+	// A value that changed without this control deriving it (for example the
+	// "unique" auto-suffix on a duplicated block) counts as a user edit, so
+	// derivation stops overwriting it.
+	useEffect( () => {
+		if ( value && value !== lastDerivedRef.current ) {
+			touchedRef.current = true;
+		}
+	}, [ value ] );
+
 	return (
 		<TextControl
 			label={ field.label }
-			help={ field.description }
+			help={ help }
+			aria-invalid={ hasError ? 'true' : undefined }
 			placeholder={ field.placeholder }
 			value={ value ?? '' }
 			onChange={ ( newValue ) => {

@@ -148,4 +148,64 @@ describe( 'Conditions', () => {
 
 		expect( valueControl ).toBeUndefined();
 	} );
+
+	describe( 'cross-block rules', () => {
+		const blockField = {
+			name: 'rules',
+			conditions: { ancestor: 'acme/form' },
+		};
+
+		const rowOf = ( element ) =>
+			findByClassName(
+				element,
+				'cassette-cmf-block-builder-conditions__rule'
+			)[ 0 ];
+
+		it( 'offers the "Compare" switch only when the field sets conditions.ancestor', () => {
+			const rules = { relation: 'AND', rules: [ { field: 'a', operator: '==', value: '' } ] };
+			const labels = ( field ) =>
+				flattenChildren(
+					rowOf(
+						Conditions( { field, value: rules, onChange: () => {}, scope: { fieldOptions: [] } } )
+					).props.children
+				).map( ( child ) => child.props.label );
+
+			expect( labels( blockField ) ).toContain( 'Compare' );
+			expect( labels( { name: 'rules' } ) ).not.toContain( 'Compare' );
+		} );
+
+		it( 'switching a rule to "Another block" emits { source: block, ref } and drops field', () => {
+			const changes = [];
+			const element = Conditions( {
+				field: blockField,
+				value: { relation: 'AND', rules: [ { field: 'a', operator: '!=', value: 'x' } ] },
+				onChange: ( value ) => changes.push( value ),
+				scope: { fieldOptions: [ { value: 'a', label: 'A' } ] },
+			} );
+			const compare = flattenChildren( rowOf( element ).props.children ).find(
+				( child ) => 'Compare' === child.props.label
+			);
+			compare.props.onChange( 'block' );
+
+			expect( changes[ 0 ].rules ).toEqual( [ { source: 'block', ref: '', operator: '!=', value: 'x' } ] );
+		} );
+
+		it( 'a cross-block rule shows the block picker and writes the chosen name to ref', () => {
+			const changes = [];
+			const element = Conditions( {
+				field: blockField,
+				value: { relation: 'AND', rules: [ { source: 'block', ref: '', operator: 'not_empty' } ] },
+				onChange: ( value ) => changes.push( value ),
+				scope: { fieldOptions: [], clientId: 'me' },
+			} );
+			const picker = flattenChildren( rowOf( element ).props.children ).find(
+				( child ) => 'Block' === child.props.label
+			);
+			expect( picker.props.clientId ).toBe( 'me' );
+			expect( picker.props.config ).toEqual( blockField.conditions );
+			picker.props.onChange( 'email' );
+
+			expect( changes[ 0 ].rules ).toEqual( [ { source: 'block', ref: 'email', operator: 'not_empty' } ] );
+		} );
+	} );
 } );

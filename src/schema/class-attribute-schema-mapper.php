@@ -14,7 +14,7 @@
  * display-only control that isn't already excluded by holds_value).
  *
  * @package PedalCMS\CassetteCMFBlocks
- * @since 0.1.0
+ * @since 0.2.0
  */
 
 namespace PedalCMS\CassetteCMFBlocks\Schema;
@@ -121,10 +121,31 @@ class Attribute_Schema_Mapper {
 			'default' => $config['default'] ?? ( self::TYPE_DEFAULTS[ $type ] ?? null ),
 		];
 
+		// "options" reaches here already normalized to a value => label map
+		// (Core\Field_Collection). An array-valued control (checkbox_group)
+		// takes its allowed values on "items": a top-level "enum" on an array
+		// attribute would be compared with the whole array and reject every
+		// real selection.
 		if ( isset( $config['options'] ) && is_array( $config['options'] ) ) {
-			$schema['enum'] = array_keys( $config['options'] );
+			$allowed = array_keys( $config['options'] );
+
+			if ( 'string' === $type || 'array' === $type ) {
+				// PHP turns numeric-looking map keys into ints; string values compare as strings.
+				$allowed = array_map( 'strval', $allowed );
+			}
 		} elseif ( isset( $config['enum'] ) && is_array( $config['enum'] ) ) {
-			$schema['enum'] = $config['enum'];
+			$allowed = $config['enum'];
+		}
+
+		if ( isset( $allowed ) ) {
+			if ( 'array' === $type ) {
+				$schema['items'] = [
+					'type' => 'string',
+					'enum' => $allowed,
+				];
+			} else {
+				$schema['enum'] = $allowed;
+			}
 		}
 
 		if ( isset( $config['role'] ) ) {

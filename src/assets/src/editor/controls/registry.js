@@ -23,6 +23,7 @@ import ToolbarMenu from './toolbar-menu';
 import ToolbarAlign from './toolbar-align';
 import SiblingField from './sibling-field';
 import Conditions from './conditions';
+import AncestorField from './ancestor-field';
 import Unit from './unit';
 import Box from './box';
 import Spacing from './spacing';
@@ -85,6 +86,7 @@ const registry = {
 	toolbar_align: ToolbarAlign,
 	sibling_field: SiblingField,
 	conditions: Conditions,
+	ancestor_field: AncestorField,
 	unit: Unit,
 	box: Box,
 	spacing: Spacing,
@@ -117,17 +119,28 @@ const registry = {
 };
 
 /**
- * Register (or override) a control type's component. This is the
- * undocumented JS escape hatch the design plan describes
- * (window.cassetteCmfBlocks.registerControlType()) — the library's own
- * controls above are wired in exactly this way, so a consumer willing to
- * read the source has the same power. Deliberately not documented publicly:
- * the library's stated contract is PHP/JSON-only, zero consumer JS.
+ * Register (or override) a control type's component. Public and stable
+ * (docs/STABILITY.md): this is how a consumer supplies the editor half of a
+ * custom control type declared server side with Control_Catalog::register_type().
+ * The library's own controls above are wired in exactly this way.
  *
- * @param {string}   type      Control type identifier.
- * @param {Function} Component Component receiving { field, value, onChange, type, scope }.
+ * Call it on the bundle's payload global, window.cassetteCmfBlocks_<prefix>,
+ * from a script that depends on the editor script handle. The call may come
+ * before or after the bundle runs (calls made before are queued and replayed).
+ *
+ * @param {string}   type      Control type identifier (`^[a-z][a-z0-9_]*$`).
+ * @param {Function} Component React component receiving { field, value, onChange, type }
+ *                             (frozen), plus `scope` and `area` (best effort, not frozen).
  */
 export function registerControlType( type, Component ) {
+	if (
+		'string' !== typeof type ||
+		! /^[a-z][a-z0-9_]*$/.test( type ) ||
+		'function' !== typeof Component
+	) {
+		return;
+	}
+
 	registry[ type ] = Component;
 }
 
@@ -139,5 +152,7 @@ export function registerControlType( type, Component ) {
  * @return {Function} The component.
  */
 export function getControlComponent( type ) {
-	return registry[ type ] || Unsupported;
+	return Object.prototype.hasOwnProperty.call( registry, type )
+		? registry[ type ]
+		: Unsupported;
 }

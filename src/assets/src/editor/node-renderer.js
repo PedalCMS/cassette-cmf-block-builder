@@ -1,10 +1,19 @@
-import { Button } from '@wordpress/components';
+import { speak } from '@wordpress/a11y';
+import { Button, Draggable } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { CONTAINER_COMPONENTS } from './containers';
 import { getControlComponent } from './controls/registry';
 import Unsupported from './controls/unsupported';
 import { evaluate } from './conditions/evaluate';
 import { useFieldValue } from './value/useFieldValue';
+import {
+	endDrag,
+	isDragging,
+	moveAnnouncement,
+	reorderRows,
+	startDrag,
+	takeDrag,
+} from './repeater/reorder';
 
 /**
  * Dispatch a single resolved tree node (from Field_Collection::to_editor_tree())
@@ -30,7 +39,10 @@ import { useFieldValue } from './value/useFieldValue';
 export function renderNode( node, index, ctx ) {
 	if (
 		node.config.conditional &&
-		! evaluate( node.config.conditional, ctx.attributes )
+		! evaluate(
+			node.config.conditional,
+			ctx.scopeAttributes || ctx.attributes
+		)
 	) {
 		return null;
 	}
@@ -85,11 +97,13 @@ export function renderNode( node, index, ctx ) {
  * render, satisfying React's rules of hooks even though renderNode() itself
  * is a plain function called conditionally/recursively, not a component.
  *
- * A "context"-sourced field (or any other source useFieldValue() doesn't
- * implement) falls back to the same Unsupported notice an unrendered
- * control type gets, rather than silently rendering an inert control the
- * user can type into with no effect — useFieldValue() is still called
- * first regardless, so this check never skips a hook call.
+ * A "context"-sourced field is read-only and renders nothing in the
+ * inspector (its value shows up in the preview and conditions instead). A
+ * "uuid" field renders nothing either (the editor maintains its value). Any
+ * other source useFieldValue() doesn't implement falls back to the Unsupported
+ * notice an unrendered control type gets, rather than silently rendering an
+ * inert control the user can type into with no effect — useFieldValue() is
+ * still called first regardless, so these checks never skip a hook call.
  *
  * "ctx.documentScoped" (set by areas/document.js for editor-wide document/
  * sidebar/more_menu panels, which have no single block instance to read
@@ -106,6 +120,17 @@ export function renderNode( node, index, ctx ) {
 function FieldValueBridge( { node, ctx } ) {
 	const [ value, setValue ] = useFieldValue( node, ctx );
 	const source = node.config.source || 'attribute';
+
+	if ( 'context' === source ) {
+		return null;
+	}
+
+	// A "uuid" field has no inspector control and no notice: the instance
+	// watcher generates and maintains the value.
+	if ( 'uuid' === node.type ) {
+		return null;
+	}
+
 	const isUnsupported =
 		( 'attribute' !== source && 'meta' !== source ) ||
 		( ctx.documentScoped && 'attribute' === source );
@@ -148,8 +173,10 @@ function FieldValueBridge( { node, ctx } ) {
  * IS that one row's data object, so no new dispatch logic is needed inside
  * useFieldValue() itself for this to work.
  *
- * No drag-and-drop reordering (would need a DnD dependency this milestone
- * doesn't add) — "move up"/"move down" buttons cover the same need.
+ * Rows reorder by drag and drop (core's own Draggable from
+ * the components package for the handle, native drop events on the rows, no
+ * extra library) or with the "Move up" / "Move down" buttons, which keep the
+ * keyboard path. Both announce the new position through wp.a11y.speak().
  *
  * @param {Object} props      Component props.
  * @param {Object} props.node Resolved tree node: repeater's own config, plus "fields" (the row template).
@@ -166,15 +193,18 @@ function RepeaterField( { node, ctx } ) {
 	const addRow = () => setRows( [ ...rows, {} ] );
 	const removeRow = ( index ) =>
 		setRows( rows.filter( ( _, i ) => i !== index ) );
-	const moveRow = ( index, delta ) => {
-		const target = index + delta;
-		if ( target < 0 || target >= rows.length ) {
+	const moveRowTo = ( from, target ) => {
+		const next = reorderRows( rows, from, target );
+		if ( next === rows ) {
 			return;
 		}
-		const next = [ ...rows ];
-		[ next[ index ], next[ target ] ] = [ next[ target ], next[ index ] ];
 		setRows( next );
+		speak( moveAnnouncement( target, rows.length ), 'assertive' );
 	};
+	const moveRow = ( index, delta ) => moveRowTo( index, index + delta );
+	const listId = `cassette-cmf-repeater-${ ctx.clientId || 'block' }-${
+		node.config.name
+	}`;
 
 	return (
 		<div className="cassette-cmf-block-builder-repeater">
@@ -188,6 +218,7 @@ function RepeaterField( { node, ctx } ) {
 				const rowCtx = {
 					...ctx,
 					attributes: row,
+					scopeAttributes: row,
 					setAttributes: ( patch ) =>
 						setRows(
 							rows.map( ( r, i ) =>
@@ -201,11 +232,43 @@ function RepeaterField( { node, ctx } ) {
 					<div
 						className="cassette-cmf-block-builder-repeater__row"
 						key={ index }
+						id={ `${ listId }-row-${ index }` }
+						onDragOver={ ( event ) => {
+							if ( isDragging( listId ) ) {
+								event.preventDefault();
+							}
+						} }
+						onDrop={ ( event ) => {
+							const from = takeDrag( listId );
+							if ( null !== from ) {
+								event.preventDefault();
+								moveRowTo( from, index );
+							}
+						} }
 					>
 						{ rowFields.map( ( child, childIndex ) =>
 							renderNode( child, childIndex, rowCtx )
 						) }
 						<div className="cassette-cmf-block-builder-repeater__row-actions">
+							<Draggable
+								elementId={ `${ listId }-row-${ index }` }
+								transferData={ {} }
+								onDragStart={ () => startDrag( listId, index ) }
+								onDragEnd={ endDrag }
+							>
+								{ ( { onDraggableStart, onDraggableEnd } ) => (
+									<Button
+										className="cassette-cmf-block-builder-repeater__drag-handle"
+										icon="menu"
+										size="small"
+										draggable
+										tabIndex={ -1 }
+										aria-hidden="true"
+										onDragStart={ onDraggableStart }
+										onDragEnd={ onDraggableEnd }
+									/>
+								) }
+							</Draggable>
 							<Button
 								variant="tertiary"
 								disabled={ 0 === index }

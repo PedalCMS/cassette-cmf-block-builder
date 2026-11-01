@@ -25,7 +25,7 @@
  *                    Repeater_Field semantics.
  *
  * @package PedalCMS\CassetteCMFBlocks
- * @since 0.1.0
+ * @since 0.2.0
  */
 
 namespace PedalCMS\CassetteCMFBlocks\Schema;
@@ -50,30 +50,76 @@ class Control_Catalog {
 	private static bool $defaults_registered = false;
 
 	/**
-	 * Register a control type.
+	 * JSON types a control's value may have.
 	 *
+	 * @var string[]
+	 */
+	public const VALUE_TYPES = [ 'string', 'number', 'integer', 'boolean', 'array', 'object' ];
+
+	/**
+	 * Register a control type (the server half of a custom control; the
+	 * editor half is registerControlType() on the bundle's payload global).
+	 *
+	 * Stable contract: only "value_type" is required. The type id must match
+	 * ^[a-z][a-z0-9_]*$.
+	 *
+	 * @api
+	 * @since 0.2.0
 	 * @param string               $type Control type identifier.
 	 * @param array<string, mixed> $spec {
-	 *     @type string|null $value_type   Block-attribute JSON type, or null if this control never holds a value.
-	 *     @type string|null $cmf_type     Parent field type to reuse for sanitize()/validate(), or null.
-	 *     @type bool        $is_container Whether this control type may contain child fields.
-	 *     @type bool        $holds_value  Whether a container control also stores its own value (only "repeater").
+	 *     @type string|null $value_type   Required. Block-attribute JSON type (string, number, integer, boolean, array, object), or null if this control never holds a value.
+	 *     @type string|null $cmf_type     Optional, default null. cassette-cmf field type whose sanitize()/validate() to reuse, or null (value left as is).
+	 *     @type bool        $is_container Optional, default false. Whether this control type may contain child fields.
+	 *     @type bool        $holds_value  Optional, default "value_type is not null". Whether the control stores its own value (a container only if it is a repeater).
 	 * }
 	 * @return void
-	 * @throws \InvalidArgumentException If the spec is missing a required key.
+	 * @throws \InvalidArgumentException If the type id or the spec is malformed.
 	 */
 	public static function register_type( string $type, array $spec ): void {
-		foreach ( [ 'value_type', 'cmf_type', 'is_container', 'holds_value' ] as $required_key ) {
-			if ( ! array_key_exists( $required_key, $spec ) ) {
-				// phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Exception messages don't need escaping.
-				throw new \InvalidArgumentException(
-					sprintf( 'Control type "%1$s" spec must include "%2$s".', $type, $required_key )
-				);
-				// phpcs:enable WordPress.Security.EscapeOutput.ExceptionNotEscaped
-			}
+		self::$types[ $type ] = self::normalize_spec( $type, $spec );
+	}
+
+	/**
+	 * Validate a control type id and complete its spec with the defaults.
+	 *
+	 * @param string               $type Control type identifier.
+	 * @param array<string, mixed> $spec Raw spec.
+	 * @return array<string, mixed>
+	 * @throws \InvalidArgumentException If the type id or the spec is malformed.
+	 */
+	private static function normalize_spec( string $type, array $spec ): array {
+		// phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Exception messages don't need escaping.
+		if ( 1 !== preg_match( '/^[a-z][a-z0-9_]*$/', $type ) ) {
+			throw new \InvalidArgumentException(
+				sprintf( 'Control type "%s" is not a valid identifier (lowercase letters, digits and underscores, starting with a letter).', $type )
+			);
 		}
 
-		self::$types[ $type ] = $spec;
+		if ( ! array_key_exists( 'value_type', $spec ) ) {
+			throw new \InvalidArgumentException(
+				sprintf( 'Control type "%s" spec must include "value_type".', $type )
+			);
+		}
+
+		if ( null !== $spec['value_type'] && ! in_array( $spec['value_type'], self::VALUE_TYPES, true ) ) {
+			throw new \InvalidArgumentException(
+				sprintf( 'Control type "%1$s" has an invalid "value_type"; use null or one of: %2$s.', $type, implode( ', ', self::VALUE_TYPES ) )
+			);
+		}
+
+		if ( isset( $spec['cmf_type'] ) && ! is_string( $spec['cmf_type'] ) ) {
+			throw new \InvalidArgumentException(
+				sprintf( 'Control type "%s" has an invalid "cmf_type"; use a field type name or null.', $type )
+			);
+		}
+		// phpcs:enable WordPress.Security.EscapeOutput.ExceptionNotEscaped
+
+		return [
+			'value_type'   => $spec['value_type'],
+			'cmf_type'     => $spec['cmf_type'] ?? null,
+			'is_container' => (bool) ( $spec['is_container'] ?? false ),
+			'holds_value'  => (bool) ( $spec['holds_value'] ?? ( null !== $spec['value_type'] ) ),
+		];
 	}
 
 	/**
@@ -82,6 +128,7 @@ class Control_Catalog {
 	 * early (before this runs) is not overwritten — same pattern as the
 	 * parent's Field_Factory::register_defaults().
 	 *
+	 * @internal Not part of the stable API.
 	 * @return void
 	 */
 	public static function register_defaults(): void {
@@ -167,6 +214,14 @@ class Control_Catalog {
 			],
 
 			// --- Value controls with no honest parent equivalent (see docs/control-catalog.md). ---
+			// "uuid" renders no control at all; the editor generates the value, and
+			// Render\Attribute_Sanitizer validates it itself (there is no parent type).
+			'uuid'             => [
+				'value_type'   => 'string',
+				'cmf_type'     => null,
+				'is_container' => false,
+				'holds_value'  => true,
+			],
 			'rich_text'        => [
 				'value_type'   => 'string',
 				'cmf_type'     => null,
@@ -227,6 +282,14 @@ class Control_Catalog {
 				'is_container' => false,
 				'holds_value'  => true,
 			],
+			// Stores the referenced block's "name" attribute value (never a clientId).
+			// The server cannot verify the reference; consumers validate it.
+			'ancestor_field'   => [
+				'value_type'   => 'string',
+				'cmf_type'     => 'text',
+				'is_container' => false,
+				'holds_value'  => true,
+			],
 			'conditions'       => [
 				'value_type'   => 'object',
 				'cmf_type'     => null,
@@ -264,7 +327,7 @@ class Control_Catalog {
 				'holds_value'  => true,
 			],
 			'shadow'           => [
-				'value_type'   => 'object',
+				'value_type'   => 'string',
 				'cmf_type'     => null,
 				'is_container' => false,
 				'holds_value'  => true,
@@ -500,13 +563,40 @@ class Control_Catalog {
 			 *
 			 * @param array<string, array<string, mixed>> $types Control type specs, keyed by type name.
 			 */
-			self::$types = apply_filters( 'cassette_cmf_blocks_control_catalog', self::$types );
+			$filtered = apply_filters( 'cassette_cmf_blocks_control_catalog', self::$types );
+
+			if ( is_array( $filtered ) ) {
+				self::$types = self::normalize_filtered( $filtered );
+			}
 		}
+	}
+
+	/**
+	 * Complete the specs a catalog filter returned; a malformed entry is
+	 * dropped with a notice instead of breaking every block.
+	 *
+	 * @param array<mixed> $filtered Filtered catalog.
+	 * @return array<string, array<string, mixed>>
+	 */
+	private static function normalize_filtered( array $filtered ): array {
+		$types = [];
+
+		foreach ( $filtered as $type => $spec ) {
+			try {
+				$types[ (string) $type ] = self::normalize_spec( (string) $type, is_array( $spec ) ? $spec : [] );
+			} catch ( \InvalidArgumentException $e ) {
+				_doing_it_wrong( 'cassette_cmf_blocks_control_catalog', esc_html( $e->getMessage() ), '0.2.0' );
+			}
+		}
+
+		return $types;
 	}
 
 	/**
 	 * Get a control type's spec.
 	 *
+	 * @api
+	 * @since 0.2.0
 	 * @param string $type Control type identifier.
 	 * @return array<string, mixed>|null
 	 */
@@ -519,6 +609,8 @@ class Control_Catalog {
 	/**
 	 * Whether a control type is registered.
 	 *
+	 * @api
+	 * @since 0.2.0
 	 * @param string $type Control type identifier.
 	 * @return bool
 	 */
@@ -531,6 +623,8 @@ class Control_Catalog {
 	/**
 	 * Get all registered control type specs.
 	 *
+	 * @api
+	 * @since 0.2.0
 	 * @return array<string, array<string, mixed>>
 	 */
 	public static function get_registered_types(): array {
@@ -542,6 +636,7 @@ class Control_Catalog {
 	/**
 	 * Unregister a control type.
 	 *
+	 * @internal Not part of the stable API.
 	 * @param string $type Control type identifier.
 	 * @return void
 	 */

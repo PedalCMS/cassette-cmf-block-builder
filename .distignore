@@ -1,6 +1,7 @@
 # Distribution Ignore File
 # Files and directories listed here are excluded from release packages.
-# This file is for documentation purposes - the actual exclusion happens in the release workflow.
+# The release workflow (.github/workflows/release.yml) reads this file with rsync --exclude-from,
+# so this list decides what the release archive leaves out.
 
 # Development
 .git/
@@ -9,6 +10,7 @@
 .editorconfig
 .gitignore
 .gitattributes
+.distignore
 
 # JS source (build output in src/assets/build/ IS shipped)
 src/assets/src/
@@ -39,6 +41,15 @@ composer.lock
 # Examples / docs (available in repository)
 examples/
 docs/
+
+# Schemas and tooling configuration
+block-schema.json
+jest.config.js
+
+# Test output
+artifacts/
+coverage/
+.phpunit.result.cache
 
 # IDE
 .idea/

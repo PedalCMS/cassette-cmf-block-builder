@@ -21,6 +21,9 @@ use PedalCMS\CassetteCMFBlocks\CassetteCMFBlocks;
  * Register block configuration from the JSON file in this directory.
  */
 function cassette_cmf_blocks_advanced_json_init() {
+	// Every site that loads this library sets its own prefix (derives the handles, REST namespace,
+	// binding source and JS global); see docs/coexistence.md.
+	CassetteCMFBlocks::boot( [ 'prefix' => 'example' ] );
 	CassetteCMFBlocks::register_from_json( __DIR__ . '/config.json' );
 }
 add_action( 'init', 'cassette_cmf_blocks_advanced_json_init', 5 );

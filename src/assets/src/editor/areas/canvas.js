@@ -1,6 +1,8 @@
 import { useBlockProps } from '@wordpress/block-editor';
 import MarkupPreview from '../preview/MarkupPreview';
 import ServerPreview from '../preview/ServerPreview';
+import PreviewGate from '../preview/PreviewGate';
+import { isPreviewReady } from '../preview/gate';
 
 /**
  * The M3-era placeholder — still valid, and used whenever a block declares
@@ -38,21 +40,35 @@ function CanvasPlaceholder( { descriptor } ) {
  * markup tree drives three runtimes" by default, with an explicit escape
  * hatch for a simplified editor-only preview.
  *
- * @param {Object} props            Component props.
- * @param {Object} props.descriptor This block's Editor_Payload entry: { name, settings, fields, render, preview }.
- * @param {Object} props.attributes Live block attributes.
+ * @param {Object} props                   Component props.
+ * @param {Object} props.descriptor        This block's Editor_Payload entry: { name, settings, fields, render, preview }.
+ *                                         While `preview.when` is false a placeholder replaces the preview.
+ * @param {Object} props.attributes        Live block attributes.
+ * @param {Object} [props.scopeAttributes] Attributes plus context-sourced field values; the markup preview reads
+ *                                         from this. The server preview gets the plain attributes (the REST
+ *                                         renderer rejects keys that are not registered attributes).
  * @return {JSX.Element} The rendered canvas.
  */
-export default function CanvasArea( { descriptor, attributes } ) {
+export default function CanvasArea( {
+	descriptor,
+	attributes,
+	scopeAttributes,
+} ) {
 	const render = descriptor.render || {};
 	const preview = descriptor.preview || {};
 	const markup = preview.markup || render.markup;
+
+	// "preview.when": no preview (and, for the server mode, no request) until
+	// the rule holds.
+	if ( ! isPreviewReady( preview, scopeAttributes || attributes ) ) {
+		return <PreviewGate descriptor={ descriptor } />;
+	}
 
 	if ( markup && 'server' !== preview.mode ) {
 		return (
 			<MarkupPreview
 				markup={ markup }
-				attributes={ attributes }
+				attributes={ scopeAttributes || attributes }
 				innerBlocksConfig={ descriptor.innerBlocks }
 			/>
 		);

@@ -8,7 +8,7 @@
  * Core\Block_Definition::get_render_callback().
  *
  * @package PedalCMS\CassetteCMFBlocks
- * @since 0.1.0
+ * @since 0.2.0
  */
 
 namespace PedalCMS\CassetteCMFBlocks\Render;
@@ -30,7 +30,8 @@ class Block_Renderer {
 	 * @return string
 	 */
 	public static function render( array $attributes, string $content, \WP_Block $block, Block_Definition $definition ): string {
-		$sanitized_attributes = Attribute_Sanitizer::sanitize_all( $attributes, $definition->get_fields() );
+		$sanitized_attributes = $definition->sanitize_attributes( $attributes );
+		$sanitized_attributes = self::merge_context_values( $sanitized_attributes, $block, $definition );
 		$render_config        = $definition->get_raw_config()['render'] ?? [];
 
 		$html = self::render_body( $render_config, $sanitized_attributes, $content, $block );
@@ -49,6 +50,29 @@ class Block_Renderer {
 		}
 
 		return $html;
+	}
+
+	/**
+	 * Put the values of the block's "source": "context" fields into the
+	 * attribute scope, under each field's name.
+	 *
+	 * Markup templates, PHP templates, conditions and the render filters all
+	 * read from that one scope, so a context field behaves like a read-only
+	 * attribute everywhere. A context key the provider did not supply yields
+	 * null. Field names are unique within a block, so this never overwrites a
+	 * real attribute.
+	 *
+	 * @param array<string, mixed> $attributes Sanitized attributes.
+	 * @param \WP_Block            $block      The block instance (its "context" holds the provided values).
+	 * @param Block_Definition     $definition This block's compiled definition.
+	 * @return array<string, mixed>
+	 */
+	private static function merge_context_values( array $attributes, \WP_Block $block, Block_Definition $definition ): array {
+		foreach ( $definition->get_fields()->get_context_fields() as $name => $key ) {
+			$attributes[ $name ] = $block->context[ $key ] ?? null;
+		}
+
+		return $attributes;
 	}
 
 	/**

@@ -25,15 +25,23 @@
  *     sibling value.
  *   - Field name uniqueness among all value-bearing leaves, since they all
  *     become block attributes sharing one flat namespace.
+ *   - A "source": "context" field names its block-context key in "context".
+ *   - A "unique" setting is well formed and sits on a text-like control.
+ *
+ * It also normalizes a field's "options" once, up front, into the canonical
+ * value => label map (a list of { value, label } objects is accepted too), so
+ * the attribute schema, the sanitizer and the editor payload all see one shape.
  *
  * @package PedalCMS\CassetteCMFBlocks
- * @since 0.1.0
+ * @since 0.2.0
  */
 
 namespace PedalCMS\CassetteCMFBlocks\Core;
 
 use PedalCMS\CassetteCMFBlocks\Compat\Cmf_Bridge;
+use PedalCMS\CassetteCMFBlocks\Render\Unique_Checker;
 use PedalCMS\CassetteCMFBlocks\Schema\Area_Resolver;
+use PedalCMS\CassetteCMFBlocks\Schema\Ancestor_Options;
 use PedalCMS\CassetteCMFBlocks\Schema\Control_Mapper;
 
 /**
@@ -82,7 +90,8 @@ class Field_Collection {
 	 * @throws \InvalidArgumentException On an unknown/banned control type, an illegal nesting, or a duplicate name.
 	 */
 	public function __construct( array $raw_fields ) {
-		$this->raw_fields = $raw_fields;
+		$this->raw_fields = self::normalize_fields( $raw_fields );
+		$raw_fields       = $this->raw_fields;
 		$this->walk( $raw_fields, null, null, false, [], null );
 		$this->validate_unique_names();
 	}
@@ -113,6 +122,31 @@ class Field_Collection {
 	 */
 	public function count_value_bearing_leaves(): int {
 		return count( $this->leaves );
+	}
+
+	/**
+	 * Context-sourced fields: field name => block-context key.
+	 *
+	 * Excludes repeater row fields (a row has no block context of its own).
+	 * These fields have no attribute; their value is read from the block's
+	 * context at render time.
+	 *
+	 * @return array<string, string>
+	 */
+	public function get_context_fields(): array {
+		$fields = [];
+
+		foreach ( $this->leaves as $leaf ) {
+			$config = $leaf['config'];
+
+			if ( ! empty( $leaf['inside_repeater'] ) || 'context' !== ( $config['source'] ?? 'attribute' ) ) {
+				continue;
+			}
+
+			$fields[ (string) $config['name'] ] = (string) $config['context'];
+		}
+
+		return $fields;
 	}
 
 	/**
@@ -257,6 +291,12 @@ class Field_Collection {
 					)
 				);
 			}
+
+			if ( $spec['holds_value'] && 'context' === ( $field_config['source'] ?? 'attribute' ) && ( ! is_string( $field_config['context'] ?? null ) || '' === $field_config['context'] ) ) {
+				throw new \InvalidArgumentException(
+					sprintf( 'Field "%s": source "context" requires "context" to name a block-context key, e.g. "example/formId".', $field_config['name'] ?? '' )
+				);
+			}
 			// phpcs:enable WordPress.Security.EscapeOutput.ExceptionNotEscaped
 
 			$current_path = array_merge( $path, [ (string) ( $field_config['name'] ?? '' ) ] );
@@ -276,6 +316,178 @@ class Field_Collection {
 				$child_kind = $is_toolbar_container ? 'toolbar' : 'inspector_style';
 				$this->walk( $field_config['fields'] ?? [], $child_kind, $area, $inside_repeater || 'repeater' === $type, $current_path, $type );
 			}
+		}
+	}
+
+	/**
+	 * Recursively normalize a raw field tree: "options" into the canonical
+	 * value => label map, and "unique" into its canonical rule.
+	 *
+	 * @param array<int, mixed> $fields Raw fields at one level.
+	 * @return array<int, mixed>
+	 * @throws \InvalidArgumentException On a malformed or misplaced "unique".
+	 */
+	private static function normalize_fields( array $fields ): array {
+		foreach ( $fields as $index => $field ) {
+			if ( ! is_array( $field ) ) {
+				continue;
+			}
+
+			if ( array_key_exists( 'options', $field ) ) {
+				$options = self::normalize_options( $field['options'], (string) ( $field['name'] ?? '' ) );
+
+				if ( null === $options ) {
+					unset( $field['options'] );
+				} else {
+					$field['options'] = $options;
+				}
+			}
+
+			if ( array_key_exists( 'unique', $field ) ) {
+				$field = self::normalize_unique( $field );
+			}
+
+			$field = self::normalize_ancestor_options( $field );
+
+			if ( isset( $field['fields'] ) && is_array( $field['fields'] ) ) {
+				$field['fields'] = self::normalize_fields( $field['fields'] );
+			}
+
+			$fields[ $index ] = $field;
+		}
+
+		return $fields;
+	}
+
+	/**
+	 * Canonicalize the ancestor options of an "ancestor_field" control
+	 * (required: "ancestor") and of a "conditions" control's optional
+	 * "conditions" setting.
+	 *
+	 * @param array<string, mixed> $field Raw field config.
+	 * @return array<string, mixed>
+	 * @throws \InvalidArgumentException On missing or malformed options.
+	 */
+	private static function normalize_ancestor_options( array $field ): array {
+		$type = (string) ( $field['type'] ?? '' );
+		$name = (string) ( $field['name'] ?? '' );
+
+		if ( 'ancestor_field' === $type ) {
+			$options = Ancestor_Options::normalize( $field, $name, 'ancestor_field' );
+			// Keep the field's own keys (name, label, ...), replace the option keys with their canonical form.
+			return array_merge( $field, $options );
+		}
+
+		if ( 'conditions' === $type && array_key_exists( 'conditions', $field ) ) {
+			$field['conditions'] = Ancestor_Options::normalize( $field['conditions'], $name, 'conditions' );
+		}
+
+		return $field;
+	}
+
+	/**
+	 * Normalize one field's "unique" setting in place of the raw value.
+	 *
+	 * @param array<string, mixed> $field Raw field config containing "unique".
+	 * @return array<string, mixed>
+	 * @throws \InvalidArgumentException On a malformed setting or an unsupported control type.
+	 */
+	private static function normalize_unique( array $field ): array {
+		$name = (string) ( $field['name'] ?? '' );
+		$rule = Unique_Checker::normalize_rule( $field['unique'], $name );
+
+		if ( null === $rule ) {
+			unset( $field['unique'] );
+
+			return $field;
+		}
+
+		$type = (string) ( $field['type'] ?? '' );
+		if ( ! in_array( $type, Unique_Checker::SUPPORTED_CONTROLS, true ) ) {
+			// phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Exception messages don't need escaping.
+			throw new \InvalidArgumentException(
+				sprintf( 'Field "%1$s": "unique" is only supported on %2$s controls, not "%3$s".', $name, implode( '/', Unique_Checker::SUPPORTED_CONTROLS ), $type )
+			);
+			// phpcs:enable WordPress.Security.EscapeOutput.ExceptionNotEscaped
+		}
+
+		$field['unique'] = $rule;
+
+		return $field;
+	}
+
+	/**
+	 * Normalize a field's "options" into the canonical value => label map.
+	 *
+	 * Accepts the map form as is, and a list of { value, label } objects
+	 * ("label" defaults to the value). Anything else raises
+	 * _doing_it_wrong() and yields null (the options are dropped).
+	 *
+	 * @param mixed  $options    Raw "options" value.
+	 * @param string $field_name The field's name, for the notice.
+	 * @return array<string|int, mixed>|null
+	 */
+	private static function normalize_options( $options, string $field_name ): ?array {
+		if ( ! is_array( $options ) ) {
+			self::options_notice( $field_name, 'must be a value => label map or a list of { value, label } objects.' );
+
+			return null;
+		}
+
+		$is_list = [] === $options || array_keys( $options ) === range( 0, count( $options ) - 1 );
+
+		$has_objects = false;
+		foreach ( $options as $item ) {
+			if ( is_array( $item ) ) {
+				$has_objects = true;
+				break;
+			}
+		}
+
+		if ( ! $is_list || ! $has_objects ) {
+			return $options;
+		}
+
+		$map = [];
+
+		foreach ( $options as $item ) {
+			$value = is_array( $item ) ? ( $item['value'] ?? null ) : null;
+
+			if ( ! is_string( $value ) && ! is_int( $value ) && ! is_float( $value ) ) {
+				self::options_notice( $field_name, 'list items must be { value, label } objects with a string or number "value".' );
+
+				return null;
+			}
+
+			if ( array_key_exists( (string) $value, $map ) ) {
+				self::options_notice( $field_name, sprintf( 'has the value "%s" more than once.', $value ) );
+
+				continue;
+			}
+
+			$label                  = $item['label'] ?? (string) $value;
+			$map[ (string) $value ] = is_scalar( $label ) ? (string) $label : (string) $value;
+		}
+
+		return $map;
+	}
+
+	/**
+	 * Raise a developer notice about a malformed "options" value.
+	 *
+	 * @param string $field_name Field name.
+	 * @param string $problem    What is wrong.
+	 * @return void
+	 */
+	private static function options_notice( string $field_name, string $problem ): void {
+		if ( function_exists( '_doing_it_wrong' ) ) {
+			// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- _doing_it_wrong() messages are developer-facing debug notices, not page output.
+			_doing_it_wrong(
+				__CLASS__,
+				sprintf( 'Field "%1$s": "options" %2$s', $field_name, $problem ),
+				'0.2.0'
+			);
+			// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 	}
 

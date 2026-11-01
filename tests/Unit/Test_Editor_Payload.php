@@ -8,6 +8,7 @@
 use PedalCMS\CassetteCMFBlocks\CassetteCMFBlocks;
 use PedalCMS\CassetteCMFBlocks\Core\Block_Manager;
 use PedalCMS\CassetteCMFBlocks\Core\Editor_Payload;
+use PedalCMS\CassetteCMFBlocks\Core\Identity;
 use PedalCMS\CassetteCMFBlocks\Render\Deprecation_Builder;
 use PedalCMS\CassetteCMFBlocks\Schema\Control_Catalog;
 
@@ -226,6 +227,7 @@ class Test_Editor_Payload extends CassetteCMFBlocks_UnitTestCase {
 					[
 						'id'     => 'acme-test/payload-deprecated',
 						'render' => [
+							'mode'       => 'static', // A dynamic block keeps markup-less entries; a static one needs the old markup.
 							'markup'     => [ 'tag' => 'p' ],
 							'deprecated' => [
 								[
@@ -287,6 +289,54 @@ class Test_Editor_Payload extends CassetteCMFBlocks_UnitTestCase {
 
 		$this->assertSame( 'markup', $preview['mode'] );
 		$this->assertNull( $preview['markup'] );
+		$this->assertNull( $preview['when'] );
+	}
+
+	/**
+	 * preview.when is normalized like every condition (aliases resolved). The
+	 * normalizer drops cross-block rules, which the evaluators ignore
+	 * anyway, so the gate is the same either way; one with no rules left is
+	 * dropped.
+	 */
+	public function test_preview_when_is_normalized(): void {
+		CassetteCMFBlocks::register_from_array(
+			[
+				'blocks' => [
+					[
+						'id'      => 'acme-test/payload-preview-when',
+						'preview' => [
+							'when' => [
+								'relation' => 'AND',
+								'rules'    => [
+									[
+										'field'    => 'url',
+										'operator' => 'not_empty',
+									],
+									[
+										'source'   => 'block',
+										'ref'      => 'other',
+										'operator' => '==',
+										'value'    => 'x',
+									],
+								],
+							],
+						],
+					],
+					[
+						'id'      => 'acme-test/payload-preview-when-empty',
+						'preview' => [ 'when' => [ 'rules' => [] ] ],
+					],
+				],
+			]
+		);
+
+		$blocks = Editor_Payload::build( Block_Manager::init() )['blocks'];
+		$when   = $blocks['acme-test/payload-preview-when']['preview']['when'];
+
+		$this->assertSame( 'AND', $when['relation'] );
+		$this->assertCount( 1, $when['rules'] );
+		$this->assertSame( 'url', $when['rules'][0]['field'] );
+		$this->assertNull( $blocks['acme-test/payload-preview-when-empty']['preview']['when'] );
 	}
 
 	/**
@@ -746,7 +796,7 @@ class Test_Editor_Payload extends CassetteCMFBlocks_UnitTestCase {
 			'version' => '',
 			'blocks'  => [ 'sentinel' => true ],
 		];
-		wp_cache_set( $key, $sentinel, 'cassette_cmf_blocks' );
+		wp_cache_set( $key, $sentinel, Identity::payload_cache_group() );
 
 		$result = Editor_Payload::build_cached( $manager );
 
@@ -825,5 +875,55 @@ class Test_Editor_Payload extends CassetteCMFBlocks_UnitTestCase {
 		remove_filter( 'cassette_cmf_blocks_payload_cache_skip', '__return_false' );
 
 		$this->assertArrayHasKey( 'acme-test/payload-cache-transient', $result['blocks'] );
+	}
+
+	/**
+	 * The block-level "placeholder" setting ships normalized, and is null when undeclared.
+	 */
+	public function test_placeholder_payload(): void {
+		CassetteCMFBlocks::register_from_array(
+			[
+				'blocks' => [
+					[
+						'id'          => 'acme-test/with-placeholder',
+						'fields'      => [
+							[
+								'name'     => 'url',
+								'type'     => 'url',
+								'area'     => 'placeholder',
+								'required' => true,
+							],
+						],
+						'placeholder' => [
+							'label'        => 'Embed',
+							'instructions' => 'Paste a link.',
+							'when'         => [
+								'rules' => [
+									[
+										'field'    => 'url',
+										'operator' => 'equals',
+										'value'    => '',
+									],
+								],
+							],
+							'bogus'        => 1,
+						],
+					],
+					[
+						'id'     => 'acme-test/without-placeholder',
+						'fields' => [],
+					],
+				],
+			]
+		);
+
+		$blocks = Editor_Payload::build( Block_Manager::init() )['blocks'];
+
+		$placeholder = $blocks['acme-test/with-placeholder']['placeholder'];
+		$this->assertSame( 'Embed', $placeholder['label'] );
+		$this->assertSame( 'Paste a link.', $placeholder['instructions'] );
+		$this->assertSame( '==', $placeholder['when']['rules'][0]['operator'] );
+		$this->assertArrayNotHasKey( 'bogus', $placeholder );
+		$this->assertNull( $blocks['acme-test/without-placeholder']['placeholder'] );
 	}
 }

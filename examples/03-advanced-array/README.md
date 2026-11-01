@@ -1,6 +1,6 @@
 # Advanced Example - PHP Array Configuration
 
-Five form-field blocks — Text, Textarea, Email, Select, Checkbox — registered from a single PHP array. Beyond the field-level controls every example in this library already demonstrates, this one is about **how the block looks in the canvas**: each block's `render.markup` renders real (disabled) HTML form controls inside a bordered "field preview" card, so it reads as a native WordPress admin element rather than plain unstyled text.
+Five form-field blocks — Text, Textarea, Email, Select, Checkbox — plus a Form/Form field parent-child pair (see below), registered from a single PHP array. Beyond the field-level controls every example in this library already demonstrates, this one is about **how the block looks in the canvas**: each block's `render.markup` renders real (disabled) HTML form controls inside a bordered "field preview" card, so it reads as a native WordPress admin element rather than plain unstyled text.
 
 ## What Each Block Demonstrates
 
@@ -11,6 +11,17 @@ Every block shares the same shape: a **Label**, a **Field name (slug)** that aut
 - **Email** (`cassette-cmf-forms/field-email`) — same shape, an `type="email"` input.
 - **Select** (`cassette-cmf-forms/field-select`) — an **Options** field using the `options_list` control (repeatable value/label rows), rendered as a real `<select disabled>` with one `<option>` per row.
 - **Checkbox** (`cassette-cmf-forms/field-checkbox`) — its own **Checkbox label** and **Checked value** text fields, rendered as a real `<input type="checkbox" disabled>` with its label.
+
+## A Parent and Child: Context, Instance IDs and Unique Names
+
+Two more blocks show how blocks inside a container share state:
+
+- **Form** (`example/form`) provides its **Form ID** (`formId`) to everything inside it with `args.providesContext`.
+- **Form field** (`example/field`, only insertable inside a Form via `args.ancestor`) declares `'source' => 'context', 'context' => 'example/formId'` for a field named `formId`. It stores nothing and shows no inspector control; its preview reads the parent's value, and the front-end markup can use `{{ attributes.formId }}` the same way. `usesContext` is filled in automatically.
+- Its `instanceId` is a `uuid` field: the editor generates the ID when the block is inserted and gives a duplicated or pasted copy a new one.
+- Its **Field name** is `unique` within the nearest Form (`'scope' => 'ancestor', 'block' => 'example/form'`), so two separate forms may reuse `email`, while duplicating a field inside one form renames the copy to `email-2`.
+
+See [`../../docs/block-config-reference.md`](../../docs/block-config-reference.md) and [`../../docs/control-catalog.md`](../../docs/control-catalog.md).
 
 ## The Label → Slug Auto-Derive
 

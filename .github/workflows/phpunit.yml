@@ -18,6 +18,16 @@ jobs:
       matrix:
         php-version: ['8.2', '8.3', '8.4']
         wp-version: ['6.8', '6.9', '7.0', 'latest']
+        include:
+          # Oldest supported combination: PHP floor (7.4) x WP floor (6.8).
+          #
+          # KNOWN BLOCKER: this cell can only resolve once a cassette-cmf release that
+          # declares "php": ">=7.4" is tagged (cassette-cmf 0.2.0). cassette-cmf 0.1.2, the
+          # newest release today, requires php >=8.2, so "composer update" fails on 7.4
+          # until then. Do not loosen the "^0.2.0" constraint to work around it; tag
+          # cassette-cmf 0.2.0 instead.
+          - php-version: '7.4'
+            wp-version: '6.8'
 
     services:
       mysql:

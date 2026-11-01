@@ -18,7 +18,7 @@
  * resolve identically wherever that markup renders.
  *
  * @package PedalCMS\CassetteCMFBlocks
- * @since 0.1.0
+ * @since 0.2.0
  */
 
 namespace PedalCMS\CassetteCMFBlocks\Core;
@@ -29,24 +29,6 @@ use PedalCMS\CassetteCMFBlocks\Compat\Requirements;
  * Class Asset_Loader
  */
 class Asset_Loader {
-
-	/**
-	 * Script handle for the editor bundle.
-	 *
-	 * @var string
-	 */
-	public const HANDLE = 'cassette-cmf-block-builder-editor';
-
-	/**
-	 * Style handle — distinct from HANDLE (the script) since the two are
-	 * now enqueued on different hooks for different reasons; sharing one
-	 * handle across wp_register_script()/wp_register_style() would be
-	 * harmless in practice (scripts and styles have separate registries)
-	 * but reads as a mistake.
-	 *
-	 * @var string
-	 */
-	public const STYLE_HANDLE = 'cassette-cmf-block-builder-editor-style';
 
 	/**
 	 * Register the enqueue_block_editor_assets and enqueue_block_assets
@@ -87,8 +69,15 @@ class Asset_Loader {
 
 		$asset = require $asset_path;
 
+		$handle = Identity::editor_script_handle();
+
+		// No "strategy" (defer/async) on purpose, only "in_footer": the payload
+		// hand-over below (window.cassetteCmfBlocksBoot) is a one-shot global.
+		// A blocking script runs right after its own inline "before" script, so
+		// two copies of the bundle on one page can never interleave and read
+		// each other's hand-over. Do not add a loading strategy here.
 		wp_register_script(
-			self::HANDLE,
+			$handle,
 			self::get_assets_url() . 'build/editor.js',
 			$asset['dependencies'] ?? [],
 			$asset['version'] ?? false,
@@ -96,18 +85,54 @@ class Asset_Loader {
 		);
 
 		if ( function_exists( 'wp_set_script_translations' ) ) {
-			wp_set_script_translations( self::HANDLE, 'cassette-cmf-block-builder', dirname( __DIR__, 2 ) . '/languages' );
+			wp_set_script_translations( $handle, Identity::TEXT_DOMAIN, dirname( __DIR__, 2 ) . '/languages' );
 		}
 
 		$payload = Editor_Payload::build_cached( Block_Manager::init(), (string) ( $asset['version'] ?? '' ) );
+		$global  = Identity::js_global();
 
+		// First tell the bundle which global holds its payload, then publish
+		// the payload there; the bundle reads and deletes the hand-over.
+		// The stubs let a consumer script that depends on this handle (so it
+		// runs before the bundle) call the extension points; see
+		// extension_stubs().
 		wp_add_inline_script(
-			self::HANDLE,
-			'window.cassetteCmfBlocks = ' . wp_json_encode( $payload ) . ';',
+			$handle,
+			'window.' . Identity::JS_BOOT_KEY . ' = ' . wp_json_encode( $global ) . '; window[' . wp_json_encode( $global ) . '] = ' . wp_json_encode( $payload ) . '; ' . self::extension_stubs( $global ),
 			'before'
 		);
 
-		wp_enqueue_script( self::HANDLE );
+		wp_enqueue_script( $handle );
+	}
+
+	/**
+	 * Payload key that holds the calls queued by the stubs until the bundle runs.
+	 *
+	 * @var string
+	 */
+	public const PENDING_KEY = 'pendingExtensions';
+
+	/**
+	 * JS extension points a consumer script may call on the payload global.
+	 * Keep in sync with src/assets/src/editor/index.js.
+	 *
+	 * @var string[]
+	 */
+	public const EXTENSION_POINTS = [ 'registerControlType', 'registerMigration', 'registerIdInUseCheck' ];
+
+	/**
+	 * Inline JS that installs queueing stubs for the extension points on the
+	 * payload global. A consumer script that lists the editor handle as a
+	 * dependency runs after this inline script but before the bundle, when the
+	 * real functions do not exist yet; the stubs record the calls and the
+	 * bundle replays them (in order) before it registers any block, then
+	 * replaces the stubs with the real functions.
+	 *
+	 * @param string $global_name Payload global name.
+	 * @return string
+	 */
+	private static function extension_stubs( string $global_name ): string {
+		return '(function(p){var q=p.' . self::PENDING_KEY . '=[];' . wp_json_encode( self::EXTENSION_POINTS ) . '.forEach(function(m){p[m]=function(){q.push([m,Array.prototype.slice.call(arguments)]);};});})(window[' . wp_json_encode( $global_name ) . ']);';
 	}
 
 	/**
@@ -130,8 +155,10 @@ class Asset_Loader {
 			return;
 		}
 
+		$style_handle = Identity::editor_style_handle();
+
 		wp_enqueue_style(
-			self::STYLE_HANDLE,
+			$style_handle,
 			self::get_assets_url() . 'build/editor.css',
 			[],
 			(string) filemtime( $style_path )
@@ -142,7 +169,7 @@ class Asset_Loader {
 		// tells WordPress core to swap to it automatically for an RTL
 		// locale, the same as any block.json-declared editorStyle.
 		if ( file_exists( self::build_path() . '/editor-rtl.css' ) ) {
-			wp_style_add_data( self::STYLE_HANDLE, 'rtl', 'replace' );
+			wp_style_add_data( $style_handle, 'rtl', 'replace' );
 		}
 	}
 
@@ -157,6 +184,8 @@ class Asset_Loader {
 	 * Resolution order:
 	 *   1. The CASSETTE_CMF_BLOCKS_ASSETS_URL constant, for a host that
 	 *      copies/symlinks the built assets somewhere of its own choosing.
+	 *      (A constant is global, so it applies to every copy of the library
+	 *      on the site; use the filter below when two copies are loaded.)
 	 *   2. The cassette_cmf_blocks_assets_url filter, for the same case
 	 *      without requiring a constant defined before this file loads.
 	 *   3. A realpath comparison against WP_CONTENT_DIR, mapped through
@@ -177,9 +206,10 @@ class Asset_Loader {
 			 * Filters this library's assets/ directory URL, before the
 			 * default realpath-based resolution runs.
 			 *
-			 * @param string $url Empty string by default.
+			 * @param string $url    Empty string by default.
+			 * @param string $prefix The boot prefix of the copy asking, so a site running two copies can answer for each.
 			 */
-			$filtered = (string) apply_filters( 'cassette_cmf_blocks_assets_url', '' );
+			$filtered = (string) apply_filters( 'cassette_cmf_blocks_assets_url', '', Identity::prefix() );
 			if ( '' !== $filtered ) {
 				return trailingslashit( $filtered );
 			}

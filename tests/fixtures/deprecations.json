@@ -1,0 +1,116 @@
+{
+	"cases": [
+		{
+			"description": "rename moves the value to the new key and drops the old one",
+			"entry": { "attributes": { "title": { "type": "string" } }, "migrate": { "rename": { "title": "heading" } } },
+			"current": [ "heading", "tone" ],
+			"attributes": { "title": "Hello", "tone": "warm" },
+			"eligible": true,
+			"migrated": { "heading": "Hello", "tone": "warm" }
+		},
+		{
+			"description": "rename overwrites a default that already sits on the new key",
+			"entry": { "attributes": { "title": { "type": "string" } }, "migrate": { "rename": { "title": "heading" } } },
+			"current": [ "heading" ],
+			"attributes": { "title": "Old", "heading": "" },
+			"eligible": true,
+			"migrated": { "heading": "Old" }
+		},
+		{
+			"description": "an entry is not eligible once only new-shape attributes remain",
+			"entry": { "attributes": { "title": { "type": "string" } }, "migrate": { "rename": { "title": "heading" } } },
+			"current": [ "heading" ],
+			"attributes": { "heading": "New" },
+			"eligible": false,
+			"migrated": { "heading": "New" }
+		},
+		{
+			"description": "set assigns a value after renaming",
+			"entry": { "attributes": { "title": { "type": "string" } }, "migrate": { "rename": { "title": "heading" }, "set": { "version": 2 } } },
+			"current": [ "heading", "version" ],
+			"attributes": { "title": "T" },
+			"eligible": true,
+			"migrated": { "heading": "T", "version": 2 }
+		},
+		{
+			"description": "set alone never makes an entry eligible",
+			"entry": { "migrate": { "set": { "version": 2 } } },
+			"current": [ "heading", "version" ],
+			"attributes": { "heading": "T" },
+			"eligible": false,
+			"migrated": { "heading": "T", "version": 2 }
+		},
+		{
+			"description": "remove drops an old-only key",
+			"entry": { "attributes": { "legacy": { "type": "boolean" } }, "migrate": { "remove": [ "legacy" ] } },
+			"current": [ "heading" ],
+			"attributes": { "heading": "T", "legacy": true },
+			"eligible": true,
+			"migrated": { "heading": "T" }
+		},
+		{
+			"description": "remove of a key the current schema still has does not make the entry eligible",
+			"entry": { "migrate": { "remove": [ "heading" ] } },
+			"current": [ "heading" ],
+			"attributes": { "heading": "T" },
+			"eligible": false,
+			"migrated": {}
+		},
+		{
+			"description": "map rewrites a matching value and makes the entry eligible",
+			"entry": { "migrate": { "map": { "tone": { "hot": "warm", "cold": "cool" } } } },
+			"current": [ "tone" ],
+			"attributes": { "tone": "hot" },
+			"eligible": true,
+			"migrated": { "tone": "warm" }
+		},
+		{
+			"description": "map leaves an unmapped value alone and is not eligible",
+			"entry": { "migrate": { "map": { "tone": { "hot": "warm" } } } },
+			"current": [ "tone" ],
+			"attributes": { "tone": "cool" },
+			"eligible": false,
+			"migrated": { "tone": "cool" }
+		},
+		{
+			"description": "map compares booleans as true/false and numbers as strings",
+			"entry": { "migrate": { "map": { "flag": { "true": "yes", "false": "no" }, "size": { "1": "small", "2": "large" } } } },
+			"current": [ "flag", "size" ],
+			"attributes": { "flag": true, "size": 2 },
+			"eligible": true,
+			"migrated": { "flag": "yes", "size": "large" }
+		},
+		{
+			"description": "map runs on the renamed attribute",
+			"entry": { "attributes": { "kind": { "type": "string" } }, "migrate": { "rename": { "kind": "tone" }, "map": { "tone": { "hot": "warm" } } } },
+			"current": [ "tone" ],
+			"attributes": { "kind": "hot" },
+			"eligible": true,
+			"migrated": { "tone": "warm" }
+		},
+		{
+			"description": "a missing rename source is skipped",
+			"entry": { "attributes": { "title": { "type": "string" } }, "migrate": { "rename": { "title": "heading", "sub": "subheading" } } },
+			"current": [ "heading", "subheading" ],
+			"attributes": { "title": "T" },
+			"eligible": true,
+			"migrated": { "heading": "T" }
+		},
+		{
+			"description": "a named (string) migration is not run by the declarative path, but old-shape keys still make it eligible",
+			"entry": { "attributes": { "title": { "type": "string" } }, "migrate": "acme_migrate" },
+			"current": [ "heading" ],
+			"attributes": { "title": "T" },
+			"eligible": true,
+			"migrated": { "title": "T" }
+		},
+		{
+			"description": "an entry with no migrate and no old-only keys is a no-op",
+			"entry": {},
+			"current": [ "heading" ],
+			"attributes": { "heading": "T" },
+			"eligible": false,
+			"migrated": { "heading": "T" }
+		}
+	]
+}

@@ -39,3 +39,11 @@ export function __setStoreSelectors( storeKey, selectors ) {
 export function __resetStores() {
 	storeSelectors = {};
 }
+
+export function select() {
+	return {};
+}
+
+export function dispatch() {
+	return {};
+}

@@ -3,14 +3,14 @@
  * Editor_Payload class for Cassette-CMF Blocks
  *
  * Builds the single JSON payload the editor bootstrap reads from
- * window.cassetteCmfBlocks. This is the whole PHP-to-JS bridge: one
+ * window.cassetteCmfBlocks_{prefix} (the name comes from Identity::js_global()). This is the whole PHP-to-JS bridge: one
  * consolidated inline script rather than a REST round-trip (which would
  * make every block "core/missing" during the editor's synchronous initial
  * parse of post_content) or a generated block.json on disk (vendor/ is
  * read-only on many deploys).
  *
  * @package PedalCMS\CassetteCMFBlocks
- * @since 0.1.0
+ * @since 0.2.0
  */
 
 namespace PedalCMS\CassetteCMFBlocks\Core;
@@ -18,19 +18,14 @@ namespace PedalCMS\CassetteCMFBlocks\Core;
 use PedalCMS\CassetteCMFBlocks\Compat\Cmf_Bridge;
 use PedalCMS\CassetteCMFBlocks\Compat\Requirements;
 use PedalCMS\CassetteCMFBlocks\Render\Deprecation_Builder;
+use PedalCMS\CassetteCMFBlocks\Render\Deprecation_Migrator;
 use PedalCMS\CassetteCMFBlocks\Schema\Area_Resolver;
+use PedalCMS\CassetteCMFBlocks\Schema\Transform_Config;
 
 /**
  * Class Editor_Payload
  */
 class Editor_Payload {
-
-	/**
-	 * Object-cache group and transient-key prefix for the cached payload.
-	 *
-	 * @var string
-	 */
-	private const CACHE_GROUP = 'cassette_cmf_blocks';
 
 	/**
 	 * How long the transient fallback (no persistent object cache) keeps a
@@ -69,7 +64,8 @@ class Editor_Payload {
 
 		$key = self::cache_key( $manager, $asset_version );
 
-		$cached = wp_cache_get( $key, self::CACHE_GROUP );
+		$group  = Identity::payload_cache_group();
+		$cached = wp_cache_get( $key, $group );
 		if ( is_array( $cached ) ) {
 			return $cached;
 		}
@@ -77,14 +73,14 @@ class Editor_Payload {
 		$transient_key = 'ccb_payload_' . $key;
 		$cached        = get_transient( $transient_key );
 		if ( is_array( $cached ) ) {
-			wp_cache_set( $key, $cached, self::CACHE_GROUP );
+			wp_cache_set( $key, $cached, $group );
 
 			return $cached;
 		}
 
 		$payload = self::build( $manager, $asset_version );
 
-		wp_cache_set( $key, $payload, self::CACHE_GROUP );
+		wp_cache_set( $key, $payload, $group );
 		set_transient( $transient_key, $payload, self::TRANSIENT_TTL );
 
 		return $payload;
@@ -135,7 +131,7 @@ class Editor_Payload {
 		$cmf_version = Requirements::cmf_version() ?? '';
 		$locale      = function_exists( 'determine_locale' ) ? determine_locale() : get_locale();
 
-		return md5( $config_hash . '|' . $asset_version . '|' . $cmf_version . '|' . $locale );
+		return md5( $config_hash . '|' . $asset_version . '|' . $cmf_version . '|' . $locale . '|' . Identity::prefix() );
 	}
 
 	/**
@@ -184,15 +180,17 @@ class Editor_Payload {
 				'fields'        => $editor_tree,
 				'render'        => self::render_payload( $raw_config['render'] ?? [], $definition->get_attributes() ),
 				'preview'       => self::preview_payload( $raw_config['preview'] ?? [] ),
+				'placeholder'   => self::placeholder_payload( $raw_config['placeholder'] ?? null ),
 				'innerBlocks'   => self::inner_blocks_payload( is_array( $raw_config['inner_blocks'] ?? null ) ? $raw_config['inner_blocks'] : [] ),
-				'transforms'    => is_array( $raw_config['transforms'] ?? null ) ? $raw_config['transforms'] : null,
+				'transforms'    => Transform_Config::to_payload( $raw_config['transforms'] ?? null ),
 				'documentScope' => self::document_scope_payload( $editor_tree, $raw_config['document_scope'] ?? null, $id ),
 			];
 		}
 
 		return [
-			'version' => $asset_version,
-			'blocks'  => $blocks,
+			'version'       => $asset_version,
+			'restNamespace' => Identity::rest_namespace(),
+			'blocks'        => $blocks,
 		];
 	}
 
@@ -278,7 +276,7 @@ class Editor_Payload {
 			'mode'       => $render['mode'] ?? 'dynamic',
 			'markup'     => self::normalize_markup_conditions( $raw_markup ),
 			'hash'       => Deprecation_Builder::hash( $raw_markup ?? [], $attributes ),
-			'deprecated' => self::deprecated_payload( is_array( $render['deprecated'] ?? null ) ? $render['deprecated'] : [] ),
+			'deprecated' => self::deprecated_payload( is_array( $render['deprecated'] ?? null ) ? $render['deprecated'] : [], 'static' === ( $render['mode'] ?? 'dynamic' ) ),
 		];
 	}
 
@@ -323,30 +321,78 @@ class Editor_Payload {
 	}
 
 	/**
+	 * The block-level "placeholder" setting: which condition means the block
+	 * is still unconfigured, plus the texts of the <Placeholder> shown for its
+	 * "placeholder"-area fields. Null when not declared (the editor then uses
+	 * its default rule: every required placeholder field is empty).
+	 *
+	 * @param mixed $raw Raw "placeholder" config: { when?, label?, instructions?, icon? }.
+	 * @return array{when?: array<string, mixed>, label?: string, instructions?: string, icon?: string}|null
+	 */
+	private static function placeholder_payload( $raw ): ?array {
+		if ( ! is_array( $raw ) ) {
+			return null;
+		}
+
+		$payload = [];
+
+		if ( isset( $raw['when'] ) && is_array( $raw['when'] ) ) {
+			$when = Cmf_Bridge::normalize_conditional( $raw['when'] );
+			if ( ! empty( $when ) ) {
+				$payload['when'] = $when;
+			}
+		}
+
+		foreach ( [ 'label', 'instructions', 'icon' ] as $key ) {
+			if ( isset( $raw[ $key ] ) && is_string( $raw[ $key ] ) && '' !== $raw[ $key ] ) {
+				$payload[ $key ] = $raw[ $key ];
+			}
+		}
+
+		return $payload;
+	}
+
+	/**
 	 * The subset of each "render.deprecated[]" entry the editor needs:
-	 * "markup" (required — an entry with none is meaningless, so it's
-	 * skipped rather than shipped broken), "attributes" (the old WP
-	 * attribute schema; omitted lets deprecations.js fall back to the
-	 * block's current schema, the common case for a markup-only change),
-	 * and "migrate" (a plain string name — deprecations.js resolves it
-	 * against whatever the consumer registered via the JS escape hatch;
-	 * PHP config has no way to embed a real function).
+	 * "markup" (required for a static block, whose old save() it drives; an
+	 * entry with none is skipped rather than shipped broken. A dynamic block
+	 * has no saved markup, so its entries ship with a null "markup"),
+	 * "attributes" (the old WP attribute schema; omitted lets
+	 * deprecations.js fall back to the block's current schema, the common
+	 * case for a markup-only change) and "migrate" (a plain string name that
+	 * deprecations.js resolves against whatever the consumer registered via
+	 * registerMigration() (public extension point), or a declarative { rename, map, set, remove }
+	 * object it applies itself; PHP config has no way to embed a real
+	 * function). "migrate_php" is server-only and never shipped.
 	 *
 	 * @param array<int, mixed> $deprecated Raw "render.deprecated" entries.
-	 * @return array<int, array{markup: array<string, mixed>, attributes: array<string, mixed>|null, migrate: string|null}>
+	 * @param bool              $is_static  Whether the block is in static mode.
+	 * @return array<int, array{markup: array<string, mixed>|null, attributes: array<string, mixed>|null, migrate: string|array<string, mixed>|null}>
 	 */
-	private static function deprecated_payload( array $deprecated ): array {
+	private static function deprecated_payload( array $deprecated, bool $is_static ): array {
 		$entries = [];
 
 		foreach ( $deprecated as $entry ) {
-			if ( ! is_array( $entry ) || ! is_array( $entry['markup'] ?? null ) ) {
+			if ( ! is_array( $entry ) ) {
 				continue;
 			}
 
+			$has_markup = is_array( $entry['markup'] ?? null );
+			if ( $is_static && ! $has_markup ) {
+				continue;
+			}
+
+			$migrate = $entry['migrate'] ?? null;
+			if ( is_array( $migrate ) ) {
+				$migrate = array_intersect_key( $migrate, array_flip( Deprecation_Migrator::MIGRATE_KEYS ) );
+			} elseif ( ! is_string( $migrate ) ) {
+				$migrate = null;
+			}
+
 			$entries[] = [
-				'markup'     => self::normalize_markup_conditions( $entry['markup'] ),
+				'markup'     => $is_static ? self::normalize_markup_conditions( $entry['markup'] ) : null,
 				'attributes' => is_array( $entry['attributes'] ?? null ) ? $entry['attributes'] : null,
-				'migrate'    => is_string( $entry['migrate'] ?? null ) ? $entry['migrate'] : null,
+				'migrate'    => $migrate,
 			];
 		}
 
@@ -391,18 +437,38 @@ class Editor_Payload {
 	}
 
 	/**
+	 * Normalize "preview.when" (the same condition shape as markup "when").
+	 * A value that normalizes to no rules is dropped, so the editor's
+	 * "is the preview gated" check is a plain null test.
+	 *
+	 * @param mixed $when Raw "preview.when".
+	 * @return array<string, mixed>|null
+	 */
+	private static function normalize_preview_when( $when ): ?array {
+		if ( ! is_array( $when ) ) {
+			return null;
+		}
+
+		$normalized = Cmf_Bridge::normalize_conditional( $when );
+
+		return empty( $normalized ) ? null : $normalized;
+	}
+
+	/**
 	 * The subset of a block's "preview" config the editor needs. "markup"
 	 * overrides render.markup for the editor preview specifically when set;
 	 * CanvasArea falls back to render.markup when it isn't (the plan's "one
-	 * declarative markup tree drives three runtimes" default).
+	 * declarative markup tree drives three runtimes" default). "when" gates
+	 * the preview: while it is false the editor shows a placeholder.
 	 *
 	 * @param array<string, mixed> $preview Raw "preview" config.
-	 * @return array{mode: string, markup: array<string, mixed>|null}
+	 * @return array{mode: string, markup: array<string, mixed>|null, when: array<string, mixed>|null}
 	 */
 	private static function preview_payload( array $preview ): array {
 		return [
 			'mode'   => $preview['mode'] ?? 'markup',
 			'markup' => self::normalize_markup_conditions( is_array( $preview['markup'] ?? null ) ? $preview['markup'] : null ),
+			'when'   => self::normalize_preview_when( $preview['when'] ?? null ),
 		];
 	}
 }

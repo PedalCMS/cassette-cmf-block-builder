@@ -119,6 +119,54 @@
 			"normalized": { "relation": "AND", "rules": [] },
 			"context": { "tone": "cool" },
 			"expected": true
+		},
+		{
+			"description": "a cross-block rule (source: block) is ignored; an AND of only that rule is true",
+			"normalized": { "relation": "AND", "rules": [ { "source": "block", "ref": "email", "operator": "not_empty" } ] },
+			"context": {},
+			"expected": true
+		},
+		{
+			"description": "a rule with only a ref is a cross-block rule too, even when a same-named attribute exists",
+			"normalized": { "relation": "AND", "rules": [ { "ref": "tone", "operator": "==", "value": "warm" } ] },
+			"context": { "tone": "cool" },
+			"expected": true
+		},
+		{
+			"description": "AND ignores the cross-block rule and evaluates the own-attribute rules",
+			"normalized": {
+				"relation": "AND",
+				"rules": [
+					{ "source": "block", "ref": "email", "operator": "==", "value": "x" },
+					{ "field": "tone", "operator": "==", "value": "warm" }
+				]
+			},
+			"context": { "tone": "cool" },
+			"expected": false
+		},
+		{
+			"description": "AND passes when the own-attribute rules pass, whatever the cross-block rule says",
+			"normalized": {
+				"relation": "AND",
+				"rules": [
+					{ "source": "block", "ref": "email", "operator": "==", "value": "x" },
+					{ "field": "tone", "operator": "==", "value": "warm" }
+				]
+			},
+			"context": { "tone": "warm" },
+			"expected": true
+		},
+		{
+			"description": "OR does not let an ignored cross-block rule make the result true",
+			"normalized": {
+				"relation": "OR",
+				"rules": [
+					{ "source": "block", "ref": "email", "operator": "not_empty" },
+					{ "field": "tone", "operator": "==", "value": "warm" }
+				]
+			},
+			"context": { "tone": "cool" },
+			"expected": false
 		}
 	]
 }

@@ -12,7 +12,7 @@
  * filling a nonexistent group renders nothing and silently drops fields.
  *
  * @package PedalCMS\CassetteCMFBlocks
- * @since 0.1.0
+ * @since 0.2.0
  */
 
 namespace PedalCMS\CassetteCMFBlocks\Schema;
@@ -100,7 +100,7 @@ class Area_Resolver {
 						$area,
 						self::DEFAULT_AREA
 					),
-					'0.1.0'
+					'0.2.0'
 				);
 				// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 			}

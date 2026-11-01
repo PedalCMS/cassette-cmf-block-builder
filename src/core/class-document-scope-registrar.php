@@ -12,7 +12,7 @@
  * plan: "Without it the library refuses to mount and logs."
  *
  * @package PedalCMS\CassetteCMFBlocks
- * @since 0.1.0
+ * @since 0.2.0
  */
 
 namespace PedalCMS\CassetteCMFBlocks\Core;
@@ -39,7 +39,7 @@ class Document_Scope_Registrar {
 						'Block "%s" declares a field in the "document"/"sidebar"/"more_menu" area but no valid "document_scope" (a non-empty "post_types" array is required). Its document-level fields will not be shown.',
 						$block_id
 					),
-					'0.1.0'
+					'0.2.0'
 				);
 				// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 			}

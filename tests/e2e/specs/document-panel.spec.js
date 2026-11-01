@@ -16,26 +16,31 @@ test.describe( 'acme-e2e/document-panel — when_present gating', () => {
 	} ) => {
 		await admin.createNewPost();
 
-		await page
-			.getByRole( 'button', { name: 'Options' } )
-			.click();
-		await page.getByRole( 'menuitem', { name: 'Plugins' } ).click();
+		const optionsButton = page
+			.getByRole( 'region', { name: 'Editor top bar' } )
+			.getByRole( 'button', { name: 'Options', exact: true } );
+		const menu = page.getByRole( 'menu' );
+		// Plugin sidebar items are listed in the Options menu (in a
+		// "Plugins" group that only exists once a plugin contributes one).
+		const panelItem = menu.locator( '[role^="menuitem"]', {
+			hasText: 'E2E Document Panel',
+		} );
 
+		await optionsButton.click();
+		// Positive control: the menu really is open.
 		await expect(
-			page.getByRole( 'menuitemcheckbox', { name: 'E2E Document Panel' } )
-		).toHaveCount( 0 );
+			menu.getByRole( 'menuitem', { name: 'Preferences' } )
+		).toBeVisible();
+		await expect( panelItem ).toHaveCount( 0 );
 
 		await page.keyboard.press( 'Escape' );
+		await expect(
+			menu.getByRole( 'menuitem', { name: 'Preferences' } )
+		).toHaveCount( 0 );
 
 		await editor.insertBlock( { name: 'acme-e2e/document-panel' } );
 
-		await page
-			.getByRole( 'button', { name: 'Options' } )
-			.click();
-		await page.getByRole( 'menuitem', { name: 'Plugins' } ).click();
-
-		await expect(
-			page.getByRole( 'menuitemcheckbox', { name: 'E2E Document Panel' } )
-		).toBeVisible();
+		await optionsButton.click();
+		await expect( panelItem ).toBeVisible();
 	} );
 } );

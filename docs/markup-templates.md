@@ -23,7 +23,7 @@ Every property is optional; a node with none of them renders an empty tag. `text
 
 ## Expressions
 
-`{{ path | filter1 | filter2:arg }}` — a **fixed**, closed filter set. No arbitrary evaluation, no PHP callables reachable from config. `path` is dot-notation into the current scope (`attributes.tone`, or `item.label` inside a `repeat`).
+`{{ path | filter1 | filter2:arg }}` — a **fixed**, closed filter set. No arbitrary evaluation, no PHP callables reachable from config. `path` is dot-notation into the current scope (`attributes.tone`, or `item.label` inside a `repeat`). A `source: 'context'` field appears in `attributes` under its field name, like a read-only attribute.
 
 | Filter | Effect |
 |---|---|
@@ -86,5 +86,4 @@ A block's `preview.markup`, when set, overrides `render.markup` for the editor's
 
 ## Known limitations
 
-- **`preview.when`** (gating an editor preview, e.g. a server preview, until required fields are filled) isn't wired up, though the evaluator it would use already exists.
 - **`preview.debounce`/`preview.skeleton`** config keys aren't read by anything — the server preview relies entirely on `@wordpress/server-side-render`'s own built-in debouncing and loading skeleton, which already cover the intent.

@@ -4,13 +4,13 @@
 
 | Mode | Front-end output comes from | `save()` |
 |---|---|---|
-| `dynamic` (default) | `render_callback`, computed fresh on every request | always returns `null` |
+| `dynamic` (default) | `render_callback`, computed fresh on every request | always returns `null` (or `<InnerBlocks.Content />`) |
 | `static` | the block's own saved content, embedded directly in `post_content` | serializes `render.markup` |
 | `none` | nothing — an intentionally output-less block | always returns `null` |
 
 **Changing a static block's markup (or its attribute schema) without adding a `render.deprecated` entry invalidates every post that already contains it.** WordPress compares a block's freshly-computed `save()` output against what's actually stored in `post_content` every time the editor opens a post; a mismatch shows "This block contains unexpected or invalid content" — the same failure mode a hand-written static block has if its `save()` changes incompatibly. This library doesn't remove that risk — nothing can, it's how block validation fundamentally works — it just gives you a declarative way to describe old versions instead of hand-writing a second `save()` function.
 
-Dynamic mode has none of this burden: there's no saved markup to validate against, only attributes, so changing `render.markup` (or even switching to a `render.callback`/`render.template`) is always safe for existing content.
+Dynamic mode has none of this burden: there's no saved markup to validate against, only attributes, so changing `render.markup` (or even switching to a `render.callback`/`render.template`) is always safe for existing content. Only a change to the *attribute shape* (a rename, a removed attribute, changed values) needs a [dynamic deprecation](#dynamic-blocks-renderdeprecated-with-attributes--migrate).
 
 ## A static block
 
@@ -60,16 +60,54 @@ Each entry becomes one of `registerBlockType()`'s own `deprecated` array items. 
 
 - **`markup`** (required) — the old tree, rendered through its own fresh `save()`, so an earlier deprecation's markup never leaks into a later one's output.
 - **`attributes`** (optional) — the old WP attribute schema. Omit it for a markup-only change (the common case) and it falls back to the block's *current* schema. Declare it explicitly when the attribute shape itself changed too (a renamed/retyped/removed attribute) — WordPress validates old saved content against *this* schema, not the current one.
-- **`migrate`** (optional) — a **name**, not a function: PHP/JSON config has no way to embed real code, so `migrate` is resolved client-side against a small registry. Register the actual migration via the same undocumented JS escape hatch `docs/control-catalog.md#the-undocumented-js-escape-hatch` describes:
+- **`migrate`** (optional) — a **name**, not a function: PHP/JSON config has no way to embed real code, so `migrate` is resolved client-side against a small registry. Register the actual migration (on the payload global of your prefix, `window.cassetteCmfBlocks_{camelPrefix}`) with `registerMigration()`, one of the public JS extension points ([control-catalog.md](control-catalog.md#custom-controls-and-the-js-extension-points)):
 
   ```js
-  window.cassetteCmfBlocks.registerMigration( 'acme_migrate_v1', ( attributes ) => ( {
+  window.cassetteCmfBlocks_acme.registerMigration( 'acme_migrate_v1', ( attributes ) => ( {
       ...attributes,
       cite: attributes.author ?? '', // e.g. an attribute rename.
   } ) );
   ```
 
-  A name with nothing registered for it is silently dropped — WordPress then carries the old attributes over unchanged, its own safe default when no `migrate` is present. **This registry must be populated before this library's own editor script finishes running** — `registerBlockType()`'s `deprecated` array is built once, synchronously, at registration time, and a migration reference gets baked in or omitted at that moment, not re-resolved later. In practice this means enqueuing your own script as a dependency of `cassette-cmf-block-builder-editor` and calling `registerMigration()` at the top level of that script, not inside a deferred callback.
+  A name with nothing registered for it is silently dropped — WordPress then carries the old attributes over unchanged, its own safe default when no `migrate` is present. **This registry must be populated before this library's own editor script registers the blocks** — `registerBlockType()`'s `deprecated` array is built once, synchronously, at registration time, and a migration reference gets baked in or omitted at that moment, not re-resolved later. Enqueue your own script as a dependency of `{prefix}-blocks-editor` (for example `acme-blocks-editor`) and call `registerMigration()` at the top level of that script, not inside a deferred callback: the call is queued and replayed before any block is registered.
+
+## Dynamic blocks: `render.deprecated` with `attributes` + `migrate`
+
+A dynamic block stores only attributes, so its history is about attribute shape, not markup. The same `render.deprecated` list works, with the same keys (`markup` is not needed and is ignored):
+
+```php
+'render' => [
+    'markup'     => [ /* current tree */ ],
+    'deprecated' => [
+        [
+            'attributes'  => [ 'title' => [ 'type' => 'string' ], 'kind' => [ 'type' => 'string' ] ], // the old schema
+            'migrate'     => [
+                'rename' => [ 'title' => 'heading', 'kind' => 'tone' ],
+                'map'    => [ 'tone' => [ 'hot' => 'warm', 'cold' => 'cool' ] ],
+                'set'    => [ 'version' => 2 ],
+                'remove' => [ 'legacy_flag' ],
+            ],
+            'migrate_php' => 'acme_migrate_note_v1', // optional PHP callable( array $attributes, array $entry ): array
+        ],
+    ],
+],
+```
+
+**`migrate`** is either a *name* (resolved in the editor only, exactly as for static blocks) or a declarative object, applied in this order:
+
+| Key | Effect |
+|---|---|
+| `rename` | `{ old: new }`. Moves the value, removes `old`. Overwrites `new` if it already holds a value (WordPress fills defaults first). A missing `old` is skipped. |
+| `map` | `{ attribute: { oldValue: newValue } }`, on the attribute name *after* renaming. Values are compared as strings (booleans as `true` / `false`); an unmapped value is left alone. |
+| `set` | `{ attribute: value }`. Always assigned. |
+| `remove` | `[ attribute, ... ]`. Deleted. |
+
+**Eligibility** decides whether an entry applies to stored attributes, in both languages: the attributes contain a key that the entry's old `attributes`, `rename` sources or `remove` list name but the *current* schema does not, or a value that one of its `map` tables would change. `set` alone never triggers an entry. Entries run in declaration order, each only if still eligible.
+
+- **Editor.** Each entry becomes a `deprecated` item with the block's own `save()` (`null`, or `<InnerBlocks.Content />` when inner blocks are enabled), `attributes` (the old schema, falling back to the current one) and `isEligible`. WordPress therefore migrates a stored block when the post opens, even though the block validates. The `migrate` object is turned into WordPress's `migrate( attributes, innerBlocks )`.
+- **Server.** `Block_Definition::sanitize_attributes()` runs the migration as its first step (only for dynamic blocks), then `migrate_php`, so the render pipeline is **migrate, sanitize, conditions, render**. Markup stored with old attributes renders the new output on the front end with no re-save. `migrate_php` is never sent to the editor; a string `migrate` is never run on the server, so give such an entry a `migrate_php` if the server needs it too.
+- **One format.** The declarative object is also accepted for static entries (it replaces the need for a registered name when the change is a rename, map, set or remove).
+- **Tests.** `tests/fixtures/deprecations.json` holds cases `{ entry, current, attributes, eligible, migrated }`; `tests/js/deprecations.test.js` and `Test_Deprecated_Dynamic` run the same file.
 
 ## What isn't auto-detected
 

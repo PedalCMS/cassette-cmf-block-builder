@@ -30,7 +30,7 @@
  * Core\Editor_Payload's own guard against shipping it to the client.
  *
  * @package PedalCMS\CassetteCMFBlocks
- * @since 0.1.0
+ * @since 0.2.0
  */
 
 namespace PedalCMS\CassetteCMFBlocks\Core;
@@ -39,6 +39,62 @@ namespace PedalCMS\CassetteCMFBlocks\Core;
  * Class Variation_Registrar
  */
 class Variation_Registrar {
+
+	/**
+	 * The scopes a variation may declare.
+	 *
+	 * "block" makes the variation appear in the block variation picker shown
+	 * on an empty block (like Columns / Query); "inserter" lists it in the
+	 * inserter; "transform" in the block transform menu. WordPress treats a
+	 * variation without "scope" as available in every scope, so this library
+	 * opens the picker only for variations that list "block" explicitly.
+	 *
+	 * @var string[]
+	 */
+	public const SCOPES = [ 'block', 'inserter', 'transform' ];
+
+	/**
+	 * Check the variation keys the picker relies on. "scope" (a list drawn
+	 * from SCOPES) and "innerBlocks" (a list of [ name, attributes, children ]
+	 * templates) pass through untouched when well formed; a malformed value is
+	 * dropped with a _doing_it_wrong() rather than reaching the client.
+	 *
+	 * @param array<string, mixed> $variation A variation with name and title.
+	 * @param string               $block_id  The owning block's name.
+	 * @return array<string, mixed>
+	 */
+	private static function normalize_variation( array $variation, string $block_id ): array {
+		if ( array_key_exists( 'scope', $variation ) ) {
+			$scope = $variation['scope'];
+			if ( ! is_array( $scope ) || array_diff( $scope, self::SCOPES ) || array_filter( $scope, 'is_string' ) !== $scope ) {
+				self::notice( sprintf( 'Block "%1$s" variation "%2$s": "scope" must be a list drawn from %3$s; it was dropped.', $block_id, (string) $variation['name'], implode( ', ', self::SCOPES ) ) );
+				unset( $variation['scope'] );
+			} else {
+				$variation['scope'] = array_values( $scope );
+			}
+		}
+
+		if ( array_key_exists( 'innerBlocks', $variation ) && ! is_array( $variation['innerBlocks'] ) ) {
+			self::notice( sprintf( 'Block "%1$s" variation "%2$s": "innerBlocks" must be a list of block templates; it was dropped.', $block_id, (string) $variation['name'] ) );
+			unset( $variation['innerBlocks'] );
+		}
+
+		return $variation;
+	}
+
+	/**
+	 * Raise a developer notice.
+	 *
+	 * @param string $message Message.
+	 * @return void
+	 */
+	private static function notice( string $message ): void {
+		if ( function_exists( '_doing_it_wrong' ) ) {
+			// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- _doing_it_wrong() messages are developer-facing debug notices, not page output.
+			_doing_it_wrong( __CLASS__, $message, '0.2.0' );
+			// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
+		}
+	}
 
 	/**
 	 * Validate and filter a block's declared "variations".
@@ -60,14 +116,14 @@ class Variation_Registrar {
 							'Block "%s" declares a variation missing "name" or "title"; it was skipped.',
 							$block_id
 						),
-						'0.1.0'
+						'0.2.0'
 					);
 					// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 				}
 				continue;
 			}
 
-			$valid[] = $variation;
+			$valid[] = self::normalize_variation( $variation, $block_id );
 		}
 
 		if ( function_exists( 'apply_filters' ) ) {

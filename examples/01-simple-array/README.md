@@ -27,6 +27,7 @@ The block's `render.markup` renders a `<div class="acme-callout">` with a headin
 use PedalCMS\CassetteCMFBlocks\CassetteCMFBlocks;
 
 add_action( 'init', function () {
+    CassetteCMFBlocks::boot( [ 'prefix' => 'example' ] ); // required: see docs/coexistence.md
     CassetteCMFBlocks::register_from_array( [
         'blocks' => [
             [

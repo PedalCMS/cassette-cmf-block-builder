@@ -17,11 +17,16 @@ The same 5 field blocks as [`03-advanced-array`](../03-advanced-array/), registe
 use PedalCMS\CassetteCMFBlocks\CassetteCMFBlocks;
 
 add_action( 'init', function () {
+    CassetteCMFBlocks::boot( [ 'prefix' => 'example' ] ); // required: see docs/coexistence.md
     CassetteCMFBlocks::register_from_json( __DIR__ . '/config.json' );
 }, 5 );
 ```
 
 Priority 5, not the default 10 — see [`01-simple-array`'s README](../01-simple-array/README.md#usage) for why this matters for every example in this library.
+
+## Don't load it together with 03
+
+This example registers the **same block IDs** as [`03-advanced-array`](../03-advanced-array/). Activate only one of the two at a time: with both active, the second registration replaces the first block config for each ID.
 
 ## What Doesn't Translate to JSON
 

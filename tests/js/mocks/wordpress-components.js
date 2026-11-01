@@ -21,3 +21,6 @@ export const TextControl = makeStub( 'TextControl' );
 export const TextareaControl = makeStub( 'TextareaControl' );
 export const SelectControl = makeStub( 'SelectControl' );
 export const Button = makeStub( 'Button' );
+export const Draggable = makeStub( 'Draggable' );
+export const Placeholder = makeStub( 'Placeholder' );
+export const Spinner = makeStub( 'Spinner' );

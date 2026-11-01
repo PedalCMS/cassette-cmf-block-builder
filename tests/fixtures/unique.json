@@ -1,0 +1,798 @@
+{
+  "description": "Shared by tests/js/unique.test.js (find-collisions.js) and tests/Unit/Test_Unique_Checker.php (Render\\Unique_Checker). Blocks use the parse_blocks() shape; paths are index paths from the root.",
+  "cases": [
+    {
+      "name": "whole post: duplicates at the top level",
+      "rule": {
+        "scope": "post"
+      },
+      "participants": {
+        "vendor/field": {
+          "attribute": "name"
+        },
+        "vendor/other-field": {
+          "attribute": "slug",
+          "format": "slug"
+        }
+      },
+      "blocks": [
+        {
+          "blockName": "vendor/field",
+          "attrs": {
+            "name": "a"
+          },
+          "innerBlocks": []
+        },
+        {
+          "blockName": "vendor/field",
+          "attrs": {
+            "name": "b"
+          },
+          "innerBlocks": []
+        },
+        {
+          "blockName": "vendor/field",
+          "attrs": {
+            "name": "a"
+          },
+          "innerBlocks": []
+        }
+      ],
+      "expected": [
+        {
+          "value": "a",
+          "paths": [
+            [
+              0
+            ],
+            [
+              2
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "whole post: nested blocks collide across containers",
+      "rule": {
+        "scope": "post"
+      },
+      "participants": {
+        "vendor/field": {
+          "attribute": "name"
+        },
+        "vendor/other-field": {
+          "attribute": "slug",
+          "format": "slug"
+        }
+      },
+      "blocks": [
+        {
+          "blockName": "vendor/form",
+          "attrs": {},
+          "innerBlocks": [
+            {
+              "blockName": "vendor/field",
+              "attrs": {
+                "name": "a"
+              },
+              "innerBlocks": []
+            }
+          ]
+        },
+        {
+          "blockName": "vendor/form",
+          "attrs": {},
+          "innerBlocks": [
+            {
+              "blockName": "vendor/group",
+              "attrs": {},
+              "innerBlocks": [
+                {
+                  "blockName": "vendor/field",
+                  "attrs": {
+                    "name": "a"
+                  },
+                  "innerBlocks": []
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "value": "a",
+          "paths": [
+            [
+              0,
+              0
+            ],
+            [
+              1,
+              0,
+              0
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "whole post: no collisions when all values differ",
+      "rule": {
+        "scope": "post"
+      },
+      "participants": {
+        "vendor/field": {
+          "attribute": "name"
+        },
+        "vendor/other-field": {
+          "attribute": "slug",
+          "format": "slug"
+        }
+      },
+      "blocks": [
+        {
+          "blockName": "vendor/field",
+          "attrs": {
+            "name": "a"
+          },
+          "innerBlocks": []
+        },
+        {
+          "blockName": "vendor/field",
+          "attrs": {
+            "name": "b"
+          },
+          "innerBlocks": []
+        },
+        {
+          "blockName": "vendor/field",
+          "attrs": {
+            "name": "c"
+          },
+          "innerBlocks": []
+        }
+      ],
+      "expected": []
+    },
+    {
+      "name": "ancestor scope: two separate forms may reuse a name",
+      "rule": {
+        "scope": "ancestor",
+        "block": "vendor/form"
+      },
+      "participants": {
+        "vendor/field": {
+          "attribute": "name"
+        },
+        "vendor/other-field": {
+          "attribute": "slug",
+          "format": "slug"
+        }
+      },
+      "blocks": [
+        {
+          "blockName": "vendor/form",
+          "attrs": {},
+          "innerBlocks": [
+            {
+              "blockName": "vendor/field",
+              "attrs": {
+                "name": "email"
+              },
+              "innerBlocks": []
+            }
+          ]
+        },
+        {
+          "blockName": "vendor/form",
+          "attrs": {},
+          "innerBlocks": [
+            {
+              "blockName": "vendor/field",
+              "attrs": {
+                "name": "email"
+              },
+              "innerBlocks": []
+            }
+          ]
+        }
+      ],
+      "expected": []
+    },
+    {
+      "name": "ancestor scope: collision inside one form, at any depth",
+      "rule": {
+        "scope": "ancestor",
+        "block": "vendor/form"
+      },
+      "participants": {
+        "vendor/field": {
+          "attribute": "name"
+        },
+        "vendor/other-field": {
+          "attribute": "slug",
+          "format": "slug"
+        }
+      },
+      "blocks": [
+        {
+          "blockName": "vendor/form",
+          "attrs": {},
+          "innerBlocks": [
+            {
+              "blockName": "vendor/group",
+              "attrs": {},
+              "innerBlocks": [
+                {
+                  "blockName": "vendor/field",
+                  "attrs": {
+                    "name": "email"
+                  },
+                  "innerBlocks": []
+                }
+              ]
+            },
+            {
+              "blockName": "vendor/field",
+              "attrs": {
+                "name": "email"
+              },
+              "innerBlocks": []
+            },
+            {
+              "blockName": "vendor/field",
+              "attrs": {
+                "name": "phone"
+              },
+              "innerBlocks": []
+            }
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "value": "email",
+          "paths": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ancestor scope: the nearest matching ancestor wins (nested forms)",
+      "rule": {
+        "scope": "ancestor",
+        "block": "vendor/form"
+      },
+      "participants": {
+        "vendor/field": {
+          "attribute": "name"
+        },
+        "vendor/other-field": {
+          "attribute": "slug",
+          "format": "slug"
+        }
+      },
+      "blocks": [
+        {
+          "blockName": "vendor/form",
+          "attrs": {},
+          "innerBlocks": [
+            {
+              "blockName": "vendor/field",
+              "attrs": {
+                "name": "a"
+              },
+              "innerBlocks": []
+            },
+            {
+              "blockName": "vendor/form",
+              "attrs": {},
+              "innerBlocks": [
+                {
+                  "blockName": "vendor/field",
+                  "attrs": {
+                    "name": "a"
+                  },
+                  "innerBlocks": []
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "expected": []
+    },
+    {
+      "name": "ancestor scope: blocks with no such ancestor form one unscoped group",
+      "rule": {
+        "scope": "ancestor",
+        "block": "vendor/form"
+      },
+      "participants": {
+        "vendor/field": {
+          "attribute": "name"
+        },
+        "vendor/other-field": {
+          "attribute": "slug",
+          "format": "slug"
+        }
+      },
+      "blocks": [
+        {
+          "blockName": "vendor/field",
+          "attrs": {
+            "name": "x"
+          },
+          "innerBlocks": []
+        },
+        {
+          "blockName": "vendor/form",
+          "attrs": {},
+          "innerBlocks": [
+            {
+              "blockName": "vendor/field",
+              "attrs": {
+                "name": "x"
+              },
+              "innerBlocks": []
+            }
+          ]
+        },
+        {
+          "blockName": "vendor/group",
+          "attrs": {},
+          "innerBlocks": [
+            {
+              "blockName": "vendor/field",
+              "attrs": {
+                "name": "x"
+              },
+              "innerBlocks": []
+            }
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "value": "x",
+          "paths": [
+            [
+              0
+            ],
+            [
+              2,
+              0
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ancestor scope: a different ancestor name does not scope",
+      "rule": {
+        "scope": "ancestor",
+        "block": "vendor/form"
+      },
+      "participants": {
+        "vendor/field": {
+          "attribute": "name"
+        },
+        "vendor/other-field": {
+          "attribute": "slug",
+          "format": "slug"
+        }
+      },
+      "blocks": [
+        {
+          "blockName": "vendor/group",
+          "attrs": {},
+          "innerBlocks": [
+            {
+              "blockName": "vendor/field",
+              "attrs": {
+                "name": "a"
+              },
+              "innerBlocks": []
+            }
+          ]
+        },
+        {
+          "blockName": "vendor/group",
+          "attrs": {},
+          "innerBlocks": [
+            {
+              "blockName": "vendor/field",
+              "attrs": {
+                "name": "a"
+              },
+              "innerBlocks": []
+            }
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "value": "a",
+          "paths": [
+            [
+              0,
+              0
+            ],
+            [
+              1,
+              0
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "empty and whitespace-only values never collide",
+      "rule": {
+        "scope": "post"
+      },
+      "participants": {
+        "vendor/field": {
+          "attribute": "name"
+        },
+        "vendor/other-field": {
+          "attribute": "slug",
+          "format": "slug"
+        }
+      },
+      "blocks": [
+        {
+          "blockName": "vendor/field",
+          "attrs": {
+            "name": ""
+          },
+          "innerBlocks": []
+        },
+        {
+          "blockName": "vendor/field",
+          "attrs": {
+            "name": ""
+          },
+          "innerBlocks": []
+        },
+        {
+          "blockName": "vendor/field",
+          "attrs": {
+            "name": "   "
+          },
+          "innerBlocks": []
+        },
+        {
+          "blockName": "vendor/field",
+          "attrs": {},
+          "innerBlocks": []
+        },
+        {
+          "blockName": "vendor/field",
+          "attrs": {},
+          "innerBlocks": []
+        },
+        {
+          "blockName": "vendor/field",
+          "attrs": {
+            "name": null
+          },
+          "innerBlocks": []
+        }
+      ],
+      "expected": []
+    },
+    {
+      "name": "values are trimmed before comparing",
+      "rule": {
+        "scope": "post"
+      },
+      "participants": {
+        "vendor/field": {
+          "attribute": "name"
+        },
+        "vendor/other-field": {
+          "attribute": "slug",
+          "format": "slug"
+        }
+      },
+      "blocks": [
+        {
+          "blockName": "vendor/field",
+          "attrs": {
+            "name": " a "
+          },
+          "innerBlocks": []
+        },
+        {
+          "blockName": "vendor/field",
+          "attrs": {
+            "name": "a"
+          },
+          "innerBlocks": []
+        },
+        {
+          "blockName": "vendor/field",
+          "attrs": {
+            "name": "a\t"
+          },
+          "innerBlocks": []
+        }
+      ],
+      "expected": [
+        {
+          "value": "a",
+          "paths": [
+            [
+              0
+            ],
+            [
+              1
+            ],
+            [
+              2
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "comparison is case-sensitive",
+      "rule": {
+        "scope": "post"
+      },
+      "participants": {
+        "vendor/field": {
+          "attribute": "name"
+        },
+        "vendor/other-field": {
+          "attribute": "slug",
+          "format": "slug"
+        }
+      },
+      "blocks": [
+        {
+          "blockName": "vendor/field",
+          "attrs": {
+            "name": "A"
+          },
+          "innerBlocks": []
+        },
+        {
+          "blockName": "vendor/field",
+          "attrs": {
+            "name": "a"
+          },
+          "innerBlocks": []
+        }
+      ],
+      "expected": []
+    },
+    {
+      "name": "the field format is applied before comparing (slug)",
+      "rule": {
+        "scope": "post"
+      },
+      "participants": {
+        "vendor/field": {
+          "attribute": "name"
+        },
+        "vendor/other-field": {
+          "attribute": "slug",
+          "format": "slug"
+        }
+      },
+      "blocks": [
+        {
+          "blockName": "vendor/other-field",
+          "attrs": {
+            "slug": "My Name"
+          },
+          "innerBlocks": []
+        },
+        {
+          "blockName": "vendor/other-field",
+          "attrs": {
+            "slug": "my-name"
+          },
+          "innerBlocks": []
+        },
+        {
+          "blockName": "vendor/other-field",
+          "attrs": {
+            "slug": "  My   Name  "
+          },
+          "innerBlocks": []
+        }
+      ],
+      "expected": [
+        {
+          "value": "my-name",
+          "paths": [
+            [
+              0
+            ],
+            [
+              1
+            ],
+            [
+              2
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "different participating block types share a group",
+      "rule": {
+        "scope": "post"
+      },
+      "participants": {
+        "vendor/field": {
+          "attribute": "name"
+        },
+        "vendor/other-field": {
+          "attribute": "slug",
+          "format": "slug"
+        }
+      },
+      "blocks": [
+        {
+          "blockName": "vendor/field",
+          "attrs": {
+            "name": "my-name"
+          },
+          "innerBlocks": []
+        },
+        {
+          "blockName": "vendor/other-field",
+          "attrs": {
+            "slug": "My Name"
+          },
+          "innerBlocks": []
+        }
+      ],
+      "expected": [
+        {
+          "value": "my-name",
+          "paths": [
+            [
+              0
+            ],
+            [
+              1
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "non-participating blocks and non-string values are ignored",
+      "rule": {
+        "scope": "post"
+      },
+      "participants": {
+        "vendor/field": {
+          "attribute": "name"
+        },
+        "vendor/other-field": {
+          "attribute": "slug",
+          "format": "slug"
+        }
+      },
+      "blocks": [
+        {
+          "blockName": "core/paragraph",
+          "attrs": {
+            "name": "a"
+          },
+          "innerBlocks": []
+        },
+        {
+          "blockName": "vendor/field",
+          "attrs": {
+            "name": 5
+          },
+          "innerBlocks": []
+        },
+        {
+          "blockName": "vendor/field",
+          "attrs": {
+            "name": [
+              "a"
+            ]
+          },
+          "innerBlocks": []
+        },
+        {
+          "blockName": "vendor/field",
+          "attrs": {
+            "name": "a"
+          },
+          "innerBlocks": []
+        }
+      ],
+      "expected": []
+    },
+    {
+      "name": "several collisions are ordered by first occurrence",
+      "rule": {
+        "scope": "post"
+      },
+      "participants": {
+        "vendor/field": {
+          "attribute": "name"
+        },
+        "vendor/other-field": {
+          "attribute": "slug",
+          "format": "slug"
+        }
+      },
+      "blocks": [
+        {
+          "blockName": "vendor/field",
+          "attrs": {
+            "name": "b"
+          },
+          "innerBlocks": []
+        },
+        {
+          "blockName": "vendor/field",
+          "attrs": {
+            "name": "a"
+          },
+          "innerBlocks": []
+        },
+        {
+          "blockName": "vendor/field",
+          "attrs": {
+            "name": "a"
+          },
+          "innerBlocks": []
+        },
+        {
+          "blockName": "vendor/field",
+          "attrs": {
+            "name": "b"
+          },
+          "innerBlocks": []
+        }
+      ],
+      "expected": [
+        {
+          "value": "b",
+          "paths": [
+            [
+              0
+            ],
+            [
+              3
+            ]
+          ]
+        },
+        {
+          "value": "a",
+          "paths": [
+            [
+              1
+            ],
+            [
+              2
+            ]
+          ]
+        }
+      ]
+    }
+  ]
+}

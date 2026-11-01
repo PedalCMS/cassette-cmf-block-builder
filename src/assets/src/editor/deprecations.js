@@ -1,18 +1,20 @@
+import { createElement } from '@wordpress/element';
+import { InnerBlocks } from '@wordpress/block-editor';
 import { createSave } from './save';
+import { applyMigration, isEligible } from './migrate';
 
 /**
- * Registered attribute-migration functions, by name — the undocumented JS
- * escape hatch a "render.deprecated[].migrate" config value resolves
- * against. A PHP/JSON config can only ever supply a migration by NAME (it
- * has no way to embed a real function), so a consumer who needs an actual
- * attribute transformation across a deprecation registers it here, the same
- * pattern controls/registry.js's registerControlType() uses. Never
- * documented publicly — the library's stated contract is PHP/JSON-only,
- * zero consumer JS.
+ * Registered attribute-migration functions, by name: what a
+ * "render.deprecated[].migrate" config value resolves against. A PHP/JSON
+ * config can only ever supply a migration by NAME (it has no way to embed a
+ * real function), so a consumer who needs an actual attribute transformation
+ * across a deprecation registers it with registerMigration(), a public and
+ * stable extension point (docs/STABILITY.md), the same pattern as
+ * controls/registry.js's registerControlType().
  *
  * @type {Object<string, Function>}
  */
-const migrations = {};
+const migrations = Object.create( null );
 
 /**
  * Register (or override) a named attribute-migration function, referenced
@@ -23,7 +25,9 @@ const migrations = {};
  *                        ( attributes, innerBlocks ) => newAttributes | [ newAttributes, newInnerBlocks ].
  */
 export function registerMigration( name, fn ) {
-	migrations[ name ] = fn;
+	if ( 'string' === typeof name && name && 'function' === typeof fn ) {
+		migrations[ name ] = fn;
+	}
 }
 
 /**
@@ -51,18 +55,69 @@ export function registerMigration( name, fn ) {
  */
 export function buildDeprecations( descriptor ) {
 	const entries = ( descriptor.render && descriptor.render.deprecated ) || [];
+	const isStatic = 'static' === descriptor.render?.mode;
+	const currentAttributes = Object.keys(
+		descriptor.settings?.attributes || {}
+	);
 
 	return entries.map( ( entry ) => {
 		const deprecated = {
 			attributes: entry.attributes || descriptor.settings.attributes,
-			save: createSave( entry.markup ),
+			save: isStatic
+				? createSave( entry.markup )
+				: createDynamicSave( descriptor ),
 		};
 
-		const migrate = entry.migrate ? migrations[ entry.migrate ] : undefined;
+		if ( ! isStatic ) {
+			// A dynamic block has no saved markup that would fail validation, so WordPress
+			// only tries a deprecation when told the stored attributes are old-shaped. This is
+			// the same rule Render\Deprecation_Migrator::is_eligible() applies on the server.
+			deprecated.isEligible = ( attributes ) =>
+				isEligible( entry, currentAttributes, attributes );
+		}
+
+		const migrate = resolveMigrate( entry.migrate );
 		if ( migrate ) {
 			deprecated.migrate = migrate;
 		}
 
 		return deprecated;
 	} );
+}
+
+/**
+ * Resolve an entry's "migrate": a declarative { rename, map, set, remove }
+ * object becomes a pure function (shared with the server fixtures), a string
+ * is looked up in the named registry. Nothing registered under a name means
+ * no migrate (WordPress then carries the attributes over unchanged).
+ *
+ * @param {string|Object|undefined} migrate The entry's migrate value.
+ * @return {Function|undefined} WordPress's migrate( attributes, innerBlocks ).
+ */
+function resolveMigrate( migrate ) {
+	if ( migrate && 'object' === typeof migrate ) {
+		return ( attributes, innerBlocks ) => [
+			applyMigration( migrate, attributes ),
+			innerBlocks,
+		];
+	}
+
+	return migrate ? migrations[ migrate ] : undefined;
+}
+
+/**
+ * The save() of a dynamic block (also used for its deprecated versions: a
+ * dynamic block persists nothing of its own but its inner blocks).
+ *
+ * @param {Object} descriptor One block's Editor_Payload entry.
+ * @return {Function} A save() component.
+ */
+export function createDynamicSave( descriptor ) {
+	if ( descriptor.innerBlocks?.enabled ) {
+		return function Save() {
+			return createElement( InnerBlocks.Content );
+		};
+	}
+
+	return () => null;
 }

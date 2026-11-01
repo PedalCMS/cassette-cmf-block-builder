@@ -25,6 +25,9 @@ use PedalCMS\CassetteCMFBlocks\CassetteCMFBlocks;
  * Register a single block's configuration.
  */
 function cassette_cmf_blocks_simple_array_init() {
+	// Every site that loads this library sets its own prefix (derives the handles, REST namespace,
+	// binding source and JS global); see docs/coexistence.md.
+	CassetteCMFBlocks::boot( [ 'prefix' => 'example' ] );
 	CassetteCMFBlocks::register_from_array(
 		[
 			'blocks' => [

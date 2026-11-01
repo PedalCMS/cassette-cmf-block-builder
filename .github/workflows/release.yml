@@ -39,8 +39,8 @@ jobs:
 
       - name: Validate version format
         run: |
-          if ! [[ "${{ steps.version.outputs.version }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "Invalid version format. Expected: X.Y.Z"
+          if ! [[ "${{ steps.version.outputs.version }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-(alpha|beta|rc)\.[0-9]+)?$ ]]; then
+            echo "Invalid version format. Expected: X.Y.Z or X.Y.Z-(alpha|beta|rc).N"
             exit 1
           fi
 
@@ -59,10 +59,23 @@ jobs:
             echo "Version already matches ${VERSION}; nothing to sync."
           fi
 
-      - name: Verify the committed editor bundle is not stale
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Verify the committed editor bundle matches a fresh build
         run: |
           if [ ! -f src/assets/build/editor.js ]; then
             echo "::error::src/assets/build/editor.js is missing. Run 'npm run build' and commit the result before tagging."
+            exit 1
+          fi
+          npm ci
+          npm run build
+          if [ -n "$(git status --porcelain -- src/assets/build)" ]; then
+            echo "::error::src/assets/build/ differs from a fresh 'npm run build'. Build and commit the result before tagging."
+            git status --short -- src/assets/build
             exit 1
           fi
 
@@ -73,47 +86,27 @@ jobs:
         run: |
           mkdir -p dist/cassette-cmf-block-builder
 
-          # Copy only production files
-          cp -r src dist/cassette-cmf-block-builder/
-          cp composer.json dist/cassette-cmf-block-builder/
-          cp README.md dist/cassette-cmf-block-builder/
-          cp LICENSE dist/cassette-cmf-block-builder/
-          cp CHANGELOG.md dist/cassette-cmf-block-builder/ 2>/dev/null || echo "No CHANGELOG.md found"
+          # Everything the repository has, minus what .distignore lists. The
+          # production vendor/ (installed with --no-dev above) and languages/
+          # are part of the package; the JS source (src/assets/src/) and the
+          # dev/test files are in .distignore.
+          rsync -a --exclude='/dist/' --exclude-from=.distignore ./ dist/cassette-cmf-block-builder/
 
-          # Copy vendor (production only - already installed with --no-dev)
-          cp -r vendor dist/cassette-cmf-block-builder/
+          # Sanity checks: what must ship, and what must not.
+          for required in src/assets/build/editor.js composer.json README.md LICENSE vendor/autoload.php languages; do
+            if [ ! -e "dist/cassette-cmf-block-builder/${required}" ]; then
+              echo "::error::${required} is missing from the package."
+              exit 1
+            fi
+          done
+          for forbidden in src/assets/src tests node_modules package.json composer.lock .github; do
+            if [ -e "dist/cassette-cmf-block-builder/${forbidden}" ]; then
+              echo "::error::${forbidden} must not be in the package (see .distignore)."
+              exit 1
+            fi
+          done
 
-          cd dist/cassette-cmf-block-builder
-
-          # JS source is not shipped — only the committed compiled bundle
-          # (src/assets/build/) ships. Consumers never run npm/webpack.
-          rm -rf src/assets/src
-
-          # Remove dev/test files that might have been copied
-          rm -rf tests/
-          rm -rf bin/
-          rm -rf docs/
-          rm -rf examples/
-          rm -rf .github/
-          rm -rf .git/
-          rm -rf .cache/
-          rm -f .gitignore
-          rm -f .gitattributes
-          rm -f .editorconfig
-          rm -f phpunit.xml.dist
-          rm -f phpcs.xml.dist
-          rm -f phpstan.neon.dist
-          rm -f composer.lock
-          rm -f .phpcs.xml
-          rm -f .phpstan.neon
-          rm -f block-schema.json
-          rm -f .wp-env.json
-          rm -f playwright.config.js
-          rm -f package.json
-          rm -f package-lock.json
-          rm -f webpack.config.js
-
-          cd ..
+          cd dist
 
           # Create zip archive
           zip -r ../cassette-cmf-block-builder-${{ steps.version.outputs.version }}.zip cassette-cmf-block-builder
@@ -162,7 +155,7 @@ jobs:
           name: Cassette-CMF Blocks ${{ steps.version.outputs.tag }}
           body: ${{ steps.release_notes.outputs.notes }}
           draft: false
-          prerelease: ${{ contains(github.ref, '-alpha') || contains(github.ref, '-beta') || contains(github.ref, '-rc') }}
+          prerelease: ${{ contains(steps.version.outputs.version, '-') }}
           files: |
             cassette-cmf-block-builder-${{ steps.version.outputs.version }}.zip
             cassette-cmf-block-builder-${{ steps.version.outputs.version }}.tar.gz

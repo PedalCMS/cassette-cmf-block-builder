@@ -61,4 +61,17 @@ apply "package.json" \
 	"0,/\"version\":/ s/(\"version\":[[:space:]]*\")[^\"]*(\")/\\1${VERSION}\\2/" \
 	"\"version\":[[:space:]]*\"${VERSION}\""
 
+# package-lock.json (lockfile v2/v3): the top-level "version" and the root
+# package entry packages[""].version. Skipped when there is no lock file.
+if [[ -f package-lock.json ]]; then
+	apply "package-lock.json" \
+		"0,/\"version\":/ s/(\"version\":[[:space:]]*\")[^\"]*(\")/\\1${VERSION}\\2/" \
+		"\"version\":[[:space:]]*\"${VERSION}\""
+	sed -i -E "/^[[:space:]]*\"\": \{/,/\"version\":/ s/(\"version\":[[:space:]]*\")[^\"]*(\")/\\1${VERSION}\\2/" package-lock.json
+	if [[ "$(grep -cE "^[[:space:]]+\"version\":[[:space:]]*\"${VERSION//./\\.}\",?\$" package-lock.json)" -lt 2 ]]; then
+		echo "Failed to set packages[\"\"].version in package-lock.json." >&2
+		exit 1
+	fi
+fi
+
 echo "Done."

@@ -77,3 +77,19 @@
 	color: #646970;
 	margin-bottom: 8px;
 }
+
+.cassette-cmf-block-builder-unique-error {
+	color: #cc1818;
+}
+
+.cassette-cmf-block-builder-repeater__drag-handle {
+	cursor: grab;
+
+	&:active {
+		cursor: grabbing;
+	}
+}
+
+.cassette-cmf-block-builder-repeater__row:has(.cassette-cmf-block-builder-repeater__drag-handle:active) {
+	opacity: 0.6;
+}

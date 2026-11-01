@@ -72,4 +72,14 @@ class Test_Requirements extends CassetteCMFBlocks_UnitTestCase {
 		// coincidentally non-empty.
 		$this->assertMatchesRegularExpression( '/^\d+\.\d+\.\d+/', $version );
 	}
+
+	/**
+	 * The documented floors.
+	 */
+	public function test_floors(): void {
+		$this->assertSame( '7.4.0', Requirements::MIN_PHP_VERSION );
+		$this->assertSame( '0.2.0', Requirements::MIN_CMF_VERSION );
+		$this->assertSame( '6.8', Requirements::MIN_WP_VERSION );
+		$this->assertGreaterThanOrEqual( 70400, PHP_VERSION_ID );
+	}
 }

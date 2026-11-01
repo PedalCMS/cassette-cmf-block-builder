@@ -230,4 +230,46 @@ class Test_Block_Schema_Validator extends CassetteCMFBlocks_UnitTestCase {
 		$this->validator->validate( [ 'blocks' => [ [ 'id' => 'acme/callout' ] ] ] );
 		$this->assertFalse( $this->validator->has_errors() );
 	}
+
+	/**
+	 * render.deprecated accepts a name or a declarative migration, and rejects malformed ones.
+	 */
+	public function test_render_deprecated_migrate_shapes(): void {
+		$block = static function ( $deprecated ): array {
+			return [
+				'blocks' => [
+					[
+						'id'     => 'acme/callout',
+						'render' => [ 'deprecated' => $deprecated ],
+					],
+				],
+			];
+		};
+
+		$this->assertTrue(
+			$this->validator->validate(
+				$block(
+					[
+						[
+							'attributes' => [ 'title' => [ 'type' => 'string' ] ],
+							'migrate'    => [
+								'rename' => [ 'title' => 'heading' ],
+								'set'    => [ 'v' => 2 ],
+								'remove' => [ 'legacy' ],
+								'map'    => [ 'tone' => [ 'hot' => 'warm' ] ],
+							],
+						],
+						[ 'migrate' => 'acme_named' ],
+					]
+				)
+			),
+			$this->validator->get_error_message()
+		);
+
+		$this->assertFalse( $this->validator->validate( $block( [ [ 'migrate' => [ 'rename' => [ 'a' => 5 ] ] ] ] ) ) );
+		$this->assertFalse( $this->validator->validate( $block( [ [ 'migrate' => [ 'bogus' => [] ] ] ] ) ) );
+		$this->assertFalse( $this->validator->validate( $block( [ [ 'migrate' => [ 'remove' => 'legacy' ] ] ] ) ) );
+		$this->assertFalse( $this->validator->validate( $block( [ [ 'migrate' => [ 'map' => [ 'tone' => 'x' ] ] ] ] ) ) );
+		$this->assertFalse( $this->validator->validate( $block( 'nope' ) ) );
+	}
 }

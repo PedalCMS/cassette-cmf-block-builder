@@ -48,9 +48,9 @@
                             "type": "text",
                             "label": "Author name",
                             "conditional": {
-                                "field": "show_author",
-                                "operator": "equals",
-                                "value": true
+                                "rules": [
+                                    { "field": "show_author", "operator": "==", "value": true }
+                                ]
                             }
                         }
                     ]

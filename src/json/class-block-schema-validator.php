@@ -16,11 +16,14 @@
  * automatically.
  *
  * @package PedalCMS\CassetteCMFBlocks
- * @since 0.1.0
+ * @since 0.2.0
  */
 
 namespace PedalCMS\CassetteCMFBlocks\Json;
 
+use PedalCMS\CassetteCMFBlocks\Core\Block_Definition;
+use PedalCMS\CassetteCMFBlocks\Render\Deprecation_Migrator;
+use PedalCMS\CassetteCMFBlocks\Render\Unique_Checker;
 use PedalCMS\CassetteCMFBlocks\Schema\Area_Resolver;
 use PedalCMS\CassetteCMFBlocks\Schema\Control_Catalog;
 
@@ -106,6 +109,12 @@ class Block_Schema_Validator {
 
 		if ( isset( $block['args'] ) && ! is_array( $block['args'] ) ) {
 			$this->errors[] = "{$path}.args must be an object";
+		} elseif ( isset( $block['args'] ) ) {
+			$this->validate_asset_keys( $block['args'], "{$path}.args" );
+		}
+
+		if ( isset( $block['render']['deprecated'] ) ) {
+			$this->validate_deprecated( $block['render']['deprecated'], "{$path}.render.deprecated" );
 		}
 
 		if ( isset( $block['fields'] ) ) {
@@ -115,6 +124,117 @@ class Block_Schema_Validator {
 				foreach ( $block['fields'] as $index => $field ) {
 					$this->validate_field( $field, "{$path}.fields[{$index}]" );
 				}
+			}
+		}
+	}
+
+	/**
+	 * Validate "render.deprecated": a list of entries, each with optional
+	 * "attributes" (object), "markup" (object) and "migrate" (a name, or a
+	 * declarative { rename: {old: new}, map: {key: {from: to}}, set: {...},
+	 * remove: [keys] } object). "migrate_php" is a PHP callable and cannot
+	 * appear in JSON, so it is not checked here.
+	 *
+	 * @param mixed  $deprecated Value of render.deprecated.
+	 * @param string $path       Error-message path prefix.
+	 * @return void
+	 */
+	private function validate_deprecated( $deprecated, string $path ): void {
+		if ( ! is_array( $deprecated ) ) {
+			$this->errors[] = "{$path} must be an array";
+			return;
+		}
+
+		foreach ( $deprecated as $index => $entry ) {
+			$entry_path = "{$path}[{$index}]";
+
+			if ( ! is_array( $entry ) ) {
+				$this->errors[] = "{$entry_path} must be an object";
+				continue;
+			}
+
+			foreach ( [ 'attributes', 'markup' ] as $key ) {
+				if ( isset( $entry[ $key ] ) && ! is_array( $entry[ $key ] ) ) {
+					$this->errors[] = "{$entry_path}.{$key} must be an object";
+				}
+			}
+
+			if ( ! isset( $entry['migrate'] ) || is_string( $entry['migrate'] ) ) {
+				continue;
+			}
+
+			if ( ! is_array( $entry['migrate'] ) ) {
+				$this->errors[] = "{$entry_path}.migrate must be a migration name or an object";
+				continue;
+			}
+
+			foreach ( array_keys( $entry['migrate'] ) as $key ) {
+				if ( ! in_array( $key, Deprecation_Migrator::MIGRATE_KEYS, true ) ) {
+					$this->errors[] = "{$entry_path}.migrate has an unknown key '{$key}' (allowed: " . implode( ', ', Deprecation_Migrator::MIGRATE_KEYS ) . ')';
+				}
+			}
+
+			$migrate = $entry['migrate'];
+			foreach ( [ 'rename', 'set' ] as $key ) {
+				if ( isset( $migrate[ $key ] ) && ! is_array( $migrate[ $key ] ) ) {
+					$this->errors[] = "{$entry_path}.migrate.{$key} must be an object";
+				}
+			}
+			if ( isset( $migrate['rename'] ) && is_array( $migrate['rename'] ) ) {
+				foreach ( $migrate['rename'] as $old => $new ) {
+					if ( ! is_string( $new ) || '' === $new ) {
+						$this->errors[] = "{$entry_path}.migrate.rename.{$old} must be a non-empty attribute name";
+					}
+				}
+			}
+			if ( isset( $migrate['map'] ) ) {
+				if ( ! is_array( $migrate['map'] ) ) {
+					$this->errors[] = "{$entry_path}.migrate.map must be an object";
+				} else {
+					foreach ( $migrate['map'] as $name => $table ) {
+						if ( ! is_array( $table ) ) {
+							$this->errors[] = "{$entry_path}.migrate.map.{$name} must be an object of old value => new value";
+						}
+					}
+				}
+			}
+			if ( isset( $migrate['remove'] ) ) {
+				if ( ! is_array( $migrate['remove'] ) || array_filter( $migrate['remove'], 'is_string' ) !== $migrate['remove'] ) {
+					$this->errors[] = "{$entry_path}.migrate.remove must be a list of attribute names";
+				}
+			}
+		}
+	}
+
+	/**
+	 * Validate the first-class asset keys of a block's "args": each must be a
+	 * non-empty string or a non-empty list of non-empty strings.
+	 *
+	 * @param array<string, mixed> $args Block "args".
+	 * @param string               $path Error-message path prefix.
+	 * @return void
+	 */
+	private function validate_asset_keys( array $args, string $path ): void {
+		foreach ( array_keys( Block_Definition::ASSET_KEYS ) as $key ) {
+			if ( ! array_key_exists( $key, $args ) ) {
+				continue;
+			}
+
+			$value = $args[ $key ];
+			$valid = is_string( $value ) && '' !== trim( $value );
+
+			if ( is_array( $value ) && ! empty( $value ) && array_keys( $value ) === range( 0, count( $value ) - 1 ) ) {
+				$valid = true;
+				foreach ( $value as $item ) {
+					if ( ! is_string( $item ) || '' === trim( $item ) ) {
+						$valid = false;
+						break;
+					}
+				}
+			}
+
+			if ( ! $valid ) {
+				$this->errors[] = "{$path}.{$key} must be a handle (non-empty string) or a non-empty list of handles";
 			}
 		}
 	}
@@ -157,6 +277,18 @@ class Block_Schema_Validator {
 
 		if ( isset( $field['conditional'] ) ) {
 			$this->validate_conditional( $field['conditional'], "{$path}.conditional" );
+		}
+
+		if ( 'context' === ( $field['source'] ?? null ) && ( ! is_string( $field['context'] ?? null ) || '' === $field['context'] ) ) {
+			$this->errors[] = "{$path}.context is required (a block-context key such as \"example/formId\") when source is \"context\"";
+		}
+
+		if ( isset( $field['unique'] ) ) {
+			try {
+				Unique_Checker::normalize_rule( $field['unique'], is_string( $field['name'] ?? null ) ? $field['name'] : '' );
+			} catch ( \InvalidArgumentException $e ) {
+				$this->errors[] = "{$path}.unique is invalid: " . $e->getMessage();
+			}
 		}
 
 		if ( isset( $field['fields'] ) ) {

@@ -21,12 +21,14 @@
 /**
  * Evaluate an already-normalized conditional config against a context.
  *
- * @param {Object} normalized { relation: 'AND'|'OR', rules: [ { field, operator, value? } ] }. Empty (no rules) always evaluates true.
+ * @param {Object} normalized { relation: 'AND'|'OR', rules: [ { field, operator, value? } ] }. Empty (no rules) always evaluates true. Cross-block rules (`ref`) are ignored.
  * @param {Object} context    Field-name => value map.
  * @return {boolean} Whether the condition is met.
  */
 export function evaluate( normalized, context ) {
-	const rules = normalized.rules || [];
+	const rules = ( normalized.rules || [] ).filter(
+		( rule ) => ! isCrossBlockRule( rule )
+	);
 
 	if ( 0 === rules.length ) {
 		return true;
@@ -48,6 +50,26 @@ export function evaluate( normalized, context ) {
 	}
 
 	return ! results.includes( false );
+}
+
+/**
+ * Whether a rule targets another block's value by name
+ * (`{ source: 'block', ref: 'name', operator, value? }`) instead of an
+ * attribute of this block (`{ field, operator, value? }`).
+ *
+ * The builder does not evaluate such rules: the value lives in a different
+ * block, so only the consumer can resolve it. evaluate() ignores them as if
+ * they were not in the list (an ignored rule neither passes nor fails: a set
+ * of only cross-block rules is true, and AND / OR run over the remaining
+ * own-attribute rules). PHP parity: Conditional_Evaluator::is_cross_block_rule().
+ *
+ * @param {Object} rule A rule.
+ * @return {boolean} Whether the rule is a cross-block rule.
+ */
+export function isCrossBlockRule( rule ) {
+	return Boolean(
+		rule && ( 'block' === rule.source || undefined !== rule.ref )
+	);
 }
 
 /**

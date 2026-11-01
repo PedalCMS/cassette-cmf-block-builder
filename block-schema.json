@@ -70,7 +70,16 @@
 				},
 				"args": {
 					"type": "object",
-					"description": "Verbatim block.json-shaped passthrough: title, category, icon, keywords, parent, ancestor, allowedBlocks, supports, styles, variations, selectors, blockHooks, usesContext, providesContext, example, textdomain, apiVersion. Block_Definition translates the camelCase keys among these to the snake_case properties WP_Block_Type actually reads. apiVersion defaults to 3 and supports.html defaults to false for dynamic blocks when not set."
+					"description": "Block.json-shaped keys, checked against an allow-list: apiVersion, title, category, description, icon, keywords, textdomain, parent, ancestor, allowedBlocks, blockHooks, providesContext, usesContext, selectors, supports, styles, variations, variation_callback (PHP arrays only), example, plus the asset keys below. Unknown keys are dropped with a _doing_it_wrong() notice at registration. Block_Definition translates the camelCase keys to the snake_case properties WP_Block_Type reads. apiVersion defaults to 3 and supports.html defaults to false for dynamic blocks when not set.",
+					"properties": {
+						"editorScript": { "$ref": "#/definitions/assetHandles", "description": "Registered script handle(s) loaded in the editor. Maps to editor_script_handles." },
+						"editorStyle": { "$ref": "#/definitions/assetHandles", "description": "Registered style handle(s) loaded in the editor. Maps to editor_style_handles." },
+						"script": { "$ref": "#/definitions/assetHandles", "description": "Registered script handle(s) loaded in the editor and on the front end. Maps to script_handles." },
+						"style": { "$ref": "#/definitions/assetHandles", "description": "Registered style handle(s) loaded in the editor and on the front end. Maps to style_handles." },
+						"viewScript": { "$ref": "#/definitions/assetHandles", "description": "Registered script handle(s) loaded on the front end when the block is rendered. Maps to view_script_handles." },
+						"viewStyle": { "$ref": "#/definitions/assetHandles", "description": "Registered style handle(s) loaded on the front end when the block is rendered. Maps to view_style_handles." },
+						"viewScriptModule": { "$ref": "#/definitions/assetHandles", "description": "Registered script module ID(s) loaded on the front end when the block is rendered. Maps to view_script_module_ids." }
+					}
 				},
 				"fields": {
 					"type": "array",
@@ -83,9 +92,55 @@
 				},
 				"render": {
 					"type": "object",
-					"description": "\"mode\": \"dynamic\" (default), \"static\", or \"none\". See docs/markup-templates.md and docs/static-save.md for \"markup\"/\"callback\"/\"template\"/\"deprecated\", not fully re-modeled here yet.",
+					"description": "\"mode\": \"dynamic\" (default), \"static\", or \"none\". See docs/markup-templates.md and docs/static-save.md for \"markup\"/\"callback\"/\"template\", not fully re-modeled here yet.",
 					"properties": {
-						"mode": { "type": "string", "enum": [ "dynamic", "static", "none" ] }
+						"mode": { "type": "string", "enum": [ "dynamic", "static", "none" ] },
+						"deprecated": {
+							"type": "array",
+							"description": "Previous versions of the block. Static: { markup, attributes?, migrate? }. Dynamic: { attributes, migrate } (migrate_php is a PHP callable and cannot appear in JSON). See docs/static-save.md.",
+							"items": {
+								"type": "object",
+								"properties": {
+									"markup": { "type": "object" },
+									"attributes": { "type": "object", "description": "The old WordPress attribute schema." },
+									"migrate": {
+										"description": "A registered migration name, or a declarative migration.",
+										"oneOf": [
+											{ "type": "string" },
+											{
+												"type": "object",
+												"additionalProperties": false,
+												"properties": {
+													"rename": { "type": "object", "additionalProperties": { "type": "string" } },
+													"map": { "type": "object", "additionalProperties": { "type": "object" } },
+													"set": { "type": "object" },
+													"remove": { "type": "array", "items": { "type": "string" } }
+												}
+											}
+										]
+									}
+								}
+							}
+						}
+					}
+				},
+				"preview": {
+					"type": "object",
+					"description": "Editor canvas preview. See docs/block-config-reference.md.",
+					"properties": {
+						"mode": { "type": "string", "enum": [ "markup", "server" ] },
+						"markup": { "type": "object" },
+						"when": { "type": "object", "description": "A { relation, rules } condition (the conditions shape). While false the editor shows a placeholder instead of the preview. Rules of the form { source: 'block', ref } are ignored." }
+					}
+				},
+				"placeholder": {
+					"type": "object",
+					"description": "The <Placeholder> shown for placeholder-area fields while the block is unconfigured. See docs/block-config-reference.md.",
+					"properties": {
+						"when": { "type": "object", "description": "A { relation, rules } condition: true means unconfigured. Default: every required placeholder field is empty." },
+						"label": { "type": "string" },
+						"instructions": { "type": "string" },
+						"icon": { "type": "string" }
 					}
 				},
 				"document_scope": {
@@ -100,7 +155,7 @@
 				},
 				"transforms": {
 					"type": "object",
-					"description": "Block-to-block transforms, \"type\": \"block\" only. See docs/block-config-reference.md.",
+					"description": "Transforms: block-to-block remaps, and shortcode / raw transforms backed by a PHP callback. See docs/block-config-reference.md.",
 					"properties": {
 						"from": { "type": "array", "items": { "$ref": "#/definitions/transform" } },
 						"to": { "type": "array", "items": { "$ref": "#/definitions/transform" } }
@@ -108,13 +163,36 @@
 				}
 			}
 		},
+		"assetHandles": {
+			"description": "A registered handle or module ID, or a non-empty list of them. block.json \"file:\" paths are not supported: register the asset yourself and pass its handle.",
+			"oneOf": [
+				{ "type": "string", "minLength": 1 },
+				{ "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } }
+			]
+		},
 		"transform": {
 			"type": "object",
-			"required": [ "type", "blocks" ],
+			"required": [ "type" ],
+			"description": "type \"block\": needs blocks (+ map). type \"shortcode\": needs tag + callback. type \"raw\": needs selector + callback. The callback is a PHP callable, so shortcode / raw entries exist in PHP configs only.",
 			"properties": {
-				"type": { "type": "string", "enum": [ "block" ] },
+				"type": { "type": "string", "enum": [ "block", "shortcode", "raw" ] },
 				"blocks": { "type": "array", "items": { "type": "string" } },
-				"map": { "type": "object", "description": "{ targetAttr: sourceAttr } pairs." }
+				"map": { "type": "object", "description": "{ targetAttr: sourceAttr } pairs." },
+				"tag": { "type": "string", "pattern": "^[A-Za-z0-9_-]+$", "description": "Shortcode tag (type shortcode)." },
+				"selector": {
+					"description": "type raw: a CSS selector string, or a rule { tag, class, attrs }.",
+					"oneOf": [
+						{ "type": "string", "minLength": 1 },
+						{
+							"type": "object",
+							"properties": {
+								"tag": { "type": "string" },
+								"class": { "oneOf": [ { "type": "string" }, { "type": "array", "items": { "type": "string" } } ] },
+								"attrs": { "type": "object" }
+							}
+						}
+					]
+				}
 			}
 		},
 		"field": {
@@ -140,7 +218,48 @@
 				"source": {
 					"type": "string",
 					"enum": [ "attribute", "meta", "context", "none" ],
-					"description": "\"attribute\" (the default) produces a block attribute; \"meta\" registers real post/term/user/comment meta (see docs/meta-binding.md) and requires a \"meta\" config. \"context\"/\"none\" are recognised and excluded from the attribute schema, but \"context\" has no read/write wiring yet."
+					"description": "\"attribute\" (the default) produces a block attribute; \"meta\" registers real post/term/user/comment meta (see docs/meta-binding.md) and requires a \"meta\" config; \"context\" reads a read-only value from block context and requires \"context\" (no attribute is created); \"none\" is excluded from the attribute schema."
+				},
+				"context": {
+					"type": "string",
+					"description": "Only meaningful (and required) when \"source\" is \"context\": the block-context key to read, e.g. \"example/formId\". Added to the block's usesContext automatically."
+				},
+				"ancestor": {
+					"type": "string",
+					"description": "ancestor_field only (required): the block name of the ancestor whose descendants are listed, e.g. \"vendor/form\"."
+				},
+				"blocks": { "type": "array", "items": { "type": "string" }, "description": "ancestor_field only: optional allow-list of block names." },
+				"has_attribute": { "type": "string", "description": "ancestor_field only: list only blocks whose attribute of this name is non-empty." },
+				"name_attribute": { "type": "string", "description": "ancestor_field only: the attribute holding a block's reference name. Default \"name\"." },
+				"label_attribute": { "type": "string", "description": "ancestor_field only: the attribute shown as the label. Default \"label\"." },
+				"exclude_self": { "type": "boolean", "description": "ancestor_field only: leave the block itself out. Default true." },
+				"conditions": {
+					"type": "object",
+					"description": "conditions control only (optional): lets a rule target another block by its name. Same options as ancestor_field (ancestor is required).",
+					"required": [ "ancestor" ],
+					"properties": {
+						"ancestor": { "type": "string" },
+						"blocks": { "type": "array", "items": { "type": "string" } },
+						"has_attribute": { "type": "string" },
+						"name_attribute": { "type": "string" },
+						"label_attribute": { "type": "string" },
+						"exclude_self": { "type": "boolean" }
+					}
+				},
+				"unique": {
+					"description": "text/email/url only. true: unique across the whole post. Object: { scope: \"post\" | \"ancestor\", block?: \"vendor/form\" (required for ancestor), key?: uniqueness group, defaults to the field name }.",
+					"oneOf": [
+						{ "type": "boolean" },
+						{
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"scope": { "type": "string", "enum": [ "post", "ancestor" ] },
+								"block": { "type": "string" },
+								"key": { "type": "string" }
+							}
+						}
+					]
 				},
 				"meta": {
 					"type": "object",
@@ -162,8 +281,21 @@
 				"default": {},
 				"required": { "type": "boolean" },
 				"options": {
-					"type": "object",
-					"description": "value => label map, matching the parent library's convention. Produces an \"enum\" of the option keys in the attribute schema."
+					"description": "Either a value => label map (the parent library's convention) or a list of { value, label } objects; the list form is normalized to the map at compile time. Produces an \"enum\" of the option values in the attribute schema (on \"items\" for an array attribute).",
+					"oneOf": [
+						{ "type": "object" },
+						{
+							"type": "array",
+							"items": {
+								"type": "object",
+								"required": [ "value" ],
+								"properties": {
+									"value": { "type": [ "string", "number" ] },
+									"label": { "type": "string" }
+								}
+							}
+						}
+					]
 				},
 				"enum": {
 					"type": "array",

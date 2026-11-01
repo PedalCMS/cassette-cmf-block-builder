@@ -29,6 +29,7 @@ The same capabilities as [`01-simple-array`](../01-simple-array/), registered fr
 use PedalCMS\CassetteCMFBlocks\CassetteCMFBlocks;
 
 add_action( 'init', function () {
+    CassetteCMFBlocks::boot( [ 'prefix' => 'example' ] ); // required: see docs/coexistence.md
     CassetteCMFBlocks::register_from_json( __DIR__ . '/config.json' );
 }, 5 );
 ```
